@@ -1,3 +1,5 @@
+import { Worksheet } from "./worksheet";
+
 export type Cell = {
   value: number | string;
 };
@@ -9,10 +11,6 @@ export type Row = {
 export type WorksheetData = {
   rows: Row[];
 };
-
-export class Worksheet {
-  constructor() {}
-}
 
 export class Workbook {
   private sheets: Worksheet[] = [];

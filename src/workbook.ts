@@ -15,7 +15,7 @@ export type WorksheetData = {
 export class Workbook {
   private sheets: Worksheet[] = [];
   constructor() {
-    const sheet = new Worksheet();
+    const sheet = new Worksheet({ sheetName: "Sheet1" });
     this.sheets.push(sheet);
   }
 }

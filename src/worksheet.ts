@@ -1,8 +1,20 @@
 import { Row } from "./workbook";
 
 export class Worksheet {
+  private _sheetName: string = "";
   private rows: Row[] = [];
-  constructor() {}
+
+  constructor({ sheetName }: { sheetName: string }) {
+    this.sheetName = sheetName;
+  }
+
+  set sheetName(name: string) {
+    this._sheetName = name;
+  }
+
+  get sheetName() {
+    return this._sheetName;
+  }
 
   addRow(row: Row) {
     this.rows.push(row);

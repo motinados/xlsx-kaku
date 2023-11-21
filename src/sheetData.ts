@@ -1,4 +1,4 @@
-import { Cell } from "./workbook";
+import { Cell } from "./cell";
 
 export class SheetData {
   private data: Cell[][] = [];
@@ -8,7 +8,7 @@ export class SheetData {
     return this.data.length;
   }
 
-  getCell(rowIndex: number, colIndex: number) {
+  getCell(rowIndex: number, colIndex: number): Cell {
     if (!this.data[rowIndex]) {
       const diff = rowIndex - this.data.length + 1;
       for (let i = 0; i < diff; i++) {
@@ -21,9 +21,9 @@ export class SheetData {
     if (!rows[colIndex]) {
       const diff = colIndex - rows.length + 1;
       for (let i = 0; i < diff; i++) {
-        rows.push({ value: "" });
+        rows.push(new Cell());
       }
     }
-    return rows[colIndex];
+    return rows[colIndex]! as Cell;
   }
 }

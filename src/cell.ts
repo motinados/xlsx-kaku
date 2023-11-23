@@ -30,6 +30,15 @@ export function convColumnToNumber(column: string): number {
   return sum - 1;
 }
 
+export function convNumberToColumn(num: number): string {
+  let str = "";
+  while (num >= 0) {
+    str = String.fromCharCode((num % 26) + "A".charCodeAt(0)) + str;
+    num = Math.floor(num / 26) - 1;
+  }
+  return str;
+}
+
 export type NullableCell =
   | {
       type: "string";

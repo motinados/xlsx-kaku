@@ -1,4 +1,4 @@
-import { Table, convColumnToNumber } from "../src/cell";
+import { Table, convColumnToNumber, convNumberToColumn } from "../src/cell";
 
 describe("Cell", () => {
   test("should be able to create a cell", () => {
@@ -51,5 +51,13 @@ describe("Cell", () => {
     expect(convColumnToNumber("Z")).toBe(25);
     expect(convColumnToNumber("AA")).toBe(26);
     expect(convColumnToNumber("BC")).toBe(54);
+  });
+
+  test("convNumberToColumn", () => {
+    expect(convNumberToColumn(0)).toBe("A");
+    expect(convNumberToColumn(1)).toBe("B");
+    expect(convNumberToColumn(25)).toBe("Z");
+    expect(convNumberToColumn(26)).toBe("AA");
+    expect(convNumberToColumn(54)).toBe("BC");
   });
 });

@@ -1,4 +1,9 @@
-import { Table, convColumnToNumber, convNumberToColumn } from "../src/cell";
+import {
+  Table,
+  convColumnToNumber,
+  convNumberToColumn,
+  devideAddress,
+} from "../src/cell";
 
 describe("Cell", () => {
   test("should be able to create a cell", () => {
@@ -69,5 +74,13 @@ describe("Cell", () => {
     expect(convNumberToColumn(25)).toBe("Z");
     expect(convNumberToColumn(26)).toBe("AA");
     expect(convNumberToColumn(54)).toBe("BC");
+  });
+
+  test("devideAddress", () => {
+    expect(devideAddress("A1")).toStrictEqual(["A", 1]);
+    expect(devideAddress("B2")).toStrictEqual(["B", 2]);
+    expect(devideAddress("Z3")).toStrictEqual(["Z", 3]);
+    expect(devideAddress("AA10")).toStrictEqual(["AA", 10]);
+    expect(devideAddress("BCD99")).toStrictEqual(["BCD", 99]);
   });
 });

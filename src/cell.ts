@@ -21,6 +21,15 @@ export class Cell {
   }
 }
 
+/**
+ * 'A1' => ['A', 1]
+ */
+export function devideAddress(address: string): [string, number] {
+  const column = address.match(/[A-Z]+/g)![0];
+  const row = address.match(/[0-9]+/g)![0];
+  return [column, parseInt(row, 10)];
+}
+
 export function convColumnToNumber(column: string): number {
   let sum = 0;
   for (let i = 0; i < column.length; i++) {

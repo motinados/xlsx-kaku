@@ -21,6 +21,15 @@ export class Cell {
   }
 }
 
+export function convColumnToNumber(column: string): number {
+  let sum = 0;
+  for (let i = 0; i < column.length; i++) {
+    sum *= 26;
+    sum += column.charCodeAt(i) - "A".charCodeAt(0) + 1;
+  }
+  return sum - 1;
+}
+
 export type NullableCell =
   | {
       type: "string";

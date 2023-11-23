@@ -28,6 +28,16 @@ describe("Cell", () => {
     table.setCellElm(0, 0, { type: "date", value: "2020-01-01" });
     const cell4 = table.getCell(0, 0);
     expect(cell4).toEqual({ type: "date", value: "2020-01-01" });
+
+    table.setCellElm(0, 0, {
+      type: "hyperlink",
+      value: "https://www.google.com",
+    });
+    const cell5 = table.getCell(0, 0);
+    expect(cell5).toEqual({
+      type: "hyperlink",
+      value: "https://www.google.com",
+    });
   });
 
   test("should be table", () => {

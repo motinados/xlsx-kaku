@@ -52,6 +52,10 @@ export type NullableCell =
       type: "date";
       value: string;
     }
+  | {
+      type: "hyperlink";
+      value: string;
+    }
   | null;
 
 export class Table {

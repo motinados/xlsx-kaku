@@ -4,6 +4,7 @@ import {
   findFirstNonNullCell,
   findLastNonNullCell,
   getSpans,
+  getSpansFromTable,
   rowToString,
   tableToString,
 } from "../src/writer";
@@ -45,6 +46,22 @@ describe("Writer", () => {
     expect(spans.endNumber).toBe(4);
   });
 
+  test("getSpansFromTable", () => {
+    const table: NullableCell[][] = [
+      [],
+      [null, null, { type: "string", value: "name" }],
+      [
+        { type: "string", value: "age" },
+        { type: "string", value: "age" },
+        null,
+        null,
+      ],
+    ];
+    const spans = getSpansFromTable(table)!;
+    expect(spans.startNumber).toBe(1);
+    expect(spans.endNumber).toBe(3);
+  });
+
   test("cellToString", () => {
     const cell: NonNullable<NullableCell> = {
       type: "number",
@@ -61,7 +78,7 @@ describe("Writer", () => {
       { type: "number", value: 15 },
       { type: "number", value: 23 },
     ];
-    const result = rowToString(row, 0);
+    const result = rowToString(row, 0, 3, 4);
     expect(result).toBe(
       `<row r="1" spans="3:4"><c r="C1"><v>15</v></c><c r="D1"><v>23</v></c></row>`
     );
@@ -75,7 +92,7 @@ describe("Writer", () => {
     ];
     const result = tableToString(table);
     expect(result).toBe(
-      `<sheetData><row r="2" spans="3:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:2"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
+      `<sheetData><row r="2" spans="1:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:4"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
     );
   });
 });

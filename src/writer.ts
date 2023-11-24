@@ -30,10 +30,12 @@ export function findLastNonNullCell(row: NullableCell[]) {
 }
 
 export function tableToString(table: NullableCell[][]) {
+  const { startNumber, endNumber } = getSpansFromTable(table);
+
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of table) {
-    const str = rowToString(row, rowIndex);
+    const str = rowToString(row, rowIndex, startNumber, endNumber);
     if (str !== null) {
       result += str;
     }
@@ -48,18 +50,14 @@ export function tableToString(table: NullableCell[][]) {
  */
 export function rowToString(
   row: NullableCell[],
-  rowIndex: number
+  rowIndex: number,
+  startNumber: number,
+  endNumber: number
 ): string | null {
   if (row.length === 0) {
     return null;
   }
 
-  const spans = getSpans(row);
-  if (spans === null) {
-    return null;
-  }
-
-  const { startNumber, endNumber } = spans;
   const rowNumber = rowIndex + 1;
   let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
 
@@ -74,6 +72,24 @@ export function rowToString(
 
   result += `</row>`;
   return result;
+}
+
+export function getSpansFromTable(table: NullableCell[][]) {
+  const all = table
+    .map((row) => {
+      const spans = getSpans(row);
+      if (spans === null) {
+        return null;
+      }
+      return spans;
+    })
+    .filter((row) => row !== null) as {
+    startNumber: number;
+    endNumber: number;
+  }[];
+  const minStartNumber = Math.min(...all.map((row) => row.startNumber));
+  const maxEndNumber = Math.max(...all.map((row) => row.endNumber));
+  return { startNumber: minStartNumber, endNumber: maxEndNumber };
 }
 
 export function getSpans(row: NullableCell[]) {

@@ -32,6 +32,29 @@ export function findLastNonNullCell(row: NullableCell[]) {
 
 export function tableToString(table: NullableCell[][]) {
   const sharedStrings = new SharedStrings();
+
+  const sheetDataString = makeSheetDataXml(table, sharedStrings);
+  const sharedStringsXml = makeSharedStringsXml(sharedStrings);
+  return { sheetDataString, sharedStringsXml };
+}
+
+export function makeSharedStringsXml(sharedStrings: SharedStrings) {
+  if (sharedStrings.count === 0) {
+    return null;
+  }
+
+  let result = `<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="${sharedStrings.count}" uniqueCount="${sharedStrings.uniqueCount}">`;
+  for (const str of sharedStrings.getValuesInOrder()) {
+    result += `<si><t>${str}</t></si>`;
+  }
+  result += `</sst>`;
+  return result;
+}
+
+export function makeSheetDataXml(
+  table: NullableCell[][],
+  sharedStrings: SharedStrings
+) {
   const { startNumber, endNumber } = getSpansFromTable(table);
 
   let result = `<sheetData>`;

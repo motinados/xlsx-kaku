@@ -73,12 +73,15 @@ describe("Writer", () => {
   });
 
   test("cellToString for string", () => {
+    const sharedStrings = new SharedStrings();
     const cell: NonNullable<NullableCell> = {
       type: "string",
       value: "hello",
     };
-    const result = cellToString(cell, 2, 0, new SharedStrings());
+    const result = cellToString(cell, 2, 0, sharedStrings);
     expect(result).toBe(`<c r="C1" t="s"><v>0</v></c>`);
+    expect(sharedStrings.count).toBe(1);
+    expect(sharedStrings.uniqueCount).toBe(1);
   });
 
   test("rowToString for number", () => {
@@ -95,6 +98,7 @@ describe("Writer", () => {
   });
 
   test("rowToString for string", () => {
+    const sharedStrings = new SharedStrings();
     const row: NullableCell[] = [
       null,
       null,
@@ -102,10 +106,12 @@ describe("Writer", () => {
       { type: "string", value: "world" },
       { type: "string", value: "hello" },
     ];
-    const result = rowToString(row, 0, 3, 5, new SharedStrings());
+    const result = rowToString(row, 0, 3, 5, sharedStrings);
     expect(result).toBe(
       `<row r="1" spans="3:5"><c r="C1" t="s"><v>0</v></c><c r="D1" t="s"><v>1</v></c><c r="E1" t="s"><v>0</v></c></row>`
     );
+    expect(sharedStrings.count).toBe(3);
+    expect(sharedStrings.uniqueCount).toBe(2);
   });
 
   test("tableToString", () => {

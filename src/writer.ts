@@ -1,4 +1,5 @@
 import { NullableCell, convNumberToColumn } from "./cell";
+import { SharedStrings } from "./sharedStrings";
 
 export function findFirstNonNullCell(row: NullableCell[]) {
   let index = 0;
@@ -30,12 +31,19 @@ export function findLastNonNullCell(row: NullableCell[]) {
 }
 
 export function tableToString(table: NullableCell[][]) {
+  const sharedStrings = new SharedStrings();
   const { startNumber, endNumber } = getSpansFromTable(table);
 
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of table) {
-    const str = rowToString(row, rowIndex, startNumber, endNumber);
+    const str = rowToString(
+      row,
+      rowIndex,
+      startNumber,
+      endNumber,
+      sharedStrings
+    );
     if (str !== null) {
       result += str;
     }
@@ -52,7 +60,8 @@ export function rowToString(
   row: NullableCell[],
   rowIndex: number,
   startNumber: number,
-  endNumber: number
+  endNumber: number,
+  sharedStrings: SharedStrings
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -64,7 +73,7 @@ export function rowToString(
   let columnIndex = 0;
   for (const cell of row) {
     if (cell !== null) {
-      result += cellToString(cell, columnIndex, rowIndex);
+      result += cellToString(cell, columnIndex, rowIndex, sharedStrings);
     }
 
     columnIndex++;
@@ -112,13 +121,18 @@ export function getSpans(row: NullableCell[]) {
 export function cellToString(
   cell: NonNullable<NullableCell>,
   columnIndex: number,
-  rowIndex: number
+  rowIndex: number,
+  sharedStrings: SharedStrings
 ) {
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
   switch (cell.type) {
     case "number": {
       return `<c r="${column}${rowNumber}"><v>${cell.value}</v></c>`;
+    }
+    case "string": {
+      const index = sharedStrings.getIndex(cell.value);
+      return `<c r="${column}${rowNumber}" t="s"><v>${index}</v></c>`;
     }
     default: {
       throw new Error(`not implemented: ${cell.type}`);

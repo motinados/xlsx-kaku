@@ -105,6 +105,51 @@ export function makeSharedStringsXml(sharedStrings: SharedStrings) {
   return result;
 }
 
+function findFirstNotBlankRow(table: NullableCell[][]) {
+  let index = 0;
+  for (let i = 0; i < table.length; i++) {
+    const row = table[i]!;
+    if (row.length > 0) {
+      index = i;
+      break;
+    }
+  }
+  return index;
+}
+
+function findLastNotBlankRow(table: NullableCell[][]) {
+  let index = 0;
+  for (let i = table.length - 1; i >= 0; i--) {
+    const row = table[i]!;
+    if (row.length > 0) {
+      index = i;
+      break;
+    }
+  }
+  return index;
+}
+
+export function getDimension(sheetData: NullableCell[][]) {
+  const firstRowIndex = findFirstNotBlankRow(sheetData);
+  const lastRowIndex = findLastNotBlankRow(sheetData);
+  if (firstRowIndex === null || lastRowIndex === null) {
+    throw new Error("sheetData is empty");
+  }
+
+  const firstRowNumber = firstRowIndex + 1;
+  const lastRowNumber = lastRowIndex + 1;
+
+  const spans = getSpansFromTable(sheetData);
+  const { startNumber, endNumber } = spans;
+  const firstColumn = convNumberToColumn(startNumber - 1);
+  const lastColumn = convNumberToColumn(endNumber - 1);
+
+  return {
+    start: `${firstColumn}${firstRowNumber}`,
+    end: `${lastColumn}${lastRowNumber}`,
+  };
+}
+
 export function makeSheetDataXml(
   table: NullableCell[][],
   sharedStrings: SharedStrings

@@ -4,6 +4,7 @@ import {
   cellToString,
   findFirstNonNullCell,
   findLastNonNullCell,
+  getDimension,
   getSpans,
   getSpansFromTable,
   rowToString,
@@ -61,6 +62,22 @@ describe("Writer", () => {
     const spans = getSpansFromTable(table)!;
     expect(spans.startNumber).toBe(1);
     expect(spans.endNumber).toBe(3);
+  });
+
+  test("getDimensions", () => {
+    const table: NullableCell[][] = [
+      [],
+      [null, null, { type: "string", value: "name" }],
+      [
+        { type: "string", value: "age" },
+        { type: "string", value: "age" },
+        null,
+        null,
+      ],
+    ];
+    const { start, end } = getDimension(table);
+    expect(start).toBe("A2");
+    expect(end).toBe("C3");
   });
 
   test("cellToString for number", () => {

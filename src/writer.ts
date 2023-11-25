@@ -1,5 +1,12 @@
+import * as fs from "node:fs";
+
 import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
+
+export function writeFile() {
+  const workbookXmlRels = makeWorkbookXmlRels(true);
+  fs.writeFileSync("workbook.xml.rels", workbookXmlRels);
+}
 
 export function findFirstNonNullCell(row: NullableCell[]) {
   let index = 0;
@@ -161,4 +168,28 @@ export function cellToString(
       throw new Error(`not implemented: ${cell.type}`);
     }
   }
+}
+
+function makeWorkbookXmlRels(sharedStrings: boolean): string {
+  const results: string[] = [];
+  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  results.push(
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+  );
+  results.push(
+    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+  );
+  results.push(
+    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>'
+  );
+  results.push(
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+  );
+  if (sharedStrings) {
+    results.push(
+      '<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+    );
+  }
+  results.push("</Relationships>");
+  return results.join("");
 }

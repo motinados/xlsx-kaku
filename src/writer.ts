@@ -1,11 +1,53 @@
 import * as fs from "node:fs";
+import path from "node:path";
 
 import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 
-export function writeFile() {
+export function writeFile(filename: string) {
+  const xlsxPath = path.resolve(filename);
+  if (!fs.existsSync(xlsxPath)) {
+    fs.mkdirSync(xlsxPath, { recursive: true });
+  }
+
+  const _relsPath = path.resolve(xlsxPath, "_rels");
+  if (!fs.existsSync(_relsPath)) {
+    fs.mkdirSync(_relsPath, { recursive: true });
+  }
+
+  const docPropsPath = path.resolve(xlsxPath, "docProps");
+  if (!fs.existsSync(docPropsPath)) {
+    fs.mkdirSync(docPropsPath, { recursive: true });
+  }
+
+  const coreXml = makeCoreXml();
+  fs.writeFileSync(path.join(docPropsPath, "core.xml"), coreXml);
+
+  const xlPath = path.resolve(xlsxPath, "xl");
+  if (!fs.existsSync(xlPath)) {
+    fs.mkdirSync(xlPath, { recursive: true });
+  }
+
+  const xl_relsPath = path.resolve(xlPath, "_rels");
+  if (!fs.existsSync(xl_relsPath)) {
+    fs.mkdirSync(xl_relsPath, { recursive: true });
+  }
+
   const workbookXmlRels = makeWorkbookXmlRels(true);
-  fs.writeFileSync("workbook.xml.rels", workbookXmlRels);
+  fs.writeFileSync(
+    path.join(xl_relsPath, "workbook.xml.rels"),
+    workbookXmlRels
+  );
+
+  const themePath = path.resolve(xlPath, "theme");
+  if (!fs.existsSync(themePath)) {
+    fs.mkdirSync(themePath, { recursive: true });
+  }
+
+  const worksheetsPath = path.resolve(xlPath, "worksheets");
+  if (!fs.existsSync(worksheetsPath)) {
+    fs.mkdirSync(worksheetsPath, { recursive: true });
+  }
 }
 
 export function findFirstNonNullCell(row: NullableCell[]) {
@@ -191,5 +233,30 @@ function makeWorkbookXmlRels(sharedStrings: boolean): string {
     );
   }
   results.push("</Relationships>");
+  return results.join("");
+}
+
+function makeCoreXml() {
+  const isoDate = new Date().toISOString();
+  const results: string[] = [];
+  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  results.push(
+    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+  );
+  results.push("<dc:title></dc:title>");
+  results.push("<dc:subject></dc:subject>");
+  results.push("<dc:creator></dc:creator>");
+  results.push("<cp:keywords></cp:keywords>");
+  results.push("<dc:description></dc:description>");
+  results.push("<cp:lastModifiedBy></cp:lastModifiedBy>");
+  results.push("<cp:revision></cp:revision>");
+  results.push(
+    `<dcterms:created xsi:type="dcterms:W3CDTF">${isoDate}</dcterms:created>`
+  );
+  results.push(
+    `<dcterms:modified xsi:type="dcterms:W3CDTF">${isoDate}</dcterms:modified><cp:category></cp:category>`
+  );
+  results.push("<cp:contentStatus></cp:contentStatus>");
+  results.push("</cp:coreProperties>");
   return results.join("");
 }

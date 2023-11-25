@@ -3,11 +3,13 @@ import path from "node:path";
 
 import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
+import { makeThemeXml } from "./theme";
 
 export function writeFile(filename: string, sheetData: NullableCell[][]) {
   const { sheetDataString, sharedStringsXml } = tableToString(sheetData);
   const dimension = getDimension(sheetData);
   const sheetXml = makeSheetXml(sheetDataString, dimension);
+  const themeXml = makeThemeXml();
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
@@ -55,6 +57,7 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   if (!fs.existsSync(themePath)) {
     fs.mkdirSync(themePath, { recursive: true });
   }
+  fs.writeFileSync(path.join(themePath, "theme1.xml"), themeXml);
 
   const worksheetsPath = path.resolve(xlPath, "worksheets");
   if (!fs.existsSync(worksheetsPath)) {

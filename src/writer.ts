@@ -7,6 +7,7 @@ import { makeThemeXml } from "./theme";
 
 export function writeFile(filename: string, sheetData: NullableCell[][]) {
   const { sheetDataString, sharedStringsXml } = tableToString(sheetData);
+  const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
   const sheetXml = makeSheetXml(sheetDataString, dimension);
   const themeXml = makeThemeXml();
@@ -14,13 +15,18 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   const coreXml = makeCoreXml();
   const stylesXml = makeStylesXml();
   const workbookXml = makeWorkbookXml();
-  const workbookXmlRels = makeWorkbookXmlRels(true);
+  const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
   const relsFile = makeRelsFile();
+  const contentTypesFile = makeContentTypesFile(hasSharedStrings);
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
     fs.mkdirSync(xlsxPath, { recursive: true });
   }
+  fs.writeFileSync(
+    path.join(xlsxPath, "[Content_Types].xml"),
+    contentTypesFile
+  );
 
   const _relsPath = path.resolve(xlsxPath, "_rels");
   if (!fs.existsSync(_relsPath)) {
@@ -471,5 +477,42 @@ function makeRelsFile() {
     '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
   );
   results.push("</Relationships>");
+  return results.join("");
+}
+
+function makeContentTypesFile(sharedStrings: boolean) {
+  const results: string[] = [];
+  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  results.push(
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+  );
+  results.push(
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+  );
+  results.push('<Default Extension="xml" ContentType="application/xml"/>');
+  results.push(
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+  );
+  results.push(
+    '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+  );
+  results.push(
+    '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
+  );
+  results.push(
+    '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+  );
+  results.push(
+    '<Override PartName="/xl/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
+  );
+  results.push(
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+  );
+  if (sharedStrings) {
+    results.push(
+      '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
+    );
+  }
+  results.push("</Types>");
   return results.join("");
 }

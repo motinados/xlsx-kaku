@@ -30,6 +30,8 @@ export function writeFile(filename: string) {
 
   const stylesXml = makeStylesXml();
   fs.writeFileSync(path.join(xlPath, "styles.xml"), stylesXml);
+  const workbookXml = makeWorkbookXml();
+  fs.writeFileSync(path.join(xlPath, "workbook.xml"), workbookXml);
 
   const xl_relsPath = path.resolve(xlPath, "_rels");
   if (!fs.existsSync(xl_relsPath)) {
@@ -312,5 +314,48 @@ function makeStylesXml() {
   );
   results.push("</extLst>");
   results.push("</styleSheet>");
+  return results.join("");
+}
+
+function makeWorkbookXml() {
+  const results: string[] = [];
+  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  results.push(
+    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+  );
+  results.push(
+    '<fileVersion appName="xl" lastEdited="7" lowestEdited="4" rupBuild="27123"/>'
+  );
+  results.push('<workbookPr defaultThemeVersion="166925"/>');
+  results.push("<bookViews>");
+  results.push(
+    '<workbookView xWindow="240" yWindow="105" windowWidth="14805" windowHeight="8010"/>'
+  );
+  results.push("</bookViews>");
+  results.push("<sheets>");
+  results.push('<sheet name="Sheet1" sheetId="1" r:id="rId1"/>');
+  results.push("</sheets>");
+  results.push('<calcPr calcId="191028"/>');
+  results.push("<extLst>");
+  results.push(
+    '<ext uri="{140A7094-0E35-4892-8432-C4D2E57EDEB5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">'
+  );
+  results.push('<x15:workbookPr chartTrackingRefBase="1"/>');
+  results.push("</ext>");
+  results.push(
+    '<ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures">'
+  );
+  results.push("<xcalcf:calcFeatures>");
+  results.push('<xcalcf:feature name="microsoft.com:RD"/>');
+  results.push('<xcalcf:feature name="microsoft.com:Single"/>');
+  results.push('<xcalcf:feature name="microsoft.com:FV"/>');
+  results.push('<xcalcf:feature name="microsoft.com:CNMTM"/>');
+  results.push('<xcalcf:feature name="microsoft.com:LET_WF"/>');
+  results.push('<xcalcf:feature name="microsoft.com:LAMBDA_WF"/>');
+  results.push('<xcalcf:feature name="microsoft.com:ARRAYTEXT_WF"/>');
+  results.push("</xcalcf:calcFeatures>");
+  results.push("</ext>");
+  results.push("</extLst>");
+  results.push("</workbook>");
   return results.join("");
 }

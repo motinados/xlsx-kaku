@@ -4,7 +4,11 @@ import path from "node:path";
 import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 
-export function writeFile(filename: string) {
+export function writeFile(filename: string, sheetData: NullableCell[][]) {
+  const { sheetDataString, sharedStringsXml } = tableToString(sheetData);
+  const dimension = getDimension(sheetData);
+  const sheetXml = makeSheetXml(sheetDataString, dimension);
+
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
     fs.mkdirSync(xlsxPath, { recursive: true });
@@ -28,6 +32,9 @@ export function writeFile(filename: string) {
     fs.mkdirSync(xlPath, { recursive: true });
   }
 
+  if (sharedStringsXml !== null) {
+    fs.writeFileSync(path.join(xlPath, "sharedStrings.xml"), sharedStringsXml);
+  }
   const stylesXml = makeStylesXml();
   fs.writeFileSync(path.join(xlPath, "styles.xml"), stylesXml);
   const workbookXml = makeWorkbookXml();
@@ -53,6 +60,7 @@ export function writeFile(filename: string) {
   if (!fs.existsSync(worksheetsPath)) {
     fs.mkdirSync(worksheetsPath, { recursive: true });
   }
+  fs.writeFileSync(path.join(worksheetsPath, "sheet1.xml"), sheetXml);
 }
 
 export function findFirstNonNullCell(row: NullableCell[]) {
@@ -90,6 +98,29 @@ export function tableToString(table: NullableCell[][]) {
   const sheetDataString = makeSheetDataXml(table, sharedStrings);
   const sharedStringsXml = makeSharedStringsXml(sharedStrings);
   return { sheetDataString, sharedStringsXml };
+}
+
+export function makeSheetXml(
+  sheetDataString: string,
+  dimension: { start: string; end: string }
+) {
+  const results: string[] = [];
+  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  results.push(
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">'
+  );
+  results.push(`<dimension ref="${dimension.start}:${dimension.end}"/>`);
+  results.push("<sheetViews>");
+  results.push(
+    `<sheetView tabSelected="1" workbookViewId="0"><selection activeCell="${dimension.start}" sqref="${dimension.start}"/></sheetView>`
+  );
+  results.push("</sheetViews>");
+  results.push('<sheetFormatPr defaultRowHeight="13.5"/>');
+  results.push(sheetDataString);
+  results.push(
+    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>'
+  );
+  return results.join("");
 }
 
 export function makeSharedStringsXml(sharedStrings: SharedStrings) {

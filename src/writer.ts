@@ -1,4 +1,4 @@
-import { NullableCell, convNumberToColumn } from "./cell";
+import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 
 export function findFirstNonNullCell(row: NullableCell[]) {

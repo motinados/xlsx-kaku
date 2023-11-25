@@ -1,4 +1,4 @@
-import { NullableCell } from "../src/cell";
+import { NullableCell } from "../src/sheetData";
 import { SharedStrings } from "../src/sharedStrings";
 import {
   cellToString,
@@ -7,7 +7,6 @@ import {
   getSpans,
   getSpansFromTable,
   rowToString,
-  makeSheetDataXml,
   tableToString,
 } from "../src/writer";
 

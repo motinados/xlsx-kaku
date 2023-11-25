@@ -11,6 +11,10 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   const sheetXml = makeSheetXml(sheetDataString, dimension);
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
+  const coreXml = makeCoreXml();
+  const stylesXml = makeStylesXml();
+  const workbookXml = makeWorkbookXml();
+  const workbookXmlRels = makeWorkbookXmlRels(true);
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
@@ -26,31 +30,23 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   if (!fs.existsSync(docPropsPath)) {
     fs.mkdirSync(docPropsPath, { recursive: true });
   }
-
   fs.writeFileSync(path.join(docPropsPath, "app.xml"), appXml);
-
-  const coreXml = makeCoreXml();
   fs.writeFileSync(path.join(docPropsPath, "core.xml"), coreXml);
 
   const xlPath = path.resolve(xlsxPath, "xl");
   if (!fs.existsSync(xlPath)) {
     fs.mkdirSync(xlPath, { recursive: true });
   }
-
   if (sharedStringsXml !== null) {
     fs.writeFileSync(path.join(xlPath, "sharedStrings.xml"), sharedStringsXml);
   }
-  const stylesXml = makeStylesXml();
   fs.writeFileSync(path.join(xlPath, "styles.xml"), stylesXml);
-  const workbookXml = makeWorkbookXml();
   fs.writeFileSync(path.join(xlPath, "workbook.xml"), workbookXml);
 
   const xl_relsPath = path.resolve(xlPath, "_rels");
   if (!fs.existsSync(xl_relsPath)) {
     fs.mkdirSync(xl_relsPath, { recursive: true });
   }
-
-  const workbookXmlRels = makeWorkbookXmlRels(true);
   fs.writeFileSync(
     path.join(xl_relsPath, "workbook.xml.rels"),
     workbookXmlRels

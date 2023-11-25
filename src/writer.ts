@@ -10,6 +10,7 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   const dimension = getDimension(sheetData);
   const sheetXml = makeSheetXml(sheetDataString, dimension);
   const themeXml = makeThemeXml();
+  const appXml = makeAppXml();
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
@@ -25,6 +26,8 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   if (!fs.existsSync(docPropsPath)) {
     fs.mkdirSync(docPropsPath, { recursive: true });
   }
+
+  fs.writeFileSync(path.join(docPropsPath, "app.xml"), appXml);
 
   const coreXml = makeCoreXml();
   fs.writeFileSync(path.join(docPropsPath, "core.xml"), coreXml);
@@ -436,5 +439,20 @@ function makeWorkbookXml() {
   results.push("</ext>");
   results.push("</extLst>");
   results.push("</workbook>");
+  return results.join("");
+}
+
+function makeAppXml() {
+  const results: string[] = [];
+  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  results.push(
+    '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+  );
+  results.push("<Application>excel-writer</Application>");
+  results.push("<Manager></Manager>");
+  results.push("<Company></Company>");
+  results.push("<HyperlinkBase></HyperlinkBase>");
+  results.push("<AppVersion></AppVersion>");
+  results.push("</Properties>");
   return results.join("");
 }

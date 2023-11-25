@@ -15,6 +15,7 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   const stylesXml = makeStylesXml();
   const workbookXml = makeWorkbookXml();
   const workbookXmlRels = makeWorkbookXmlRels(true);
+  const relsFile = makeRelsFile();
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
@@ -25,6 +26,7 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
   if (!fs.existsSync(_relsPath)) {
     fs.mkdirSync(_relsPath, { recursive: true });
   }
+  fs.writeFileSync(path.join(_relsPath, ".rels"), relsFile);
 
   const docPropsPath = path.resolve(xlsxPath, "docProps");
   if (!fs.existsSync(docPropsPath)) {
@@ -450,5 +452,24 @@ function makeAppXml() {
   results.push("<HyperlinkBase></HyperlinkBase>");
   results.push("<AppVersion></AppVersion>");
   results.push("</Properties>");
+  return results.join("");
+}
+
+function makeRelsFile() {
+  const results: string[] = [];
+  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  results.push(
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+  );
+  results.push(
+    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'
+  );
+  results.push(
+    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
+  );
+  results.push(
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+  );
+  results.push("</Relationships>");
   return results.join("");
 }

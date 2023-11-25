@@ -1,11 +1,11 @@
 import * as fs from "node:fs";
 import path from "node:path";
-
+import archiver from "archiver";
 import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 
-export function writeFile(filename: string, sheetData: NullableCell[][]) {
+export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   const { sheetDataString, sharedStringsXml } = tableToString(sheetData);
   const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
@@ -71,6 +71,36 @@ export function writeFile(filename: string, sheetData: NullableCell[][]) {
     fs.mkdirSync(worksheetsPath, { recursive: true });
   }
   fs.writeFileSync(path.join(worksheetsPath, "sheet1.xml"), sheetXml);
+
+  await zipToXlsx(xlsxPath, xlsxPath + ".xlsx");
+}
+
+export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(outPath);
+    const archive = archiver("zip", { zlib: { level: 9 } });
+
+    output.on("close", () => {
+      console.log(`Archived ${archive.pointer()} total bytes`);
+      resolve();
+    });
+
+    archive.on("warning", (err) => {
+      if (err.code === "ENOENT") {
+        console.warn(err);
+      } else {
+        reject(err);
+      }
+    });
+
+    archive.on("error", (err) => {
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.directory(sourceDir, false);
+    archive.finalize();
+  });
 }
 
 export function findFirstNonNullCell(row: NullableCell[]) {

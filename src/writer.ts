@@ -489,7 +489,7 @@ function makeAppXml() {
   results.push("<Manager></Manager>");
   results.push("<Company></Company>");
   results.push("<HyperlinkBase></HyperlinkBase>");
-  results.push("<AppVersion></AppVersion>");
+  results.push("<AppVersion>16.0300</AppVersion>");
   results.push("</Properties>");
   return results.join("");
 }

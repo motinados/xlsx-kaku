@@ -312,6 +312,20 @@ export function getSpans(row: NullableCell[]) {
   return { startNumber, endNumber };
 }
 
+/**
+ * https://learn.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year
+ * @param isoString
+ * @returns
+ */
+export function convertIsoStringToSerialValue(isoString: string): number {
+  const baseDate = new Date("1899-12-31T00:00:00.000Z");
+  const targetDate = new Date(isoString);
+  const differenceInDays =
+    (targetDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24);
+  // Excel uses January 0, 1900 as a base (which is actually December 31, 1899), so add 1 to the result
+  return differenceInDays + 1;
+}
+
 export function cellToString(
   cell: NonNullable<NullableCell>,
   columnIndex: number,

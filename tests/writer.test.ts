@@ -2,6 +2,7 @@ import { NullableCell } from "../src/sheetData";
 import { SharedStrings } from "../src/sharedStrings";
 import {
   cellToString,
+  convertIsoStringToSerialValue,
   findFirstNonNullCell,
   findLastNonNullCell,
   getDimension,
@@ -78,6 +79,21 @@ describe("Writer", () => {
     const { start, end } = getDimension(table);
     expect(start).toBe("A2");
     expect(end).toBe("C3");
+  });
+
+  test("convertISOstringToSerialValue", () => {
+    expect(convertIsoStringToSerialValue("2020-01-01T00:00:00.000Z")).toBe(
+      43831
+    );
+    expect(convertIsoStringToSerialValue("2009-12-31T00:00:00.000Z")).toBe(
+      40178
+    );
+    expect(convertIsoStringToSerialValue("2020-11-11T12:00:00.000Z")).toBe(
+      44146.5
+    );
+    expect(convertIsoStringToSerialValue("2023-11-26T15:30:00.000Z")).toBe(
+      45256.645833333336
+    );
   });
 
   test("cellToString for number", () => {

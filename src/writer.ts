@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
+import { v4 as uuidv4 } from "uuid";
 import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
@@ -434,6 +435,7 @@ function makeStylesXml() {
 }
 
 function makeWorkbookXml() {
+  const documentId = uuidv4();
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
@@ -444,7 +446,7 @@ function makeWorkbookXml() {
   );
   results.push('<workbookPr defaultThemeVersion="166925"/>');
   results.push(
-    '<xr:revisionPtr revIDLastSave="0" documentId="8_{F3416940-F29A-41C7-A780-397EED76AAA9}" xr6:coauthVersionLast="47" xr6:coauthVersionMax="47" xr10:uidLastSave="{00000000-0000-0000-0000-000000000000}"/>'
+    `<xr:revisionPtr revIDLastSave="0" documentId="8_{${documentId}}" xr6:coauthVersionLast="47" xr6:coauthVersionMax="47" xr10:uidLastSave="{00000000-0000-0000-0000-000000000000}"/>`
   );
   results.push("<bookViews>");
   results.push(

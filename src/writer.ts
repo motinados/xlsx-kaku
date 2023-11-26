@@ -443,9 +443,12 @@ function makeWorkbookXml() {
     '<fileVersion appName="xl" lastEdited="7" lowestEdited="4" rupBuild="27123"/>'
   );
   results.push('<workbookPr defaultThemeVersion="166925"/>');
+  results.push(
+    '<xr:revisionPtr revIDLastSave="0" documentId="8_{F3416940-F29A-41C7-A780-397EED76AAA9}" xr6:coauthVersionLast="47" xr6:coauthVersionMax="47" xr10:uidLastSave="{00000000-0000-0000-0000-000000000000}"/>'
+  );
   results.push("<bookViews>");
   results.push(
-    '<workbookView xWindow="240" yWindow="105" windowWidth="14805" windowHeight="8010"/>'
+    '<workbookView xWindow="240" yWindow="105" windowWidth="14805" windowHeight="8010" xr2:uid="{00000000-000D-0000-FFFF-FFFF00000000}"/>'
   );
   results.push("</bookViews>");
   results.push("<sheets>");

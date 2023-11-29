@@ -1,14 +1,14 @@
 import { stringifySorted } from "./fonts";
 
-type Style = {
+type CellXf = {
   fillId: number;
   fontId: number;
   borderId: number;
   numFmtId: number;
 };
 
-export class Styles {
-  private styles = new Map<string, number>([
+export class CellXfs {
+  private cellXfs = new Map<string, number>([
     [
       stringifySorted({
         fillId: 0,
@@ -20,15 +20,15 @@ export class Styles {
     ],
   ]);
 
-  getStyleId(style: Style): number {
-    const key = stringifySorted(style);
-    const id = this.styles.get(key);
+  getCellXfId(cellXf: CellXf): number {
+    const key = stringifySorted(cellXf);
+    const id = this.cellXfs.get(key);
     if (id !== undefined) {
       return id;
     }
 
-    const styleId = this.styles.size;
-    this.styles.set(key, styleId);
-    return styleId;
+    const cellXfId = this.cellXfs.size;
+    this.cellXfs.set(key, cellXfId);
+    return cellXfId;
   }
 }

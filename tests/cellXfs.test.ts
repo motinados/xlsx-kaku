@@ -1,10 +1,10 @@
-import { Styles } from "../src/styles";
+import { CellXfs } from "../src/cellXfs";
 
 describe("Styles", () => {
   test("getStyleId", () => {
-    const styles = new Styles();
+    const styles = new CellXfs();
     expect(
-      styles.getStyleId({
+      styles.getCellXfId({
         fillId: 0,
         fontId: 0,
         borderId: 0,
@@ -12,7 +12,7 @@ describe("Styles", () => {
       })
     ).toBe(0);
     expect(
-      styles.getStyleId({
+      styles.getCellXfId({
         fillId: 0,
         fontId: 1,
         borderId: 0,
@@ -20,7 +20,7 @@ describe("Styles", () => {
       })
     ).toBe(1);
     expect(
-      styles.getStyleId({
+      styles.getCellXfId({
         fillId: 0,
         fontId: 0,
         borderId: 1,
@@ -28,7 +28,7 @@ describe("Styles", () => {
       })
     ).toBe(2);
     expect(
-      styles.getStyleId({
+      styles.getCellXfId({
         fillId: 0,
         fontId: 0,
         borderId: 0,

@@ -38,7 +38,7 @@ function sortObjectKeys(obj: Record<string, any>): Record<string, any> {
     }, {} as Record<string, any>);
 }
 
-function stringifySorted(obj: Record<string, any>): string {
+export function stringifySorted(obj: Record<string, any>): string {
   const sortedObj = sortObjectKeys(obj);
   return JSON.stringify(sortedObj);
 }

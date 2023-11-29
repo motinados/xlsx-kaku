@@ -1,4 +1,4 @@
-export class Styles {
+export class NumberFormats {
   // custom numFmtId starts from 176
   private lastCustomNumFmtId = -1;
   private numFmts = new Map([

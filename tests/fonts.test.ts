@@ -1,9 +1,10 @@
-import { getFontId } from "../src/fonts";
+import { Fonts } from "../src/fonts";
 
 describe("Fonts", () => {
   test("getFontId", () => {
+    const fonts = new Fonts();
     expect(
-      getFontId({
+      fonts.getFontId({
         name: "游ゴシック",
         color: "FF0000",
         size: 11,
@@ -11,7 +12,7 @@ describe("Fonts", () => {
     ).toBe(0);
 
     expect(
-      getFontId({
+      fonts.getFontId({
         size: 11,
         name: "游ゴシック",
         color: "FF0000",
@@ -19,7 +20,7 @@ describe("Fonts", () => {
     ).toBe(0);
 
     expect(
-      getFontId({
+      fonts.getFontId({
         name: "Arial",
         size: 12,
         color: "FF0000",

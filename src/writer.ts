@@ -5,16 +5,26 @@ import { v4 as uuidv4 } from "uuid";
 import { NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
+import { Fills } from "./fills";
+import { CellXfs } from "./cellXfs";
 
-export async function writeFile(filename: string, sheetData: NullableCell[][]) {
-  const { sheetDataString, sharedStringsXml } = tableToString(sheetData);
+export async function writeFile(
+  filename: string,
+  sheetData: NullableCell[][],
+  styles: { fills: Fills }
+) {
+  const cellXfs = new CellXfs();
+  const { sheetDataString, sharedStringsXml } = tableToString(
+    sheetData,
+    cellXfs
+  );
   const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
   const sheetXml = makeSheetXml(sheetDataString, dimension);
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
-  const stylesXml = makeStylesXml();
+  const stylesXml = makeStylesXml(styles, cellXfs);
   const workbookXml = makeWorkbookXml();
   const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
   const relsFile = makeRelsFile();
@@ -133,10 +143,10 @@ export function findLastNonNullCell(row: NullableCell[]) {
   return { lastNonNullCell, index };
 }
 
-export function tableToString(table: NullableCell[][]) {
+export function tableToString(table: NullableCell[][], cellXfs: CellXfs) {
   const sharedStrings = new SharedStrings();
 
-  const sheetDataString = makeSheetDataXml(table, sharedStrings);
+  const sheetDataString = makeSheetDataXml(table, sharedStrings, cellXfs);
   const sharedStringsXml = makeSharedStringsXml(sharedStrings);
   return { sheetDataString, sharedStringsXml };
 }
@@ -224,7 +234,8 @@ export function getDimension(sheetData: NullableCell[][]) {
 
 export function makeSheetDataXml(
   table: NullableCell[][],
-  sharedStrings: SharedStrings
+  sharedStrings: SharedStrings,
+  cellXfs: CellXfs
 ) {
   const { startNumber, endNumber } = getSpansFromTable(table);
 
@@ -236,7 +247,8 @@ export function makeSheetDataXml(
       rowIndex,
       startNumber,
       endNumber,
-      sharedStrings
+      sharedStrings,
+      cellXfs
     );
     if (str !== null) {
       result += str;
@@ -255,7 +267,8 @@ export function rowToString(
   rowIndex: number,
   startNumber: number,
   endNumber: number,
-  sharedStrings: SharedStrings
+  sharedStrings: SharedStrings,
+  cellXfs: CellXfs
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -267,7 +280,13 @@ export function rowToString(
   let columnIndex = 0;
   for (const cell of row) {
     if (cell !== null) {
-      result += cellToString(cell, columnIndex, rowIndex, sharedStrings);
+      result += cellToString(
+        cell,
+        columnIndex,
+        rowIndex,
+        sharedStrings,
+        cellXfs
+      );
     }
 
     columnIndex++;
@@ -330,17 +349,31 @@ export function cellToString(
   cell: NonNullable<NullableCell>,
   columnIndex: number,
   rowIndex: number,
-  sharedStrings: SharedStrings
+  sharedStrings: SharedStrings,
+  cellXfs: CellXfs
 ) {
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
+
+  let s = "";
+  if (cell.style) {
+    const style = {
+      fillId: cell.style?.fillId || 0,
+      fontId: cell.style?.fontId || 0,
+      borderId: cell.style?.borderId || 0,
+      numFmtId: cell.style?.numFmtId || 0,
+    };
+    const xfId = cellXfs.getCellXfId(style);
+    s = ` s="${xfId}"`;
+  }
+
   switch (cell.type) {
     case "number": {
-      return `<c r="${column}${rowNumber}"><v>${cell.value}</v></c>`;
+      return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
       const index = sharedStrings.getIndex(cell.value);
-      return `<c r="${column}${rowNumber}" t="s"><v>${index}</v></c>`;
+      return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     default: {
       throw new Error(`not implemented: ${cell.type}`);
@@ -397,7 +430,7 @@ function makeCoreXml() {
   return results.join("");
 }
 
-function makeStylesXml() {
+function makeStylesXml(styles: { fills: Fills }, cellXfs: CellXfs) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
@@ -411,19 +444,24 @@ function makeStylesXml() {
   results.push('<family val="2"/>');
   results.push('<scheme val="minor"/></font>');
   results.push("</fonts>");
-  results.push('<fills count="2">');
-  results.push('<fill><patternFill patternType="none"/></fill>');
-  results.push('<fill><patternFill patternType="gray125"/></fill>');
-  results.push("</fills>");
+
+  // results.push('<fills count="2">');
+  // results.push('<fill><patternFill patternType="none"/></fill>');
+  // results.push('<fill><patternFill patternType="gray125"/></fill>');
+  // results.push("</fills>");
+  results.push(styles.fills.makeXml());
+
   results.push('<borders count="1">');
   results.push("<border><left/><right/><top/><bottom/><diagonal/></border>");
   results.push("</borders>");
   results.push(
     '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
   );
-  results.push(
-    '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
-  );
+  // results.push(
+  //   '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
+  // );
+  results.push(cellXfs.makeXml());
+
   results.push(
     '<cellStyles count="1"><cellStyle name="標準" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/>'
   );

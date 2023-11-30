@@ -1,19 +1,30 @@
+type CellStyle = {
+  fontId?: number;
+  fillId?: number;
+  borderId?: number;
+  numFmtId?: number;
+};
+
 export type NullableCell =
   | {
       type: "string";
       value: string;
+      style?: CellStyle;
     }
   | {
       type: "number";
       value: number;
+      style?: CellStyle;
     }
   | {
       type: "date";
       value: string;
+      style?: CellStyle;
     }
   | {
       type: "hyperlink";
       value: string;
+      style?: CellStyle;
     }
   | null;
 

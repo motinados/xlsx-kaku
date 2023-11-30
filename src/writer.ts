@@ -8,10 +8,12 @@ import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
 import { CellXfs } from "./cellXfs";
 import { Fonts } from "./fonts";
+import { Borders } from "./borders";
 
 type Styles = {
   fills: Fills;
   fonts: Fonts;
+  borders: Borders;
 };
 
 export async function writeFile(
@@ -459,9 +461,11 @@ function makeStylesXml(styles: Styles, cellXfs: CellXfs) {
   // results.push("</fills>");
   results.push(styles.fills.makeXml());
 
-  results.push('<borders count="1">');
-  results.push("<border><left/><right/><top/><bottom/><diagonal/></border>");
-  results.push("</borders>");
+  // results.push('<borders count="1">');
+  // results.push("<border><left/><right/><top/><bottom/><diagonal/></border>");
+  // results.push("</borders>");
+  results.push(styles.borders.makeXml());
+
   results.push(
     '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
   );

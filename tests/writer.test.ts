@@ -12,7 +12,6 @@ import {
   tableToString,
 } from "../src/writer";
 import { CellXfs } from "../src/cellXfs";
-import { Fills } from "../src/fills";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {

@@ -7,11 +7,17 @@ import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
 import { CellXfs } from "./cellXfs";
+import { Fonts } from "./fonts";
+
+type Styles = {
+  fills: Fills;
+  fonts: Fonts;
+};
 
 export async function writeFile(
   filename: string,
   sheetData: NullableCell[][],
-  styles: { fills: Fills }
+  styles: Styles
 ) {
   const cellXfs = new CellXfs();
   const { sheetDataString, sharedStringsXml } = tableToString(
@@ -430,20 +436,22 @@ function makeCoreXml() {
   return results.join("");
 }
 
-function makeStylesXml(styles: { fills: Fills }, cellXfs: CellXfs) {
+function makeStylesXml(styles: Styles, cellXfs: CellXfs) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
     '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">'
   );
-  results.push('<fonts count="1">');
-  results.push("<font>");
-  results.push('<sz val="11"/>');
-  results.push('<color theme="1"/>');
-  results.push('<name val="Calibri"/>');
-  results.push('<family val="2"/>');
-  results.push('<scheme val="minor"/></font>');
-  results.push("</fonts>");
+
+  // results.push('<fonts count="1">');
+  // results.push("<font>");
+  // results.push('<sz val="11"/>');
+  // results.push('<color theme="1"/>');
+  // results.push('<name val="Calibri"/>');
+  // results.push('<family val="2"/>');
+  // results.push('<scheme val="minor"/></font>');
+  // results.push("</fonts>");
+  results.push(styles.fonts.makeXml());
 
   // results.push('<fills count="2">');
   // results.push('<fill><patternFill patternType="none"/></fill>');

@@ -46,4 +46,34 @@ export class NumberFormats {
     this.lastCustomNumFmtId++;
     return numFmtId;
   }
+
+  // items 176 and above are custom numFmts
+  private extractItemsWithIdAbove176(): Map<string, number> {
+    const items = new Map<string, number>();
+    this.numFmts.forEach((numFmtId, formatCode) => {
+      if (numFmtId <= 175) {
+        return;
+      }
+      items.set(formatCode, numFmtId);
+    });
+    return items;
+  }
+
+  // numFmt smaller than 175 is provided by default, so threre is no need to make it xml.
+  // <numFmts count="1">
+  //   <numFmt numFmtId="176" formatCode="yyyy/m/d\ h:mm;@"/>
+  // </numFmts>
+  makeXml(): string {
+    const items = this.extractItemsWithIdAbove176();
+    if (items.size === 0) {
+      return "";
+    }
+
+    let xml = `<numFmts count="${items.size}">`;
+    items.forEach((numFmtId, formatCode) => {
+      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${formatCode}"/>`;
+    });
+    xml += "</numFmts>";
+    return xml;
+  }
 }

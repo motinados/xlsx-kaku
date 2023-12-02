@@ -9,11 +9,13 @@ import { Fills } from "./fills";
 import { CellXfs } from "./cellXfs";
 import { Fonts } from "./fonts";
 import { Borders } from "./borders";
+import { NumberFormats } from "./numberFormats";
 
 type Styles = {
   fills: Fills;
   fonts: Fonts;
   borders: Borders;
+  numberFormats: NumberFormats;
 };
 
 export async function writeFile(
@@ -444,6 +446,8 @@ function makeStylesXml(styles: Styles, cellXfs: CellXfs) {
   results.push(
     '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">'
   );
+
+  results.push(styles.numberFormats.makeXml());
 
   // results.push('<fonts count="1">');
   // results.push("<font>");

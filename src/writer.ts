@@ -24,13 +24,10 @@ export async function writeFile(
   styles: Styles
 ) {
   const cellXfs = new CellXfs();
-  const { sheetDataString, sharedStringsXml } = tableToString(
-    sheetData,
-    cellXfs
-  );
+  const { sheetDataXml, sharedStringsXml } = tableToString(sheetData, cellXfs);
   const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
-  const sheetXml = makeSheetXml(sheetDataString, dimension);
+  const sheetXml = makeSheetXml(sheetDataXml, dimension);
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
@@ -156,9 +153,9 @@ export function findLastNonNullCell(row: NullableCell[]) {
 export function tableToString(table: NullableCell[][], cellXfs: CellXfs) {
   const sharedStrings = new SharedStrings();
 
-  const sheetDataString = makeSheetDataXml(table, sharedStrings, cellXfs);
+  const sheetDataXml = makeSheetDataXml(table, sharedStrings, cellXfs);
   const sharedStringsXml = makeSharedStringsXml(sharedStrings);
-  return { sheetDataString, sharedStringsXml };
+  return { sheetDataXml, sharedStringsXml };
 }
 
 export function makeSheetXml(

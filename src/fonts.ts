@@ -11,9 +11,9 @@ export class Fonts {
   private fonts = new Map<string, number>([
     [
       stringifySorted({
-        name: "游ゴシック",
+        name: "Calibri",
         size: 11,
-        color: "FF0000",
+        color: "000000",
       }),
       0,
     ],

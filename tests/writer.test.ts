@@ -1,4 +1,4 @@
-import { NullableCell } from "../src/sheetData";
+import { Cell, NullableCell } from "../src/sheetData";
 import { SharedStrings } from "../src/sharedStrings";
 import {
   cellToString,
@@ -116,6 +116,15 @@ describe("Writer", () => {
     expect(result).toBe(`<c r="C1" t="s"><v>0</v></c>`);
     expect(sharedStrings.count).toBe(1);
     expect(sharedStrings.uniqueCount).toBe(1);
+  });
+
+  test("cellToString for date", () => {
+    const cell: Cell = {
+      type: "date",
+      value: "2020-01-01T00:00:00.000Z",
+    };
+    const result = cellToString(cell, 2, 0, new SharedStrings(), new CellXfs());
+    expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
 
   test("rowToString for number", () => {

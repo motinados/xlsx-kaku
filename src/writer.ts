@@ -352,6 +352,27 @@ export function convertIsoStringToSerialValue(isoString: string): number {
   return differenceInDays + 1;
 }
 
+function assignDateStyleIfUndefined(cell: Cell) {
+  if (cell.type === "date" && cell.style === undefined) {
+    cell.style = { numFmtId: 14 };
+  }
+}
+
+function getCellStyleAttribute(cell: Cell, cellXfs: CellXfs) {
+  if (cell.style) {
+    const style = {
+      fillId: cell.style.fillId || 0,
+      fontId: cell.style.fontId || 0,
+      borderId: cell.style.borderId || 0,
+      numFmtId: cell.style.numFmtId || 0,
+    };
+    const xfId = cellXfs.getCellXfId(style);
+    return ` s="${xfId}"`;
+  }
+
+  return "";
+}
+
 export function cellToString(
   cell: Cell,
   columnIndex: number,
@@ -362,17 +383,9 @@ export function cellToString(
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
 
-  let s = "";
-  if (cell.style) {
-    const style = {
-      fillId: cell.style?.fillId || 0,
-      fontId: cell.style?.fontId || 0,
-      borderId: cell.style?.borderId || 0,
-      numFmtId: cell.style?.numFmtId || 0,
-    };
-    const xfId = cellXfs.getCellXfId(style);
-    s = ` s="${xfId}"`;
-  }
+  assignDateStyleIfUndefined(cell);
+
+  const s = getCellStyleAttribute(cell, cellXfs);
 
   switch (cell.type) {
     case "number": {
@@ -381,6 +394,10 @@ export function cellToString(
     case "string": {
       const index = sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
+    }
+    case "date": {
+      const serialValue = convertIsoStringToSerialValue(cell.value);
+      return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
     }
     default: {
       throw new Error(`not implemented: ${cell.type}`);

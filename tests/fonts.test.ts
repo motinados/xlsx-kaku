@@ -5,8 +5,8 @@ describe("Fonts", () => {
     const fonts = new Fonts();
     expect(
       fonts.getFontId({
-        name: "游ゴシック",
-        color: "FF0000",
+        name: "Calibri",
+        color: "000000",
         size: 11,
       })
     ).toBe(0);
@@ -14,8 +14,8 @@ describe("Fonts", () => {
     expect(
       fonts.getFontId({
         size: 11,
-        name: "游ゴシック",
-        color: "FF0000",
+        name: "Calibri",
+        color: "000000",
       })
     ).toBe(0);
 

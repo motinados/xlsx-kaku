@@ -370,16 +370,6 @@ function getCellStyleAttribute(
   xlsxCellStyle: XlsxCellStyle | null,
   cellXfs: CellXfs
 ) {
-  // if (cell.style) {
-  //   const style = {
-  //     fillId: cell.style.fillId || 0,
-  //     fontId: cell.style.fontId || 0,
-  //     borderId: cell.style.borderId || 0,
-  //     numFmtId: cell.style.numFmtId || 0,
-  //   };
-  //   const xfId = cellXfs.getCellXfId(style);
-  //   return ` s="${xfId}"`;
-  // }
   if (xlsxCellStyle) {
     const style = {
       fillId: xlsxCellStyle.fillId || 0,

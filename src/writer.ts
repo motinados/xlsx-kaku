@@ -18,13 +18,24 @@ type Styles = {
   numberFormats: NumberFormats;
 };
 
+type XlsxCellStyle = {
+  fontId?: number;
+  fillId?: number;
+  borderId?: number;
+  numFmtId?: number;
+};
+
 export async function writeFile(
   filename: string,
   sheetData: NullableCell[][],
   styles: Styles
 ) {
   const cellXfs = new CellXfs();
-  const { sheetDataXml, sharedStringsXml } = tableToString(sheetData, cellXfs);
+  const { sheetDataXml, sharedStringsXml } = tableToString(
+    sheetData,
+    styles,
+    cellXfs
+  );
   const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
   const sheetXml = makeSheetXml(sheetDataXml, dimension);
@@ -150,10 +161,26 @@ export function findLastNonNullCell(row: NullableCell[]) {
   return { lastNonNullCell, index };
 }
 
-export function tableToString(table: NullableCell[][], cellXfs: CellXfs) {
+export function tableToString(
+  table: NullableCell[][],
+  styles: Styles,
+  cellXfs: CellXfs
+) {
   const sharedStrings = new SharedStrings();
+  const fonts = styles.fonts;
+  const fills = styles.fills;
+  const borders = styles.borders;
+  const numberFormats = styles.numberFormats;
 
-  const sheetDataXml = makeSheetDataXml(table, sharedStrings, cellXfs);
+  const sheetDataXml = makeSheetDataXml(
+    table,
+    sharedStrings,
+    fills,
+    fonts,
+    borders,
+    numberFormats,
+    cellXfs
+  );
   const sharedStringsXml = makeSharedStringsXml(sharedStrings);
   return { sheetDataXml, sharedStringsXml };
 }
@@ -242,6 +269,10 @@ export function getDimension(sheetData: NullableCell[][]) {
 export function makeSheetDataXml(
   table: NullableCell[][],
   sharedStrings: SharedStrings,
+  fills: Fills,
+  fonts: Fonts,
+  borders: Borders,
+  numberFormats: NumberFormats,
   cellXfs: CellXfs
 ) {
   const { startNumber, endNumber } = getSpansFromTable(table);
@@ -255,6 +286,10 @@ export function makeSheetDataXml(
       startNumber,
       endNumber,
       sharedStrings,
+      fills,
+      fonts,
+      borders,
+      numberFormats,
       cellXfs
     );
     if (str !== null) {
@@ -275,6 +310,10 @@ export function rowToString(
   startNumber: number,
   endNumber: number,
   sharedStrings: SharedStrings,
+  fills: Fills,
+  fonts: Fonts,
+  borders: Borders,
+  numberFormats: NumberFormats,
   cellXfs: CellXfs
 ): string | null {
   if (row.length === 0) {
@@ -292,6 +331,10 @@ export function rowToString(
         columnIndex,
         rowIndex,
         sharedStrings,
+        fills,
+        fonts,
+        borders,
+        numberFormats,
         cellXfs
       );
     }
@@ -354,17 +397,30 @@ export function convertIsoStringToSerialValue(isoString: string): number {
 
 function assignDateStyleIfUndefined(cell: Cell) {
   if (cell.type === "date" && cell.style === undefined) {
-    cell.style = { numFmtId: 14 };
+    cell.style = { numberFormat: { formatCode: "yyyy-mm-dd" } };
   }
 }
 
-function getCellStyleAttribute(cell: Cell, cellXfs: CellXfs) {
-  if (cell.style) {
+function getCellStyleAttribute(
+  xlsxCellStyle: XlsxCellStyle | null,
+  cellXfs: CellXfs
+) {
+  // if (cell.style) {
+  //   const style = {
+  //     fillId: cell.style.fillId || 0,
+  //     fontId: cell.style.fontId || 0,
+  //     borderId: cell.style.borderId || 0,
+  //     numFmtId: cell.style.numFmtId || 0,
+  //   };
+  //   const xfId = cellXfs.getCellXfId(style);
+  //   return ` s="${xfId}"`;
+  // }
+  if (xlsxCellStyle) {
     const style = {
-      fillId: cell.style.fillId || 0,
-      fontId: cell.style.fontId || 0,
-      borderId: cell.style.borderId || 0,
-      numFmtId: cell.style.numFmtId || 0,
+      fillId: xlsxCellStyle.fillId || 0,
+      fontId: xlsxCellStyle.fontId || 0,
+      borderId: xlsxCellStyle.borderId || 0,
+      numFmtId: xlsxCellStyle.numFmtId || 0,
     };
     const xfId = cellXfs.getCellXfId(style);
     return ` s="${xfId}"`;
@@ -373,19 +429,52 @@ function getCellStyleAttribute(cell: Cell, cellXfs: CellXfs) {
   return "";
 }
 
+export function getXlsxCellStyle(
+  cell: Cell,
+  fills: Fills,
+  fonts: Fonts,
+  borders: Borders,
+  numberFormats: NumberFormats
+): XlsxCellStyle | null {
+  if (cell.style) {
+    const style = {
+      fillId: cell.style.fill ? fills.getFillId(cell.style.fill) : 0,
+      fontId: cell.style.font ? fonts.getFontId(cell.style.font) : 0,
+      borderId: cell.style.border ? borders.getBorderId(cell.style.border) : 0,
+      numFmtId: cell.style.numberFormat
+        ? numberFormats.getNumFmtId(cell.style.numberFormat.formatCode)
+        : 0,
+    };
+    return style;
+  }
+
+  return null;
+}
+
 export function cellToString(
   cell: Cell,
   columnIndex: number,
   rowIndex: number,
   sharedStrings: SharedStrings,
+  fills: Fills,
+  fonts: Fonts,
+  borders: Borders,
+  numberFormats: NumberFormats,
   cellXfs: CellXfs
 ) {
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
 
   assignDateStyleIfUndefined(cell);
+  const xlsxCellStyle = getXlsxCellStyle(
+    cell,
+    fills,
+    fonts,
+    borders,
+    numberFormats
+  );
 
-  const s = getCellStyleAttribute(cell, cellXfs);
+  const s = getCellStyleAttribute(xlsxCellStyle, cellXfs);
 
   switch (cell.type) {
     case "number": {

@@ -1,8 +1,13 @@
+import { Border } from "./borders";
+import { Fill } from "./fills";
+import { Font } from "./fonts";
+import { NumberFormat } from "./numberFormats";
+
 type CellStyle = {
-  fontId?: number;
-  fillId?: number;
-  borderId?: number;
-  numFmtId?: number;
+  font?: Font;
+  fill?: Fill;
+  border?: Border;
+  numberFormat?: NumberFormat;
 };
 
 export type Cell =

@@ -11,11 +11,13 @@ import { Fonts } from "./fonts";
 import { Borders } from "./borders";
 import { NumberFormats } from "./numberFormats";
 
-type Styles = {
+type StyleMappers = {
   fills: Fills;
   fonts: Fonts;
   borders: Borders;
   numberFormats: NumberFormats;
+  sharedStrings: SharedStrings;
+  cellXfs: CellXfs;
 };
 
 type XlsxCellStyle = {
@@ -26,18 +28,18 @@ type XlsxCellStyle = {
 };
 
 export async function writeFile(filename: string, sheetData: NullableCell[][]) {
-  const cellXfs = new CellXfs();
-  const styles = {
+  const styleMappers = {
     fills: new Fills(),
     fonts: new Fonts(),
     borders: new Borders(),
     numberFormats: new NumberFormats(),
+    sharedStrings: new SharedStrings(),
+    cellXfs: new CellXfs(),
   };
 
   const { sheetDataXml, sharedStringsXml } = tableToString(
     sheetData,
-    styles,
-    cellXfs
+    styleMappers
   );
   const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
@@ -45,7 +47,7 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
-  const stylesXml = makeStylesXml(styles, cellXfs);
+  const stylesXml = makeStylesXml(styleMappers);
   const workbookXml = makeWorkbookXml();
   const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
   const relsFile = makeRelsFile();
@@ -166,25 +168,10 @@ export function findLastNonNullCell(row: NullableCell[]) {
 
 export function tableToString(
   table: NullableCell[][],
-  styles: Styles,
-  cellXfs: CellXfs
+  styleMappers: StyleMappers
 ) {
-  const sharedStrings = new SharedStrings();
-  const fonts = styles.fonts;
-  const fills = styles.fills;
-  const borders = styles.borders;
-  const numberFormats = styles.numberFormats;
-
-  const sheetDataXml = makeSheetDataXml(
-    table,
-    sharedStrings,
-    fills,
-    fonts,
-    borders,
-    numberFormats,
-    cellXfs
-  );
-  const sharedStringsXml = makeSharedStringsXml(sharedStrings);
+  const sheetDataXml = makeSheetDataXml(table, styleMappers);
+  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
   return { sheetDataXml, sharedStringsXml };
 }
 
@@ -271,12 +258,7 @@ export function getDimension(sheetData: NullableCell[][]) {
 
 export function makeSheetDataXml(
   table: NullableCell[][],
-  sharedStrings: SharedStrings,
-  fills: Fills,
-  fonts: Fonts,
-  borders: Borders,
-  numberFormats: NumberFormats,
-  cellXfs: CellXfs
+  styleMappers: StyleMappers
 ) {
   const { startNumber, endNumber } = getSpansFromTable(table);
 
@@ -288,12 +270,7 @@ export function makeSheetDataXml(
       rowIndex,
       startNumber,
       endNumber,
-      sharedStrings,
-      fills,
-      fonts,
-      borders,
-      numberFormats,
-      cellXfs
+      styleMappers
     );
     if (str !== null) {
       result += str;
@@ -312,12 +289,7 @@ export function rowToString(
   rowIndex: number,
   startNumber: number,
   endNumber: number,
-  sharedStrings: SharedStrings,
-  fills: Fills,
-  fonts: Fonts,
-  borders: Borders,
-  numberFormats: NumberFormats,
-  cellXfs: CellXfs
+  styleMappers: StyleMappers
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -329,17 +301,7 @@ export function rowToString(
   let columnIndex = 0;
   for (const cell of row) {
     if (cell !== null) {
-      result += cellToString(
-        cell,
-        columnIndex,
-        rowIndex,
-        sharedStrings,
-        fills,
-        fonts,
-        borders,
-        numberFormats,
-        cellXfs
-      );
+      result += cellToString(cell, columnIndex, rowIndex, styleMappers);
     }
 
     columnIndex++;
@@ -434,18 +396,17 @@ function getCellStyleAttribute(
 
 export function getXlsxCellStyle(
   cell: Cell,
-  fills: Fills,
-  fonts: Fonts,
-  borders: Borders,
-  numberFormats: NumberFormats
+  mappers: StyleMappers
 ): XlsxCellStyle | null {
   if (cell.style) {
     const style = {
-      fillId: cell.style.fill ? fills.getFillId(cell.style.fill) : 0,
-      fontId: cell.style.font ? fonts.getFontId(cell.style.font) : 0,
-      borderId: cell.style.border ? borders.getBorderId(cell.style.border) : 0,
+      fillId: cell.style.fill ? mappers.fills.getFillId(cell.style.fill) : 0,
+      fontId: cell.style.font ? mappers.fonts.getFontId(cell.style.font) : 0,
+      borderId: cell.style.border
+        ? mappers.borders.getBorderId(cell.style.border)
+        : 0,
       numFmtId: cell.style.numberFormat
-        ? numberFormats.getNumFmtId(cell.style.numberFormat.formatCode)
+        ? mappers.numberFormats.getNumFmtId(cell.style.numberFormat.formatCode)
         : 0,
     };
     return style;
@@ -458,33 +419,22 @@ export function cellToString(
   cell: Cell,
   columnIndex: number,
   rowIndex: number,
-  sharedStrings: SharedStrings,
-  fills: Fills,
-  fonts: Fonts,
-  borders: Borders,
-  numberFormats: NumberFormats,
-  cellXfs: CellXfs
+  styleMappers: StyleMappers
 ) {
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
 
   assignDateStyleIfUndefined(cell);
-  const xlsxCellStyle = getXlsxCellStyle(
-    cell,
-    fills,
-    fonts,
-    borders,
-    numberFormats
-  );
+  const xlsxCellStyle = getXlsxCellStyle(cell, styleMappers);
 
-  const s = getCellStyleAttribute(xlsxCellStyle, cellXfs);
+  const s = getCellStyleAttribute(xlsxCellStyle, styleMappers.cellXfs);
 
   switch (cell.type) {
     case "number": {
       return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
-      const index = sharedStrings.getIndex(cell.value);
+      const index = styleMappers.sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     case "date": {
@@ -546,14 +496,14 @@ function makeCoreXml() {
   return results.join("");
 }
 
-function makeStylesXml(styles: Styles, cellXfs: CellXfs) {
+function makeStylesXml(styleMappers: StyleMappers) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
     '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">'
   );
 
-  results.push(styles.numberFormats.makeXml());
+  results.push(styleMappers.numberFormats.makeXml());
 
   // results.push('<fonts count="1">');
   // results.push("<font>");
@@ -563,18 +513,18 @@ function makeStylesXml(styles: Styles, cellXfs: CellXfs) {
   // results.push('<family val="2"/>');
   // results.push('<scheme val="minor"/></font>');
   // results.push("</fonts>");
-  results.push(styles.fonts.makeXml());
+  results.push(styleMappers.fonts.makeXml());
 
   // results.push('<fills count="2">');
   // results.push('<fill><patternFill patternType="none"/></fill>');
   // results.push('<fill><patternFill patternType="gray125"/></fill>');
   // results.push("</fills>");
-  results.push(styles.fills.makeXml());
+  results.push(styleMappers.fills.makeXml());
 
   // results.push('<borders count="1">');
   // results.push("<border><left/><right/><top/><bottom/><diagonal/></border>");
   // results.push("</borders>");
-  results.push(styles.borders.makeXml());
+  results.push(styleMappers.borders.makeXml());
 
   results.push(
     '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
@@ -582,7 +532,7 @@ function makeStylesXml(styles: Styles, cellXfs: CellXfs) {
   // results.push(
   //   '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
   // );
-  results.push(cellXfs.makeXml());
+  results.push(styleMappers.cellXfs.makeXml());
 
   results.push(
     '<cellStyles count="1"><cellStyle name="標準" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/>'

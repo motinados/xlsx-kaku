@@ -5,7 +5,7 @@ type CellStyle = {
   numFmtId?: number;
 };
 
-export type NullableCell =
+export type Cell =
   | {
       type: "string";
       value: string;
@@ -25,8 +25,11 @@ export type NullableCell =
       type: "hyperlink";
       value: string;
       style?: CellStyle;
-    }
-  | null;
+    };
+
+export type NullableCell = Cell | null;
+
+export type Row = NullableCell[];
 
 export class SheetData {
   private _rows: NullableCell[][] = [];

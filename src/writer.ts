@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
 import { v4 as uuidv4 } from "uuid";
-import { NullableCell, convNumberToColumn } from "./sheetData";
+import { Cell, NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
@@ -353,7 +353,7 @@ export function convertIsoStringToSerialValue(isoString: string): number {
 }
 
 export function cellToString(
-  cell: NonNullable<NullableCell>,
+  cell: Cell,
   columnIndex: number,
   rowIndex: number,
   sharedStrings: SharedStrings,

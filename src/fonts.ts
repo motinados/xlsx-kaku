@@ -1,4 +1,4 @@
-type Font = {
+export type Font = {
   name: string;
   size: number;
   // TODO: support theme color

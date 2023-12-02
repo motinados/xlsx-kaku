@@ -1,6 +1,6 @@
 import { stringifySorted } from "./fonts";
 
-type Fill =
+export type Fill =
   | {
       patternType: "none";
     }

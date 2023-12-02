@@ -1,3 +1,7 @@
+export type NumberFormat = {
+  formatCode: string;
+};
+
 export class NumberFormats {
   // custom numFmtId starts from 176
   private lastCustomNumFmtId = -1;

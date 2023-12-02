@@ -25,12 +25,15 @@ type XlsxCellStyle = {
   numFmtId?: number;
 };
 
-export async function writeFile(
-  filename: string,
-  sheetData: NullableCell[][],
-  styles: Styles
-) {
+export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   const cellXfs = new CellXfs();
+  const styles = {
+    fills: new Fills(),
+    fonts: new Fonts(),
+    borders: new Borders(),
+    numberFormats: new NumberFormats(),
+  };
+
   const { sheetDataXml, sharedStringsXml } = tableToString(
     sheetData,
     styles,

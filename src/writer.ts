@@ -568,9 +568,11 @@ function makeStylesXml(styleMappers: StyleMappers) {
   // results.push("</borders>");
   results.push(styleMappers.borders.makeXml());
 
-  results.push(
-    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-  );
+  // results.push(
+  //   '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+  // );
+  results.push(styleMappers.cellStyleXfs.makeXml());
+
   // results.push(
   //   '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
   // );

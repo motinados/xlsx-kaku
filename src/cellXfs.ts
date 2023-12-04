@@ -5,6 +5,7 @@ type CellXf = {
   fontId: number;
   borderId: number;
   numFmtId: number;
+  xfId?: number;
 };
 
 export class CellXfs {
@@ -40,7 +41,8 @@ export class CellXfs {
     let xml = `<cellXfs count="${this.cellXfs.size}">`;
     this.cellXfs.forEach((_, key) => {
       const cellXf = JSON.parse(key) as CellXf;
-      xml += `<xf numFmtId="${cellXf.numFmtId}" fontId="${cellXf.fontId}" fillId="${cellXf.fillId}" borderId="${cellXf.borderId}" xfId="0"`;
+      const xfId = cellXf.xfId ?? 0;
+      xml += `<xf numFmtId="${cellXf.numFmtId}" fontId="${cellXf.fontId}" fillId="${cellXf.fillId}" borderId="${cellXf.borderId}" xfId="${xfId}"`;
       if (cellXf.fillId > 0) {
         xml += ' applyFill="1"';
       }

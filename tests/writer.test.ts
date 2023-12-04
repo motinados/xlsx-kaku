@@ -16,6 +16,8 @@ import { Fonts } from "../src/fonts";
 import { Fills } from "../src/fills";
 import { Borders } from "../src/borders";
 import { NumberFormats } from "../src/numberFormats";
+import { CellStyleXfs } from "../src/cellStyleXfs";
+import { CellStyles } from "../src/cellStyles";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
@@ -103,12 +105,14 @@ describe("Writer", () => {
 
   test("cellToString for number", () => {
     const styleMappers = {
-      sharedStrings: new SharedStrings(),
       fills: new Fills(),
       fonts: new Fonts(),
       borders: new Borders(),
       numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
     };
     const cell: NonNullable<NullableCell> = {
       type: "number",
@@ -120,12 +124,14 @@ describe("Writer", () => {
 
   test("cellToString for string", () => {
     const styleMappers = {
-      sharedStrings: new SharedStrings(),
       fills: new Fills(),
       fonts: new Fonts(),
       borders: new Borders(),
       numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
     };
     const cell: NonNullable<NullableCell> = {
       type: "string",
@@ -139,12 +145,14 @@ describe("Writer", () => {
 
   test("cellToString for date", () => {
     const styleMappers = {
-      sharedStrings: new SharedStrings(),
       fills: new Fills(),
       fonts: new Fonts(),
       borders: new Borders(),
       numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
     };
     const cell: Cell = {
       type: "date",
@@ -156,12 +164,14 @@ describe("Writer", () => {
 
   test("rowToString for number", () => {
     const styleMappers = {
-      sharedStrings: new SharedStrings(),
       fills: new Fills(),
       fonts: new Fonts(),
       borders: new Borders(),
       numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
     };
     const row: NullableCell[] = [
       null,
@@ -177,12 +187,14 @@ describe("Writer", () => {
 
   test("rowToString for string", () => {
     const styleMappers = {
-      sharedStrings: new SharedStrings(),
       fills: new Fills(),
       fonts: new Fonts(),
       borders: new Borders(),
       numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
     };
     const row: NullableCell[] = [
       null,
@@ -206,12 +218,14 @@ describe("Writer", () => {
       [{ type: "number", value: 3 }, { type: "number", value: 4 }, null, null],
     ];
     const styleMappers = {
-      sharedStrings: new SharedStrings(),
       fills: new Fills(),
       fonts: new Fonts(),
       borders: new Borders(),
       numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
     };
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(
@@ -232,12 +246,14 @@ describe("Writer", () => {
       ],
     ];
     const styleMappers = {
-      sharedStrings: new SharedStrings(),
       fills: new Fills(),
       fonts: new Fonts(),
       borders: new Borders(),
       numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
     };
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(

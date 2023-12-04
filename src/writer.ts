@@ -10,6 +10,8 @@ import { CellXfs } from "./cellXfs";
 import { Fonts } from "./fonts";
 import { Borders } from "./borders";
 import { NumberFormats } from "./numberFormats";
+import { CellStyles } from "./cellStyles";
+import { CellStyleXfs } from "./cellStyleXfs";
 
 type StyleMappers = {
   fills: Fills;
@@ -17,7 +19,9 @@ type StyleMappers = {
   borders: Borders;
   numberFormats: NumberFormats;
   sharedStrings: SharedStrings;
+  cellStyleXfs: CellStyleXfs;
   cellXfs: CellXfs;
+  cellStyles: CellStyles;
 };
 
 type XlsxCellStyle = {
@@ -34,7 +38,9 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
     borders: new Borders(),
     numberFormats: new NumberFormats(),
     sharedStrings: new SharedStrings(),
+    cellStyleXfs: new CellStyleXfs(),
     cellXfs: new CellXfs(),
+    cellStyles: new CellStyles(),
   };
 
   const { sheetDataXml, sharedStringsXml } = tableToString(
@@ -366,10 +372,19 @@ function assignDateStyleIfUndefined(cell: Cell) {
   }
 }
 
-function getCellStyleAttribute(
-  xlsxCellStyle: XlsxCellStyle | null,
-  cellXfs: CellXfs
-) {
+function assignHyperlinkStyleIfUndefined(cell: Cell) {
+  if (cell.type === "hyperlink" && cell.style === undefined) {
+    cell.style = {
+      font: {
+        name: "Calibri",
+        size: 11,
+        color: "0563c1",
+      },
+    };
+  }
+}
+
+function getCellXfId(xlsxCellStyle: XlsxCellStyle | null, cellXfs: CellXfs) {
   if (xlsxCellStyle) {
     const style = {
       fillId: xlsxCellStyle.fillId || 0,
@@ -378,10 +393,28 @@ function getCellStyleAttribute(
       numFmtId: xlsxCellStyle.numFmtId || 0,
     };
     const xfId = cellXfs.getCellXfId(style);
-    return ` s="${xfId}"`;
+    return xfId;
   }
 
-  return "";
+  return null;
+}
+
+function getCellStyleXfId(
+  xlsxCellStyle: XlsxCellStyle | null,
+  cellStyleXfs: CellStyleXfs
+) {
+  if (xlsxCellStyle) {
+    const style = {
+      fillId: xlsxCellStyle.fillId || 0,
+      fontId: xlsxCellStyle.fontId || 0,
+      borderId: xlsxCellStyle.borderId || 0,
+      numFmtId: xlsxCellStyle.numFmtId || 0,
+    };
+    const xfId = cellStyleXfs.getCellStyleXfId(style);
+    return xfId;
+  }
+
+  return null;
 }
 
 export function getXlsxCellStyle(
@@ -415,9 +448,11 @@ export function cellToString(
   const column = convNumberToColumn(columnIndex);
 
   assignDateStyleIfUndefined(cell);
+  assignHyperlinkStyleIfUndefined(cell);
   const xlsxCellStyle = getXlsxCellStyle(cell, styleMappers);
 
-  const s = getCellStyleAttribute(xlsxCellStyle, styleMappers.cellXfs);
+  const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+  const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
 
   switch (cell.type) {
     case "number": {
@@ -431,9 +466,26 @@ export function cellToString(
       const serialValue = convertIsoStringToSerialValue(cell.value);
       return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
     }
-    default: {
-      throw new Error(`not implemented: ${cell.type}`);
+    case "hyperlink": {
+      if (xlsxCellStyle === null) {
+        throw new Error("xlsxCellStyle is null for hyperlink");
+      }
+      const index = styleMappers.sharedStrings.getIndex(cell.value);
+
+      const xfId = getCellStyleXfId(xlsxCellStyle, styleMappers.cellStyleXfs);
+      if (xfId === null) {
+        throw new Error("cellXfId is null for hyperlink");
+      }
+      styleMappers.cellStyles.getCellStyleId({
+        name: "Hyperlink",
+        xfId: xfId,
+        uid: "{00000000-000B-0000-0000-000008000000}",
+      });
+      return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
+    // default: {
+    //   throw new Error(`not implemented: ${cell.type}`);
+    // }
   }
 }
 
@@ -524,9 +576,11 @@ function makeStylesXml(styleMappers: StyleMappers) {
   // );
   results.push(styleMappers.cellXfs.makeXml());
 
-  results.push(
-    '<cellStyles count="1"><cellStyle name="標準" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/>'
-  );
+  // results.push(
+  //   '<cellStyles count="1"><cellStyle name="標準" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/>'
+  // );
+  results.push(styleMappers.cellStyles.makeXml());
+
   results.push(
     '<tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleMedium9"/>'
   );

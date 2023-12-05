@@ -6,7 +6,7 @@ import { Cell, NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
-import { CellXfs } from "./cellXfs";
+import { CellXf, CellXfs } from "./cellXfs";
 import { Fonts } from "./fonts";
 import { Borders } from "./borders";
 import { NumberFormats } from "./numberFormats";
@@ -25,10 +25,10 @@ type StyleMappers = {
 };
 
 type XlsxCellStyle = {
-  fontId?: number;
-  fillId?: number;
-  borderId?: number;
-  numFmtId?: number;
+  fontId: number;
+  fillId: number;
+  borderId: number;
+  numFmtId: number;
 };
 
 export async function writeFile(filename: string, sheetData: NullableCell[][]) {
@@ -452,18 +452,21 @@ export function cellToString(
   assignHyperlinkStyleIfUndefined(cell);
   const xlsxCellStyle = getXlsxCellStyle(cell, styleMappers);
 
-  const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
-  const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
-
   switch (cell.type) {
     case "number": {
+      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
+      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       const index = styleMappers.sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     case "date": {
+      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       const serialValue = convertIsoStringToSerialValue(cell.value);
       return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
     }
@@ -471,17 +474,25 @@ export function cellToString(
       if (xlsxCellStyle === null) {
         throw new Error("xlsxCellStyle is null for hyperlink");
       }
-      const index = styleMappers.sharedStrings.getIndex(cell.value);
-
       const xfId = getCellStyleXfId(xlsxCellStyle, styleMappers.cellStyleXfs);
       if (xfId === null) {
-        throw new Error("cellXfId is null for hyperlink");
+        throw new Error("xfId is null for hyperlink");
       }
+
+      const cellXf: CellXf = {
+        xfId: xfId,
+        ...xlsxCellStyle,
+      };
+      const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
+      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const index = styleMappers.sharedStrings.getIndex(cell.value);
+
       styleMappers.cellStyles.getCellStyleId({
         name: "Hyperlink",
         xfId: xfId,
         uid: "{00000000-000B-0000-0000-000008000000}",
       });
+
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     // default: {

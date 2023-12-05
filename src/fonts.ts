@@ -5,6 +5,7 @@ export type Font = {
   color: string;
   family?: number;
   scheme?: string;
+  underline?: boolean;
 };
 
 export class Fonts {
@@ -44,6 +45,9 @@ export class Fonts {
     this.fonts.forEach((_, key) => {
       const font = JSON.parse(key) as Font;
       xml += "<font>";
+      if (font.underline) {
+        xml += `<u/>`;
+      }
       xml += `<sz val="${font.size}"/>`;
       xml += `<color rgb="${font.color}"/>`;
       xml += `<name val="${font.name}"/>`;
@@ -53,6 +57,7 @@ export class Fonts {
       if (font.scheme) {
         xml += `<scheme val="${font.scheme}"/>`;
       }
+
       xml += "</font>";
     });
     xml += "</fonts>";

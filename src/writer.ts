@@ -379,6 +379,7 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
         name: "Calibri",
         size: 11,
         color: "0563c1",
+        underline: true,
       },
     };
   }

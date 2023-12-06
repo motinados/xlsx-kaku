@@ -1,6 +1,6 @@
 import { stringifySorted } from "./fonts";
 
-type CellXf = {
+export type CellXf = {
   fillId: number;
   fontId: number;
   borderId: number;

@@ -12,6 +12,7 @@ import { Borders } from "./borders";
 import { NumberFormats } from "./numberFormats";
 import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
+import { Hyperlinks } from "./hyperlinks";
 
 type StyleMappers = {
   fills: Fills;
@@ -22,6 +23,7 @@ type StyleMappers = {
   cellStyleXfs: CellStyleXfs;
   cellXfs: CellXfs;
   cellStyles: CellStyles;
+  hyperlinks: Hyperlinks;
 };
 
 type XlsxCellStyle = {
@@ -41,6 +43,7 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
     cellStyleXfs: new CellStyleXfs(),
     cellXfs: new CellXfs(),
     cellStyles: new CellStyles(),
+    hyperlinks: new Hyperlinks(),
   };
 
   const { sheetDataXml, sharedStringsXml } = tableToString(
@@ -49,7 +52,11 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   );
   const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
-  const sheetXml = makeSheetXml(sheetDataXml, dimension);
+  const sheetXml = makeSheetXml(
+    sheetDataXml,
+    dimension,
+    styleMappers.hyperlinks
+  );
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
@@ -183,7 +190,8 @@ export function tableToString(
 
 export function makeSheetXml(
   sheetDataString: string,
-  dimension: { start: string; end: string }
+  dimension: { start: string; end: string },
+  hyperlinks: Hyperlinks
 ) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
@@ -198,6 +206,11 @@ export function makeSheetXml(
   results.push("</sheetViews>");
   results.push('<sheetFormatPr defaultRowHeight="13.5"/>');
   results.push(sheetDataString);
+
+  if (hyperlinks.getHyperlinks().length > 0) {
+    results.push(hyperlinks.makeXML());
+  }
+
   results.push(
     '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>'
   );
@@ -491,6 +504,12 @@ export function cellToString(
         name: "Hyperlink",
         xfId: xfId,
         uid: "{00000000-000B-0000-0000-000008000000}",
+      });
+
+      styleMappers.hyperlinks.addHyperlink({
+        ref: `${column}${rowNumber}`,
+        uuid: uuidv4(),
+        targetMode: "external",
       });
 
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;

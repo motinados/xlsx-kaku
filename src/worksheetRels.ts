@@ -2,7 +2,7 @@
 type WorksheetRel = {
   id: string;
   target: string;
-  targetMode: "external"; // | "internal";
+  targetMode: "External"; // | "internal";
 };
 
 export class WorksheetRels {
@@ -14,7 +14,7 @@ export class WorksheetRels {
 
   addWorksheetRel(target: string): string {
     const id = "rId" + (this.rels.length + 1);
-    const targetMode = "external";
+    const targetMode = "External";
     const worksheetRel: WorksheetRel = { id, target, targetMode };
     this.rels.push(worksheetRel);
     return id;
@@ -25,6 +25,7 @@ export class WorksheetRels {
   // </Relationships>
   makeXML(): string {
     let xml = "";
+    xml += '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
     xml +=
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
     for (const worksheetRel of this.rels) {

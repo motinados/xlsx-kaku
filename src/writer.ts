@@ -122,6 +122,18 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   }
   fs.writeFileSync(path.join(worksheetsPath, "sheet1.xml"), sheetXml);
 
+  if (styleMappers.worksheetRels.relsLength > 0) {
+    const worksheets_relsPath = path.resolve(worksheetsPath, "_rels");
+    if (!fs.existsSync(worksheets_relsPath)) {
+      fs.mkdirSync(worksheets_relsPath, { recursive: true });
+    }
+    const worksheetRelsXml = styleMappers.worksheetRels.makeXML();
+    fs.writeFileSync(
+      path.join(worksheets_relsPath, "sheet1.xml.rels"),
+      worksheetRelsXml
+    );
+  }
+
   await zipToXlsx(xlsxPath, xlsxPath + ".xlsx");
 }
 

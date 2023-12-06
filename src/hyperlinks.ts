@@ -1,6 +1,7 @@
 // TODO: Add internal hyperlinks
 type Hyperlink = {
   ref: string;
+  rid: string;
   uuid: string;
   target: string;
   targetMode: "external"; // | "internal";
@@ -27,7 +28,8 @@ export class Hyperlinks {
       xml +=
         '<hyperlink ref="' +
         hyperlink.ref +
-        '" r:id="rId1' +
+        '" r:id="' +
+        hyperlink.rid +
         '" xr:uid="{' +
         hyperlink.uuid +
         '}"/>';

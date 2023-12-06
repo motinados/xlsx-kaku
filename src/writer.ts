@@ -13,6 +13,7 @@ import { NumberFormats } from "./numberFormats";
 import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
+import { WorksheetRels } from "./worksheetRels";
 
 type StyleMappers = {
   fills: Fills;
@@ -24,6 +25,7 @@ type StyleMappers = {
   cellXfs: CellXfs;
   cellStyles: CellStyles;
   hyperlinks: Hyperlinks;
+  worksheetRels: WorksheetRels;
 };
 
 type XlsxCellStyle = {
@@ -44,6 +46,7 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
     cellXfs: new CellXfs(),
     cellStyles: new CellStyles(),
     hyperlinks: new Hyperlinks(),
+    worksheetRels: new WorksheetRels(),
   };
 
   const { sheetDataXml, sharedStringsXml } = tableToString(
@@ -506,8 +509,11 @@ export function cellToString(
         uid: "{00000000-000B-0000-0000-000008000000}",
       });
 
+      const rid = styleMappers.worksheetRels.addWorksheetRel(cell.value);
+
       styleMappers.hyperlinks.addHyperlink({
         ref: `${column}${rowNumber}`,
+        rid: rid,
         uuid: uuidv4(),
         target: cell.value,
         targetMode: "external",

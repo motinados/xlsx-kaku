@@ -2,6 +2,7 @@
 type Hyperlink = {
   ref: string;
   uuid: string;
+  target: string;
   targetMode: "external"; // | "internal";
 };
 

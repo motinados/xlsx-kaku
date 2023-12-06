@@ -509,6 +509,7 @@ export function cellToString(
       styleMappers.hyperlinks.addHyperlink({
         ref: `${column}${rowNumber}`,
         uuid: uuidv4(),
+        target: cell.value,
         targetMode: "external",
       });
 

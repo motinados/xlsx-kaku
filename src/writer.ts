@@ -413,24 +413,6 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
   }
 }
 
-function getCellStyleXfId(
-  xlsxCellStyle: XlsxCellStyle | null,
-  cellStyleXfs: CellStyleXfs
-) {
-  if (xlsxCellStyle) {
-    const style = {
-      fillId: xlsxCellStyle.fillId || 0,
-      fontId: xlsxCellStyle.fontId || 0,
-      borderId: xlsxCellStyle.borderId || 0,
-      numFmtId: xlsxCellStyle.numFmtId || 0,
-    };
-    const xfId = cellStyleXfs.getCellStyleXfId(style);
-    return xfId;
-  }
-
-  return null;
-}
-
 export function getXlsxCellStyle(
   cell: Cell,
   mappers: StyleMappers
@@ -493,7 +475,7 @@ export function cellToString(
       if (xlsxCellStyle === null) {
         throw new Error("xlsxCellStyle is null for hyperlink");
       }
-      const xfId = getCellStyleXfId(xlsxCellStyle, styleMappers.cellStyleXfs);
+      const xfId = styleMappers.cellStyleXfs.getCellStyleXfId(xlsxCellStyle);
       if (xfId === null) {
         throw new Error("xfId is null for hyperlink");
       }

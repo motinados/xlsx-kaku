@@ -485,7 +485,7 @@ export function cellToString(
         ...xlsxCellStyle,
       };
       const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const s = ` s="${cellXfId}"`;
       const index = styleMappers.sharedStrings.getIndex(cell.value);
 
       styleMappers.cellStyles.getCellStyleId({

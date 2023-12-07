@@ -413,39 +413,6 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
   }
 }
 
-function getCellXfId(xlsxCellStyle: XlsxCellStyle | null, cellXfs: CellXfs) {
-  if (xlsxCellStyle) {
-    const style = {
-      fillId: xlsxCellStyle.fillId || 0,
-      fontId: xlsxCellStyle.fontId || 0,
-      borderId: xlsxCellStyle.borderId || 0,
-      numFmtId: xlsxCellStyle.numFmtId || 0,
-    };
-    const xfId = cellXfs.getCellXfId(style);
-    return xfId;
-  }
-
-  return null;
-}
-
-function getCellStyleXfId(
-  xlsxCellStyle: XlsxCellStyle | null,
-  cellStyleXfs: CellStyleXfs
-) {
-  if (xlsxCellStyle) {
-    const style = {
-      fillId: xlsxCellStyle.fillId || 0,
-      fontId: xlsxCellStyle.fontId || 0,
-      borderId: xlsxCellStyle.borderId || 0,
-      numFmtId: xlsxCellStyle.numFmtId || 0,
-    };
-    const xfId = cellStyleXfs.getCellStyleXfId(style);
-    return xfId;
-  }
-
-  return null;
-}
-
 export function getXlsxCellStyle(
   cell: Cell,
   mappers: StyleMappers
@@ -482,19 +449,25 @@ export function cellToString(
 
   switch (cell.type) {
     case "number": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
       return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
       const index = styleMappers.sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     case "date": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
       const serialValue = convertIsoStringToSerialValue(cell.value);
       return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
     }
@@ -502,7 +475,7 @@ export function cellToString(
       if (xlsxCellStyle === null) {
         throw new Error("xlsxCellStyle is null for hyperlink");
       }
-      const xfId = getCellStyleXfId(xlsxCellStyle, styleMappers.cellStyleXfs);
+      const xfId = styleMappers.cellStyleXfs.getCellStyleXfId(xlsxCellStyle);
       if (xfId === null) {
         throw new Error("xfId is null for hyperlink");
       }
@@ -512,7 +485,7 @@ export function cellToString(
         ...xlsxCellStyle,
       };
       const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const s = ` s="${cellXfId}"`;
       const index = styleMappers.sharedStrings.getIndex(cell.value);
 
       styleMappers.cellStyles.getCellStyleId({

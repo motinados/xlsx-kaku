@@ -1,10 +1,7 @@
-// TODO: Add internal hyperlinks
 type Hyperlink = {
   ref: string;
   rid: string;
   uuid: string;
-  target: string;
-  targetMode: "external"; // | "internal";
 };
 
 export class Hyperlinks {

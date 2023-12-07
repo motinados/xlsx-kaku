@@ -216,12 +216,12 @@ describe("Writer", () => {
   });
 
   test("tableToString for number", () => {
+    const styleMappers = getMappers();
     const table: NullableCell[][] = [
       [],
       [null, null, { type: "number", value: 1 }, { type: "number", value: 2 }],
       [{ type: "number", value: 3 }, { type: "number", value: 4 }, null, null],
     ];
-    const styleMappers = getMappers();
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:4"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
@@ -230,6 +230,7 @@ describe("Writer", () => {
   });
 
   test("tableToString for string", () => {
+    const styleMappers = getMappers();
     const table: NullableCell[][] = [
       [],
       [null, null, { type: "string", value: "hello" }],
@@ -240,7 +241,6 @@ describe("Writer", () => {
         null,
       ],
     ];
-    const styleMappers = getMappers();
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:3"><c r="C2" t="s"><v>0</v></c></row><row r="3" spans="1:3"><c r="A3" t="s"><v>1</v></c><c r="B3" t="s"><v>1</v></c></row></sheetData>`

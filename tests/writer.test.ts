@@ -170,6 +170,49 @@ describe("Writer", () => {
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
 
+  test("cellToString for Hyperlink", () => {
+    const styleMappers = {
+      fills: new Fills(),
+      fonts: new Fonts(),
+      borders: new Borders(),
+      numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
+      cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
+    };
+    const cell: Cell = {
+      type: "hyperlink",
+      value: "https://www.google.com",
+    };
+    const result = cellToString(cell, 2, 0, styleMappers);
+    expect(result).toBe(`<c r="C1" s="1" t="s"><v>0</v></c>`);
+
+    const worksheetRels = styleMappers.worksheetRels.getWorksheetRels();
+    expect(worksheetRels.length).toBe(1);
+    const rels = worksheetRels[0];
+    if (rels === undefined) {
+      throw new Error("rels is undefined");
+    }
+
+    expect(rels.target).toBe("https://www.google.com");
+    expect(rels.targetMode).toBe("External");
+    const rid = rels.id;
+
+    const hyperlinks = styleMappers.hyperlinks.getHyperlinks();
+    expect(hyperlinks.length).toBe(1);
+    const hyperlink = hyperlinks[0];
+    if (hyperlink === undefined) {
+      throw new Error("hyperlink is undefined");
+    }
+
+    expect(hyperlink).not.toBeUndefined();
+    expect(hyperlink.ref).toBe("C1");
+    expect(hyperlink.rid).toBe(rid);
+  });
+
   test("rowToString for number", () => {
     const styleMappers = {
       fills: new Fills(),

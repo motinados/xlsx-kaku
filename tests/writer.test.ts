@@ -18,6 +18,8 @@ import { Borders } from "../src/borders";
 import { NumberFormats } from "../src/numberFormats";
 import { CellStyleXfs } from "../src/cellStyleXfs";
 import { CellStyles } from "../src/cellStyles";
+import { Hyperlinks } from "../src/hyperlinks";
+import { WorksheetRels } from "../src/worksheetRels";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
@@ -113,6 +115,8 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
     };
     const cell: NonNullable<NullableCell> = {
       type: "number",
@@ -132,6 +136,8 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
     };
     const cell: NonNullable<NullableCell> = {
       type: "string",
@@ -153,6 +159,8 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
     };
     const cell: Cell = {
       type: "date",
@@ -172,6 +180,8 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
     };
     const row: NullableCell[] = [
       null,
@@ -195,6 +205,8 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
     };
     const row: NullableCell[] = [
       null,
@@ -226,6 +238,8 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
     };
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(
@@ -254,6 +268,8 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
     };
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(

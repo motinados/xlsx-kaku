@@ -22,6 +22,21 @@ import { Hyperlinks } from "../src/hyperlinks";
 import { WorksheetRels } from "../src/worksheetRels";
 
 describe("Writer", () => {
+  function getMappers() {
+    return {
+      fills: new Fills(),
+      fonts: new Fonts(),
+      borders: new Borders(),
+      numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
+      cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
+    };
+  }
+
   test("findFirstNonNullCell", () => {
     const row: NullableCell[] = [
       null,
@@ -106,18 +121,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for number", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const cell: NonNullable<NullableCell> = {
       type: "number",
       value: 15,
@@ -127,18 +131,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for string", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const cell: NonNullable<NullableCell> = {
       type: "string",
       value: "hello",
@@ -150,18 +143,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for date", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const cell: Cell = {
       type: "date",
       value: "2020-01-01T00:00:00.000Z",
@@ -171,18 +153,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for Hyperlink", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const cell: Cell = {
       type: "hyperlink",
       value: "https://www.google.com",
@@ -214,18 +185,7 @@ describe("Writer", () => {
   });
 
   test("rowToString for number", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const row: NullableCell[] = [
       null,
       null,
@@ -239,18 +199,7 @@ describe("Writer", () => {
   });
 
   test("rowToString for string", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const row: NullableCell[] = [
       null,
       null,
@@ -272,18 +221,7 @@ describe("Writer", () => {
       [null, null, { type: "number", value: 1 }, { type: "number", value: 2 }],
       [{ type: "number", value: 3 }, { type: "number", value: 4 }, null, null],
     ];
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:4"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
@@ -302,18 +240,7 @@ describe("Writer", () => {
         null,
       ],
     ];
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getMappers();
     const result = tableToString(table, styleMappers);
     expect(result.sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:3"><c r="C2" t="s"><v>0</v></c></row><row r="3" spans="1:3"><c r="A3" t="s"><v>1</v></c><c r="B3" t="s"><v>1</v></c></row></sheetData>`

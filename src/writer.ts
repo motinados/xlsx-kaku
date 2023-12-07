@@ -6,14 +6,12 @@ import { Cell, NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
-import { CellXf, CellXfs } from "./cellXfs";
+import { CellXfs } from "./cellXfs";
 import { Fonts } from "./fonts";
 import { Borders } from "./borders";
 import { NumberFormats } from "./numberFormats";
 import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
-import { Hyperlinks } from "./hyperlinks";
-import { WorksheetRels } from "./worksheetRels";
 
 type StyleMappers = {
   fills: Fills;
@@ -24,15 +22,13 @@ type StyleMappers = {
   cellStyleXfs: CellStyleXfs;
   cellXfs: CellXfs;
   cellStyles: CellStyles;
-  hyperlinks: Hyperlinks;
-  worksheetRels: WorksheetRels;
 };
 
 type XlsxCellStyle = {
-  fontId: number;
-  fillId: number;
-  borderId: number;
-  numFmtId: number;
+  fontId?: number;
+  fillId?: number;
+  borderId?: number;
+  numFmtId?: number;
 };
 
 export async function writeFile(filename: string, sheetData: NullableCell[][]) {
@@ -45,8 +41,6 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
     cellStyleXfs: new CellStyleXfs(),
     cellXfs: new CellXfs(),
     cellStyles: new CellStyles(),
-    hyperlinks: new Hyperlinks(),
-    worksheetRels: new WorksheetRels(),
   };
 
   const { sheetDataXml, sharedStringsXml } = tableToString(
@@ -55,11 +49,7 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   );
   const hasSharedStrings = sharedStringsXml !== null;
   const dimension = getDimension(sheetData);
-  const sheetXml = makeSheetXml(
-    sheetDataXml,
-    dimension,
-    styleMappers.hyperlinks
-  );
+  const sheetXml = makeSheetXml(sheetDataXml, dimension);
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
@@ -121,18 +111,6 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
     fs.mkdirSync(worksheetsPath, { recursive: true });
   }
   fs.writeFileSync(path.join(worksheetsPath, "sheet1.xml"), sheetXml);
-
-  if (styleMappers.worksheetRels.relsLength > 0) {
-    const worksheets_relsPath = path.resolve(worksheetsPath, "_rels");
-    if (!fs.existsSync(worksheets_relsPath)) {
-      fs.mkdirSync(worksheets_relsPath, { recursive: true });
-    }
-    const worksheetRelsXml = styleMappers.worksheetRels.makeXML();
-    fs.writeFileSync(
-      path.join(worksheets_relsPath, "sheet1.xml.rels"),
-      worksheetRelsXml
-    );
-  }
 
   await zipToXlsx(xlsxPath, xlsxPath + ".xlsx");
 }
@@ -205,8 +183,7 @@ export function tableToString(
 
 export function makeSheetXml(
   sheetDataString: string,
-  dimension: { start: string; end: string },
-  hyperlinks: Hyperlinks
+  dimension: { start: string; end: string }
 ) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
@@ -221,11 +198,6 @@ export function makeSheetXml(
   results.push("</sheetViews>");
   results.push('<sheetFormatPr defaultRowHeight="13.5"/>');
   results.push(sheetDataString);
-
-  if (hyperlinks.getHyperlinks().length > 0) {
-    results.push(hyperlinks.makeXML());
-  }
-
   results.push(
     '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>'
   );
@@ -480,21 +452,18 @@ export function cellToString(
   assignHyperlinkStyleIfUndefined(cell);
   const xlsxCellStyle = getXlsxCellStyle(cell, styleMappers);
 
+  const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+  const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+
   switch (cell.type) {
     case "number": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       const index = styleMappers.sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     case "date": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       const serialValue = convertIsoStringToSerialValue(cell.value);
       return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
     }
@@ -502,35 +471,17 @@ export function cellToString(
       if (xlsxCellStyle === null) {
         throw new Error("xlsxCellStyle is null for hyperlink");
       }
-      const xfId = getCellStyleXfId(xlsxCellStyle, styleMappers.cellStyleXfs);
-      if (xfId === null) {
-        throw new Error("xfId is null for hyperlink");
-      }
-
-      const cellXf: CellXf = {
-        xfId: xfId,
-        ...xlsxCellStyle,
-      };
-      const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       const index = styleMappers.sharedStrings.getIndex(cell.value);
 
+      const xfId = getCellStyleXfId(xlsxCellStyle, styleMappers.cellStyleXfs);
+      if (xfId === null) {
+        throw new Error("cellXfId is null for hyperlink");
+      }
       styleMappers.cellStyles.getCellStyleId({
         name: "Hyperlink",
         xfId: xfId,
         uid: "{00000000-000B-0000-0000-000008000000}",
       });
-
-      const rid = styleMappers.worksheetRels.addWorksheetRel(cell.value);
-
-      styleMappers.hyperlinks.addHyperlink({
-        ref: `${column}${rowNumber}`,
-        rid: rid,
-        uuid: uuidv4(),
-        target: cell.value,
-        targetMode: "external",
-      });
-
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     // default: {

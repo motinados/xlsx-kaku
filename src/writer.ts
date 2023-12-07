@@ -452,14 +452,14 @@ export function cellToString(
       const cellXfId = xlsxCellStyle
         ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
         : null;
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
       return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
       const cellXfId = xlsxCellStyle
         ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
         : null;
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
       const index = styleMappers.sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
@@ -467,7 +467,7 @@ export function cellToString(
       const cellXfId = xlsxCellStyle
         ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
         : null;
-      const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
       const serialValue = convertIsoStringToSerialValue(cell.value);
       return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
     }

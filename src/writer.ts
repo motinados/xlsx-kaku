@@ -527,8 +527,6 @@ export function cellToString(
         ref: `${column}${rowNumber}`,
         rid: rid,
         uuid: uuidv4(),
-        target: cell.value,
-        targetMode: "external",
       });
 
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;

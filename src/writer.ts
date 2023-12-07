@@ -413,21 +413,6 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
   }
 }
 
-function getCellXfId(xlsxCellStyle: XlsxCellStyle | null, cellXfs: CellXfs) {
-  if (xlsxCellStyle) {
-    const style = {
-      fillId: xlsxCellStyle.fillId || 0,
-      fontId: xlsxCellStyle.fontId || 0,
-      borderId: xlsxCellStyle.borderId || 0,
-      numFmtId: xlsxCellStyle.numFmtId || 0,
-    };
-    const xfId = cellXfs.getCellXfId(style);
-    return xfId;
-  }
-
-  return null;
-}
-
 function getCellStyleXfId(
   xlsxCellStyle: XlsxCellStyle | null,
   cellStyleXfs: CellStyleXfs
@@ -482,18 +467,24 @@ export function cellToString(
 
   switch (cell.type) {
     case "number": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
       const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
       const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       const index = styleMappers.sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     case "date": {
-      const cellXfId = getCellXfId(xlsxCellStyle, styleMappers.cellXfs);
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
       const s = cellXfId !== null ? ` s="${cellXfId}"` : "";
       const serialValue = convertIsoStringToSerialValue(cell.value);
       return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;

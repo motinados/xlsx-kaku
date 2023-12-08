@@ -14,6 +14,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
+import { Worksheet } from "./worksheet";
 
 type StyleMappers = {
   fills: Fills;
@@ -35,7 +36,11 @@ type XlsxCellStyle = {
   numFmtId: number;
 };
 
-export async function writeFile(filename: string, sheetData: NullableCell[][]) {
+export async function writeFile(filename: string, worksheets: Worksheet[]) {
+  if (worksheets.length === 0) {
+    throw new Error("worksheets is empty");
+  }
+
   const styleMappers = {
     fills: new Fills(),
     fonts: new Fonts(),
@@ -49,28 +54,27 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
     worksheetRels: new WorksheetRels(),
   };
 
-  const { sheetDataXml, sharedStringsXml } = tableToString(
-    sheetData,
-    styleMappers
-  );
-  const hasSharedStrings = sharedStringsXml !== null;
+  const sheetsLength = worksheets.length;
+  const sheetData: NullableCell[][] = worksheets[0]!.sheetData;
+  const sheetDataXml = tableToString(sheetData, styleMappers);
   const dimension = getDimension(sheetData);
   const sheetXml = makeSheetXml(
     sheetDataXml,
     dimension,
     styleMappers.hyperlinks
   );
+
+  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
+  const hasSharedStrings = sharedStringsXml !== null;
+  const workbookXml = makeWorkbookXml();
+  const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
+  const contentTypesXml = makeContentTypesXml(hasSharedStrings, sheetsLength);
+
+  const stylesXml = makeStylesXml(styleMappers);
+  const relsFile = makeRelsFile();
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
-  const stylesXml = makeStylesXml(styleMappers);
-  const workbookXml = makeWorkbookXml();
-  const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
-  const relsFile = makeRelsFile();
-
-  // TODO: support multiple sheets
-  const sheetsLength = 1;
-  const contentTypesXml = makeContentTypesXml(hasSharedStrings, sheetsLength);
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
@@ -199,8 +203,7 @@ export function tableToString(
   styleMappers: StyleMappers
 ) {
   const sheetDataXml = makeSheetDataXml(table, styleMappers);
-  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
-  return { sheetDataXml, sharedStringsXml };
+  return sheetDataXml;
 }
 
 export function makeSheetXml(

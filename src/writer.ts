@@ -67,7 +67,10 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   const workbookXml = makeWorkbookXml();
   const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
   const relsFile = makeRelsFile();
-  const contentTypesXml = makeContentTypesXml(hasSharedStrings);
+
+  // TODO: support multiple sheets
+  const sheetsLength = 1;
+  const contentTypesXml = makeContentTypesXml(hasSharedStrings, sheetsLength);
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
@@ -703,7 +706,7 @@ function makeRelsFile() {
   return results.join("");
 }
 
-function makeContentTypesXml(sharedStrings: boolean) {
+function makeContentTypesXml(sharedStrings: boolean, sheetsLength: number) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
@@ -722,9 +725,15 @@ function makeContentTypesXml(sharedStrings: boolean) {
   results.push(
     '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
   );
-  results.push(
-    '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
-  );
+
+  // <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  // <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  for (let i = 1; i <= sheetsLength; i++) {
+    results.push(
+      `<Override PartName="/xl/worksheets/sheet${i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`
+    );
+  }
+
   results.push(
     '<Override PartName="/xl/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
   );

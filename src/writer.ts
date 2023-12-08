@@ -54,15 +54,19 @@ export async function writeFile(filename: string, worksheets: Worksheet[]) {
     worksheetRels: new WorksheetRels(),
   };
 
+  const sheetXmls: string[] = [];
   const sheetsLength = worksheets.length;
-  const sheetData: NullableCell[][] = worksheets[0]!.sheetData;
-  const sheetDataXml = tableToString(sheetData, styleMappers);
-  const dimension = getDimension(sheetData);
-  const sheetXml = makeSheetXml(
-    sheetDataXml,
-    dimension,
-    styleMappers.hyperlinks
-  );
+  for (const worksheet of worksheets) {
+    const sheetData: NullableCell[][] = worksheet.sheetData;
+    const sheetDataXml = tableToString(sheetData, styleMappers);
+    const dimension = getDimension(sheetData);
+    const sheetXml = makeSheetXml(
+      sheetDataXml,
+      dimension,
+      styleMappers.hyperlinks
+    );
+    sheetXmls.push(sheetXml);
+  }
 
   const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
   const hasSharedStrings = sharedStringsXml !== null;
@@ -124,7 +128,15 @@ export async function writeFile(filename: string, worksheets: Worksheet[]) {
   if (!fs.existsSync(worksheetsPath)) {
     fs.mkdirSync(worksheetsPath, { recursive: true });
   }
-  fs.writeFileSync(path.join(worksheetsPath, "sheet1.xml"), sheetXml);
+
+  let sheetIndex = 1;
+  for (const sheetXml of sheetXmls) {
+    fs.writeFileSync(
+      path.join(worksheetsPath, `sheet${sheetIndex}.xml`),
+      sheetXml
+    );
+    sheetIndex++;
+  }
 
   if (styleMappers.worksheetRels.relsLength > 0) {
     const worksheets_relsPath = path.resolve(worksheetsPath, "_rels");

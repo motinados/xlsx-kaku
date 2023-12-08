@@ -67,16 +67,13 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   const workbookXml = makeWorkbookXml();
   const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
   const relsFile = makeRelsFile();
-  const contentTypesFile = makeContentTypesFile(hasSharedStrings);
+  const contentTypesXml = makeContentTypesXml(hasSharedStrings);
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
     fs.mkdirSync(xlsxPath, { recursive: true });
   }
-  fs.writeFileSync(
-    path.join(xlsxPath, "[Content_Types].xml"),
-    contentTypesFile
-  );
+  fs.writeFileSync(path.join(xlsxPath, "[Content_Types].xml"), contentTypesXml);
 
   const _relsPath = path.resolve(xlsxPath, "_rels");
   if (!fs.existsSync(_relsPath)) {
@@ -706,7 +703,7 @@ function makeRelsFile() {
   return results.join("");
 }
 
-function makeContentTypesFile(sharedStrings: boolean) {
+function makeContentTypesXml(sharedStrings: boolean) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(

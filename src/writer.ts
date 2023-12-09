@@ -37,7 +37,7 @@ type XlsxCellStyle = {
   numFmtId: number;
 };
 
-export async function writeFile(filepath: string, worksheets: Worksheet[]) {
+export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
   if (worksheets.length === 0) {
     throw new Error("worksheets is empty");
   }

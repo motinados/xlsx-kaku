@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
+import { rimrafSync } from "rimraf";
 import { v4 as uuidv4 } from "uuid";
 import { Cell, NullableCell, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
@@ -36,7 +37,7 @@ type XlsxCellStyle = {
   numFmtId: number;
 };
 
-export async function writeFile(filename: string, worksheets: Worksheet[]) {
+export async function writeFile(filepath: string, worksheets: Worksheet[]) {
   if (worksheets.length === 0) {
     throw new Error("worksheets is empty");
   }
@@ -86,26 +87,28 @@ export async function writeFile(filename: string, worksheets: Worksheet[]) {
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
 
-  const xlsxPath = path.resolve(filename);
-  if (!fs.existsSync(xlsxPath)) {
-    fs.mkdirSync(xlsxPath, { recursive: true });
+  const xlsxPath = path.resolve(filepath);
+  const basePath = path.dirname(filepath);
+  const workDir = path.join(basePath, "work");
+  if (!fs.existsSync(workDir)) {
+    fs.mkdirSync(workDir, { recursive: true });
   }
-  fs.writeFileSync(path.join(xlsxPath, "[Content_Types].xml"), contentTypesXml);
+  fs.writeFileSync(path.join(workDir, "[Content_Types].xml"), contentTypesXml);
 
-  const _relsPath = path.resolve(xlsxPath, "_rels");
+  const _relsPath = path.resolve(workDir, "_rels");
   if (!fs.existsSync(_relsPath)) {
     fs.mkdirSync(_relsPath, { recursive: true });
   }
   fs.writeFileSync(path.join(_relsPath, ".rels"), relsFile);
 
-  const docPropsPath = path.resolve(xlsxPath, "docProps");
+  const docPropsPath = path.resolve(workDir, "docProps");
   if (!fs.existsSync(docPropsPath)) {
     fs.mkdirSync(docPropsPath, { recursive: true });
   }
   fs.writeFileSync(path.join(docPropsPath, "app.xml"), appXml);
   fs.writeFileSync(path.join(docPropsPath, "core.xml"), coreXml);
 
-  const xlPath = path.resolve(xlsxPath, "xl");
+  const xlPath = path.resolve(workDir, "xl");
   if (!fs.existsSync(xlPath)) {
     fs.mkdirSync(xlPath, { recursive: true });
   }
@@ -156,7 +159,8 @@ export async function writeFile(filename: string, worksheets: Worksheet[]) {
     );
   }
 
-  await zipToXlsx(xlsxPath, xlsxPath + ".xlsx");
+  await zipToXlsx(workDir, xlsxPath);
+  rimrafSync(workDir);
 }
 
 export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {

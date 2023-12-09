@@ -9,7 +9,7 @@ export type CellXf = {
 };
 
 export class CellXfs {
-  private cellXfs = new Map<string, number>([
+  private _cellXfs = new Map<string, number>([
     [
       stringifySorted({
         fillId: 0,
@@ -21,15 +21,23 @@ export class CellXfs {
     ],
   ]);
 
+  get count(): number {
+    return this._cellXfs.size;
+  }
+
+  get cellXfs(): Map<string, number> {
+    return this._cellXfs;
+  }
+
   getCellXfId(cellXf: CellXf): number {
     const key = stringifySorted(cellXf);
-    const id = this.cellXfs.get(key);
+    const id = this._cellXfs.get(key);
     if (id !== undefined) {
       return id;
     }
 
-    const cellXfId = this.cellXfs.size;
-    this.cellXfs.set(key, cellXfId);
+    const cellXfId = this.count;
+    this._cellXfs.set(key, cellXfId);
     return cellXfId;
   }
 
@@ -38,8 +46,8 @@ export class CellXfs {
   //   <xf numFmtId="0" fontId="0" fillId="2" borderId="0" xfId="0" applyFill="1"/>
   // </cellXfs>
   makeXml(): string {
-    let xml = `<cellXfs count="${this.cellXfs.size}">`;
-    this.cellXfs.forEach((_, key) => {
+    let xml = `<cellXfs count="${this.count}">`;
+    this._cellXfs.forEach((_, key) => {
       const cellXf = JSON.parse(key) as CellXf;
       const xfId = cellXf.xfId ?? 0;
       xml += `<xf numFmtId="${cellXf.numFmtId}" fontId="${cellXf.fontId}" fillId="${cellXf.fillId}" borderId="${cellXf.borderId}" xfId="${xfId}"`;

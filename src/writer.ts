@@ -55,7 +55,7 @@ export async function writeFile(filename: string, worksheets: Worksheet[]) {
   };
 
   const sheetXmls: string[] = [];
-  const sheetsLength = worksheets.length;
+  const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
     const sheetData: NullableCell[][] = worksheet.sheetData;
     const sheetDataXml = tableToString(sheetData, styleMappers);
@@ -71,8 +71,14 @@ export async function writeFile(filename: string, worksheets: Worksheet[]) {
   const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
   const hasSharedStrings = sharedStringsXml !== null;
   const workbookXml = makeWorkbookXml(worksheets);
-  const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
-  const contentTypesXml = makeContentTypesXml(hasSharedStrings, sheetsLength);
+  const workbookXmlRels = makeWorkbookXmlRels(
+    hasSharedStrings,
+    worksheetsLength
+  );
+  const contentTypesXml = makeContentTypesXml(
+    hasSharedStrings,
+    worksheetsLength
+  );
 
   const stylesXml = makeStylesXml(styleMappers);
   const relsFile = makeRelsFile();
@@ -525,24 +531,37 @@ export function cellToString(
   }
 }
 
-function makeWorkbookXmlRels(sharedStrings: boolean): string {
+function makeWorkbookXmlRels(
+  sharedStrings: boolean,
+  wooksheetsLength: number
+): string {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
   );
+
+  let index = 1;
+  while (index <= wooksheetsLength) {
+    results.push(
+      `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${index}.xml"/>`
+    );
+    index++;
+  }
+
   results.push(
-    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+    `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>`
   );
+  index++;
+
   results.push(
-    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>'
+    `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
   );
-  results.push(
-    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
-  );
+  index++;
+
   if (sharedStrings) {
     results.push(
-      '<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+      `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`
     );
   }
   results.push("</Relationships>");

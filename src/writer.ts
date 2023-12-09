@@ -70,7 +70,7 @@ export async function writeFile(filename: string, worksheets: Worksheet[]) {
 
   const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
   const hasSharedStrings = sharedStringsXml !== null;
-  const workbookXml = makeWorkbookXml();
+  const workbookXml = makeWorkbookXml(worksheets);
   const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
   const contentTypesXml = makeContentTypesXml(hasSharedStrings, sheetsLength);
 
@@ -640,7 +640,7 @@ function makeStylesXml(styleMappers: StyleMappers) {
   return results.join("");
 }
 
-function makeWorkbookXml() {
+function makeWorkbookXml(worksheets: Worksheet[]) {
   const documentId = uuidv4();
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
@@ -659,9 +659,18 @@ function makeWorkbookXml() {
     '<workbookView xWindow="240" yWindow="105" windowWidth="14805" windowHeight="8010" xr2:uid="{00000000-000D-0000-FFFF-FFFF00000000}"/>'
   );
   results.push("</bookViews>");
+
   results.push("<sheets>");
-  results.push('<sheet name="Sheet1" sheetId="1" r:id="rId1"/>');
+  let sheetId = 1;
+  for (const sheet of worksheets) {
+    // results.push('<sheet name="Sheet1" sheetId="1" r:id="rId1"/>');
+    results.push(
+      `<sheet name="${sheet.name}" sheetId="${sheetId}" r:id="rId${sheetId}"/>`
+    );
+    sheetId++;
+  }
   results.push("</sheets>");
+
   results.push('<calcPr calcId="191028"/>');
   results.push("<extLst>");
   results.push(

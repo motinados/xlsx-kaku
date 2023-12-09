@@ -4,8 +4,8 @@ import { writeXlsx } from "./writer";
 export class Workbook {
   private _worksheets: Worksheet[] = [];
 
-  addWorksheet(name: string) {
-    const ws = new Worksheet(name);
+  addWorksheet(sheetName: string) {
+    const ws = new Worksheet(sheetName);
     this._worksheets.push(ws);
     return ws;
   }

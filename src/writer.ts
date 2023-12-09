@@ -38,54 +38,19 @@ type XlsxCellStyle = {
 };
 
 export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
-  if (worksheets.length === 0) {
-    throw new Error("worksheets is empty");
-  }
-
-  const styleMappers = {
-    fills: new Fills(),
-    fonts: new Fonts(),
-    borders: new Borders(),
-    numberFormats: new NumberFormats(),
-    sharedStrings: new SharedStrings(),
-    cellStyleXfs: new CellStyleXfs(),
-    cellXfs: new CellXfs(),
-    cellStyles: new CellStyles(),
-    hyperlinks: new Hyperlinks(),
-    worksheetRels: new WorksheetRels(),
-  };
-
-  const sheetXmls: string[] = [];
-  const worksheetsLength = worksheets.length;
-  for (const worksheet of worksheets) {
-    const sheetData: NullableCell[][] = worksheet.sheetData;
-    const sheetDataXml = tableToString(sheetData, styleMappers);
-    const dimension = getDimension(sheetData);
-    const sheetXml = makeSheetXml(
-      sheetDataXml,
-      dimension,
-      styleMappers.hyperlinks
-    );
-    sheetXmls.push(sheetXml);
-  }
-
-  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
-  const hasSharedStrings = sharedStringsXml !== null;
-  const workbookXml = makeWorkbookXml(worksheets);
-  const workbookXmlRels = makeWorkbookXmlRels(
-    hasSharedStrings,
-    worksheetsLength
-  );
-  const contentTypesXml = makeContentTypesXml(
-    hasSharedStrings,
-    worksheetsLength
-  );
-
-  const stylesXml = makeStylesXml(styleMappers);
-  const relsFile = makeRelsFile();
-  const themeXml = makeThemeXml();
-  const appXml = makeAppXml();
-  const coreXml = makeCoreXml();
+  const {
+    sharedStringsXml,
+    workbookXml,
+    workbookXmlRels,
+    contentTypesXml,
+    stylesXml,
+    relsFile,
+    themeXml,
+    appXml,
+    coreXml,
+    sheetXmls,
+    styleMappers,
+  } = createExcelFiles(worksheets);
 
   const xlsxPath = path.resolve(filepath);
   const basePath = path.dirname(filepath);
@@ -161,6 +126,70 @@ export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
 
   await zipToXlsx(workDir, xlsxPath);
   rimrafSync(workDir);
+}
+
+export function createExcelFiles(worksheets: Worksheet[]) {
+  if (worksheets.length === 0) {
+    throw new Error("worksheets is empty");
+  }
+
+  const styleMappers = {
+    fills: new Fills(),
+    fonts: new Fonts(),
+    borders: new Borders(),
+    numberFormats: new NumberFormats(),
+    sharedStrings: new SharedStrings(),
+    cellStyleXfs: new CellStyleXfs(),
+    cellXfs: new CellXfs(),
+    cellStyles: new CellStyles(),
+    hyperlinks: new Hyperlinks(),
+    worksheetRels: new WorksheetRels(),
+  };
+
+  const sheetXmls: string[] = [];
+  const worksheetsLength = worksheets.length;
+  for (const worksheet of worksheets) {
+    const sheetData: NullableCell[][] = worksheet.sheetData;
+    const sheetDataXml = tableToString(sheetData, styleMappers);
+    const dimension = getDimension(sheetData);
+    const sheetXml = makeSheetXml(
+      sheetDataXml,
+      dimension,
+      styleMappers.hyperlinks
+    );
+    sheetXmls.push(sheetXml);
+  }
+
+  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
+  const hasSharedStrings = sharedStringsXml !== null;
+  const workbookXml = makeWorkbookXml(worksheets);
+  const workbookXmlRels = makeWorkbookXmlRels(
+    hasSharedStrings,
+    worksheetsLength
+  );
+  const contentTypesXml = makeContentTypesXml(
+    hasSharedStrings,
+    worksheetsLength
+  );
+
+  const stylesXml = makeStylesXml(styleMappers);
+  const relsFile = makeRelsFile();
+  const themeXml = makeThemeXml();
+  const appXml = makeAppXml();
+  const coreXml = makeCoreXml();
+  return {
+    sharedStringsXml,
+    workbookXml,
+    workbookXmlRels,
+    contentTypesXml,
+    stylesXml,
+    relsFile,
+    themeXml,
+    appXml,
+    coreXml,
+    sheetXmls,
+    styleMappers,
+  };
 }
 
 export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {

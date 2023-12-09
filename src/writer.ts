@@ -14,6 +14,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
+import { Worksheet } from "./worksheet";
 
 type StyleMappers = {
   fills: Fills;
@@ -35,7 +36,11 @@ type XlsxCellStyle = {
   numFmtId: number;
 };
 
-export async function writeFile(filename: string, sheetData: NullableCell[][]) {
+export async function writeFile(filename: string, worksheets: Worksheet[]) {
+  if (worksheets.length === 0) {
+    throw new Error("worksheets is empty");
+  }
+
   const styleMappers = {
     fills: new Fills(),
     fonts: new Fonts(),
@@ -49,34 +54,43 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
     worksheetRels: new WorksheetRels(),
   };
 
-  const { sheetDataXml, sharedStringsXml } = tableToString(
-    sheetData,
-    styleMappers
-  );
+  const sheetXmls: string[] = [];
+  const worksheetsLength = worksheets.length;
+  for (const worksheet of worksheets) {
+    const sheetData: NullableCell[][] = worksheet.sheetData;
+    const sheetDataXml = tableToString(sheetData, styleMappers);
+    const dimension = getDimension(sheetData);
+    const sheetXml = makeSheetXml(
+      sheetDataXml,
+      dimension,
+      styleMappers.hyperlinks
+    );
+    sheetXmls.push(sheetXml);
+  }
+
+  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
   const hasSharedStrings = sharedStringsXml !== null;
-  const dimension = getDimension(sheetData);
-  const sheetXml = makeSheetXml(
-    sheetDataXml,
-    dimension,
-    styleMappers.hyperlinks
+  const workbookXml = makeWorkbookXml(worksheets);
+  const workbookXmlRels = makeWorkbookXmlRels(
+    hasSharedStrings,
+    worksheetsLength
   );
+  const contentTypesXml = makeContentTypesXml(
+    hasSharedStrings,
+    worksheetsLength
+  );
+
+  const stylesXml = makeStylesXml(styleMappers);
+  const relsFile = makeRelsFile();
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();
   const coreXml = makeCoreXml();
-  const stylesXml = makeStylesXml(styleMappers);
-  const workbookXml = makeWorkbookXml();
-  const workbookXmlRels = makeWorkbookXmlRels(hasSharedStrings);
-  const relsFile = makeRelsFile();
-  const contentTypesFile = makeContentTypesFile(hasSharedStrings);
 
   const xlsxPath = path.resolve(filename);
   if (!fs.existsSync(xlsxPath)) {
     fs.mkdirSync(xlsxPath, { recursive: true });
   }
-  fs.writeFileSync(
-    path.join(xlsxPath, "[Content_Types].xml"),
-    contentTypesFile
-  );
+  fs.writeFileSync(path.join(xlsxPath, "[Content_Types].xml"), contentTypesXml);
 
   const _relsPath = path.resolve(xlsxPath, "_rels");
   if (!fs.existsSync(_relsPath)) {
@@ -120,7 +134,15 @@ export async function writeFile(filename: string, sheetData: NullableCell[][]) {
   if (!fs.existsSync(worksheetsPath)) {
     fs.mkdirSync(worksheetsPath, { recursive: true });
   }
-  fs.writeFileSync(path.join(worksheetsPath, "sheet1.xml"), sheetXml);
+
+  let sheetIndex = 1;
+  for (const sheetXml of sheetXmls) {
+    fs.writeFileSync(
+      path.join(worksheetsPath, `sheet${sheetIndex}.xml`),
+      sheetXml
+    );
+    sheetIndex++;
+  }
 
   if (styleMappers.worksheetRels.relsLength > 0) {
     const worksheets_relsPath = path.resolve(worksheetsPath, "_rels");
@@ -199,8 +221,7 @@ export function tableToString(
   styleMappers: StyleMappers
 ) {
   const sheetDataXml = makeSheetDataXml(table, styleMappers);
-  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
-  return { sheetDataXml, sharedStringsXml };
+  return sheetDataXml;
 }
 
 export function makeSheetXml(
@@ -510,24 +531,37 @@ export function cellToString(
   }
 }
 
-function makeWorkbookXmlRels(sharedStrings: boolean): string {
+function makeWorkbookXmlRels(
+  sharedStrings: boolean,
+  wooksheetsLength: number
+): string {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
   );
+
+  let index = 1;
+  while (index <= wooksheetsLength) {
+    results.push(
+      `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${index}.xml"/>`
+    );
+    index++;
+  }
+
   results.push(
-    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+    `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>`
   );
+  index++;
+
   results.push(
-    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>'
+    `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
   );
-  results.push(
-    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
-  );
+  index++;
+
   if (sharedStrings) {
     results.push(
-      '<Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+      `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`
     );
   }
   results.push("</Relationships>");
@@ -625,7 +659,7 @@ function makeStylesXml(styleMappers: StyleMappers) {
   return results.join("");
 }
 
-function makeWorkbookXml() {
+function makeWorkbookXml(worksheets: Worksheet[]) {
   const documentId = uuidv4();
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
@@ -644,9 +678,18 @@ function makeWorkbookXml() {
     '<workbookView xWindow="240" yWindow="105" windowWidth="14805" windowHeight="8010" xr2:uid="{00000000-000D-0000-FFFF-FFFF00000000}"/>'
   );
   results.push("</bookViews>");
+
   results.push("<sheets>");
-  results.push('<sheet name="Sheet1" sheetId="1" r:id="rId1"/>');
+  let sheetId = 1;
+  for (const sheet of worksheets) {
+    // results.push('<sheet name="Sheet1" sheetId="1" r:id="rId1"/>');
+    results.push(
+      `<sheet name="${sheet.name}" sheetId="${sheetId}" r:id="rId${sheetId}"/>`
+    );
+    sheetId++;
+  }
   results.push("</sheets>");
+
   results.push('<calcPr calcId="191028"/>');
   results.push("<extLst>");
   results.push(
@@ -706,7 +749,7 @@ function makeRelsFile() {
   return results.join("");
 }
 
-function makeContentTypesFile(sharedStrings: boolean) {
+function makeContentTypesXml(sharedStrings: boolean, sheetsLength: number) {
   const results: string[] = [];
   results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
   results.push(
@@ -725,9 +768,15 @@ function makeContentTypesFile(sharedStrings: boolean) {
   results.push(
     '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
   );
-  results.push(
-    '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
-  );
+
+  // <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  // <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  for (let i = 1; i <= sheetsLength; i++) {
+    results.push(
+      `<Override PartName="/xl/worksheets/sheet${i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`
+    );
+  }
+
   results.push(
     '<Override PartName="/xl/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
   );

@@ -3,7 +3,7 @@ import path from "node:path";
 import archiver from "archiver";
 import { rimrafSync } from "rimraf";
 import { v4 as uuidv4 } from "uuid";
-import { Cell, NullableCell, convNumberToColumn } from "./sheetData";
+import { Cell, Row, SheetData, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
@@ -149,8 +149,8 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   const sheetXmls: string[] = [];
   const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
-    const sheetData: NullableCell[][] = worksheet.sheetData;
-    const sheetDataXml = tableToString(sheetData, styleMappers);
+    const sheetData = worksheet.sheetData;
+    const sheetDataXml = makeSheetDataXml(sheetData, styleMappers);
     const dimension = getDimension(sheetData);
     const sheetXml = makeSheetXml(
       sheetDataXml,
@@ -220,14 +220,6 @@ export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
   });
 }
 
-export function tableToString(
-  table: NullableCell[][],
-  styleMappers: StyleMappers
-) {
-  const sheetDataXml = makeSheetDataXml(table, styleMappers);
-  return sheetDataXml;
-}
-
 export function makeSheetXml(
   sheetDataString: string,
   dimension: { start: string; end: string },
@@ -271,10 +263,10 @@ export function makeSharedStringsXml(sharedStrings: SharedStrings) {
   return result;
 }
 
-function findFirstNotBlankRow(table: NullableCell[][]) {
+function findFirstNotBlankRow(sheetData: SheetData) {
   let index = 0;
-  for (let i = 0; i < table.length; i++) {
-    const row = table[i]!;
+  for (let i = 0; i < sheetData.length; i++) {
+    const row = sheetData[i]!;
     if (row.length > 0) {
       index = i;
       break;
@@ -283,10 +275,10 @@ function findFirstNotBlankRow(table: NullableCell[][]) {
   return index;
 }
 
-function findLastNotBlankRow(table: NullableCell[][]) {
+function findLastNotBlankRow(sheetData: SheetData) {
   let index = 0;
-  for (let i = table.length - 1; i >= 0; i--) {
-    const row = table[i]!;
+  for (let i = sheetData.length - 1; i >= 0; i--) {
+    const row = sheetData[i]!;
     if (row.length > 0) {
       index = i;
       break;
@@ -295,7 +287,7 @@ function findLastNotBlankRow(table: NullableCell[][]) {
   return index;
 }
 
-export function getDimension(sheetData: NullableCell[][]) {
+export function getDimension(sheetData: SheetData) {
   const firstRowIndex = findFirstNotBlankRow(sheetData);
   const lastRowIndex = findLastNotBlankRow(sheetData);
   if (firstRowIndex === null || lastRowIndex === null) {
@@ -305,7 +297,7 @@ export function getDimension(sheetData: NullableCell[][]) {
   const firstRowNumber = firstRowIndex + 1;
   const lastRowNumber = lastRowIndex + 1;
 
-  const spans = getSpansFromTable(sheetData);
+  const spans = getSpansFromSheetData(sheetData);
   const { startNumber, endNumber } = spans;
   const firstColumn = convNumberToColumn(startNumber - 1);
   const lastColumn = convNumberToColumn(endNumber - 1);
@@ -317,14 +309,14 @@ export function getDimension(sheetData: NullableCell[][]) {
 }
 
 export function makeSheetDataXml(
-  table: NullableCell[][],
+  sheetData: SheetData,
   styleMappers: StyleMappers
 ) {
-  const { startNumber, endNumber } = getSpansFromTable(table);
+  const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
 
   let result = `<sheetData>`;
   let rowIndex = 0;
-  for (const row of table) {
+  for (const row of sheetData) {
     const str = rowToString(
       row,
       rowIndex,
@@ -345,7 +337,7 @@ export function makeSheetDataXml(
  * <row r="1" spans="1:2"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>
  */
 export function rowToString(
-  row: NullableCell[],
+  row: Row,
   rowIndex: number,
   startNumber: number,
   endNumber: number,
@@ -371,8 +363,8 @@ export function rowToString(
   return result;
 }
 
-export function getSpansFromTable(table: NullableCell[][]) {
-  const all = table
+export function getSpansFromSheetData(sheetData: SheetData) {
+  const all = sheetData
     .map((row) => {
       const spans = getSpans(row);
       if (spans === null) {
@@ -389,7 +381,7 @@ export function getSpansFromTable(table: NullableCell[][]) {
   return { startNumber: minStartNumber, endNumber: maxEndNumber };
 }
 
-export function findFirstNonNullCell(row: NullableCell[]) {
+export function findFirstNonNullCell(row: Row) {
   let index = 0;
   let firstNonNullCell = null;
   for (let i = 0; i < row.length; i++) {
@@ -405,7 +397,7 @@ export function findFirstNonNullCell(row: NullableCell[]) {
 /**
  *  [null, null, null, nonnull, null] => index is 3
  */
-export function findLastNonNullCell(row: NullableCell[]) {
+export function findLastNonNullCell(row: Row) {
   let index = 0;
   let lastNonNullCell = null;
   for (let i = row.length - 1; i >= 0; i--) {
@@ -418,7 +410,7 @@ export function findLastNonNullCell(row: NullableCell[]) {
   return { lastNonNullCell, index };
 }
 
-export function getSpans(row: NullableCell[]) {
+export function getSpans(row: Row) {
   const first = findFirstNonNullCell(row);
   if (first === undefined || first === null) {
     return null;

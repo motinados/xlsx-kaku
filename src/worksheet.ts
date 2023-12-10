@@ -1,8 +1,8 @@
-import { NullableCell } from "./sheetData";
+import { NullableCell, SheetData } from "./sheetData";
 
 export class Worksheet {
   private _name: string;
-  private _rows: NullableCell[][] = [];
+  private _sheetData: SheetData = [];
   constructor(name: string) {
     this._name = name;
   }
@@ -11,23 +11,23 @@ export class Worksheet {
     return this._name;
   }
 
-  set sheetData(rows: NullableCell[][]) {
-    this._rows = rows;
+  set sheetData(sheetData: SheetData) {
+    this._sheetData = sheetData;
   }
 
   get sheetData() {
-    return this._rows;
+    return this._sheetData;
   }
 
   setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
-    if (!this._rows[rowIndex]) {
-      const diff = rowIndex - this._rows.length + 1;
+    if (!this._sheetData[rowIndex]) {
+      const diff = rowIndex - this._sheetData.length + 1;
       for (let i = 0; i < diff; i++) {
-        this._rows.push([]);
+        this._sheetData.push([]);
       }
     }
 
-    const rows = this._rows[rowIndex]!;
+    const rows = this._sheetData[rowIndex]!;
 
     if (!rows[colIndex]) {
       const diff = colIndex - rows.length + 1;

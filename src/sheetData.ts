@@ -36,51 +36,7 @@ export type NullableCell = Cell | null;
 
 export type Row = NullableCell[];
 
-export class SheetData {
-  private _rows: NullableCell[][] = [];
-  constructor() {}
-
-  get rowsLength() {
-    return this._rows.length;
-  }
-
-  get table() {
-    return this._rows;
-  }
-
-  getCell(rowIndex: number, colIndex: number): NullableCell {
-    if (!this._rows[rowIndex]) {
-      return null;
-    }
-
-    const rows = this._rows[rowIndex]!;
-    if (!rows[colIndex]) {
-      return null;
-    }
-
-    return rows[colIndex]!;
-  }
-
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
-    if (!this._rows[rowIndex]) {
-      const diff = rowIndex - this._rows.length + 1;
-      for (let i = 0; i < diff; i++) {
-        this._rows.push([]);
-      }
-    }
-
-    const rows = this._rows[rowIndex]!;
-
-    if (!rows[colIndex]) {
-      const diff = colIndex - rows.length + 1;
-      for (let i = 0; i < diff; i++) {
-        rows.push(null);
-      }
-    }
-
-    rows[colIndex] = cell;
-  }
-}
+export type SheetData = Row[];
 
 /**
  * 'A1' => ['A', 1]

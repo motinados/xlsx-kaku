@@ -1,4 +1,4 @@
-import { Cell, NullableCell } from "../src/sheetData";
+import { Cell, Row, SheetData } from "../src/sheetData";
 import { SharedStrings } from "../src/sharedStrings";
 import {
   cellToString,
@@ -7,9 +7,9 @@ import {
   findLastNonNullCell,
   getDimension,
   getSpans,
-  getSpansFromTable,
+  getSpansFromSheetData,
+  makeSheetDataXml,
   rowToString,
-  tableToString,
 } from "../src/writer";
 import { CellXfs } from "../src/cellXfs";
 import { Fonts } from "../src/fonts";
@@ -23,7 +23,7 @@ import { WorksheetRels } from "../src/worksheetRels";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
-    const row: NullableCell[] = [
+    const row: Row = [
       null,
       null,
       { type: "string", value: "name" },
@@ -35,7 +35,7 @@ describe("Writer", () => {
   });
 
   test("findLastNonNullCell", () => {
-    const row: NullableCell[] = [
+    const row: Row = [
       null,
       null,
       { type: "string", value: "name" },
@@ -47,7 +47,7 @@ describe("Writer", () => {
   });
 
   test("getSpans", () => {
-    const row: NullableCell[] = [
+    const row: Row = [
       null,
       null,
       { type: "string", value: "name" },
@@ -59,7 +59,7 @@ describe("Writer", () => {
   });
 
   test("getSpansFromTable", () => {
-    const table: NullableCell[][] = [
+    const sheetData: SheetData = [
       [],
       [null, null, { type: "string", value: "name" }],
       [
@@ -69,13 +69,13 @@ describe("Writer", () => {
         null,
       ],
     ];
-    const spans = getSpansFromTable(table)!;
+    const spans = getSpansFromSheetData(sheetData)!;
     expect(spans.startNumber).toBe(1);
     expect(spans.endNumber).toBe(3);
   });
 
   test("getDimensions", () => {
-    const table: NullableCell[][] = [
+    const sheetData: SheetData = [
       [],
       [null, null, { type: "string", value: "name" }],
       [
@@ -85,7 +85,7 @@ describe("Writer", () => {
         null,
       ],
     ];
-    const { start, end } = getDimension(table);
+    const { start, end } = getDimension(sheetData);
     expect(start).toBe("A2");
     expect(end).toBe("C3");
   });
@@ -118,7 +118,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const cell: NonNullable<NullableCell> = {
+    const cell: Cell = {
       type: "number",
       value: 15,
     };
@@ -139,7 +139,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const cell: NonNullable<NullableCell> = {
+    const cell: Cell = {
       type: "string",
       value: "hello",
     };
@@ -226,7 +226,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const row: NullableCell[] = [
+    const row: Row = [
       null,
       null,
       { type: "number", value: 15 },
@@ -251,7 +251,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const row: NullableCell[] = [
+    const row: Row = [
       null,
       null,
       { type: "string", value: "hello" },
@@ -267,7 +267,7 @@ describe("Writer", () => {
   });
 
   test("tableToString for number", () => {
-    const table: NullableCell[][] = [
+    const sheetData: SheetData = [
       [],
       [null, null, { type: "number", value: 1 }, { type: "number", value: 2 }],
       [{ type: "number", value: 3 }, { type: "number", value: 4 }, null, null],
@@ -284,14 +284,14 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const sheetDataXml = tableToString(table, styleMappers);
+    const sheetDataXml = makeSheetDataXml(sheetData, styleMappers);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:4"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
     );
   });
 
   test("tableToString for string", () => {
-    const table: NullableCell[][] = [
+    const sheetData: SheetData = [
       [],
       [null, null, { type: "string", value: "hello" }],
       [
@@ -313,7 +313,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const sheetDataXml = tableToString(table, styleMappers);
+    const sheetDataXml = makeSheetDataXml(sheetData, styleMappers);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:3"><c r="C2" t="s"><v>0</v></c></row><row r="3" spans="1:3"><c r="A3" t="s"><v>1</v></c><c r="B3" t="s"><v>1</v></c></row></sheetData>`
     );

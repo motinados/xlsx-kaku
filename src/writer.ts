@@ -197,7 +197,6 @@ export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
     const archive = archiver("zip", { zlib: { level: 9 } });
 
     output.on("close", () => {
-      console.log(`Archived ${archive.pointer()} total bytes`);
       resolve();
     });
 

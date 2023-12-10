@@ -1,8 +1,8 @@
 import { stringifySorted } from "./utils";
+
 // <cellStyles count="2">
 //     <cellStyle name="Hyperlink" xfId="1" xr:uid="{00000000-000B-0000-0000-000008000000}"/>
 //     <cellStyle name="標準" xfId="0" builtinId="0"/>
-
 // </cellStyles>
 type CellStyle =
   | { name: string; xfId: number; builtinId: number }

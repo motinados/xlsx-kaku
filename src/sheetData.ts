@@ -30,6 +30,11 @@ export type Cell =
       type: "hyperlink";
       value: string;
       style?: CellStyle;
+    }
+  | {
+      type: "boolean";
+      value: boolean;
+      style?: CellStyle;
     };
 
 export type NullableCell = Cell | null;

@@ -550,9 +550,18 @@ export function cellToString(
 
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
-    // default: {
-    //   throw new Error(`not implemented: ${cell.type}`);
-    // }
+    case "boolean": {
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
+      const v = cell.value ? 1 : 0;
+      return `<c r="${column}${rowNumber}"${s} t="b"><v>${v}</v></c>`;
+    }
+    default: {
+      const _exhaustiveCheck: never = cell;
+      throw new Error(`unknown cell type: ${_exhaustiveCheck}`);
+    }
   }
 }
 

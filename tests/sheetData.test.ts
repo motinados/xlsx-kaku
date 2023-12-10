@@ -2,7 +2,7 @@ import {
   convColumnToNumber,
   convNumberToColumn,
   devideAddress,
-} from "../src/sheetData";
+} from "../src/utils";
 
 describe("SheetData", () => {
   test("convColumnToNumber", () => {

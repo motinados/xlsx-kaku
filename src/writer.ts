@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
 import { v4 as uuidv4 } from "uuid";
-import { Cell, Row, SheetData, convNumberToColumn } from "./sheetData";
+import { Cell, Row, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
@@ -15,6 +15,7 @@ import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
 import { Worksheet } from "./worksheet";
+import { convNumberToColumn } from "./utils";
 
 type StyleMappers = {
   fills: Fills;

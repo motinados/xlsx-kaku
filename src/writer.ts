@@ -1,7 +1,6 @@
 import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
-import { rimrafSync } from "rimraf";
 import { v4 as uuidv4 } from "uuid";
 import { Cell, Row, SheetData, convNumberToColumn } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
@@ -125,7 +124,7 @@ export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
   }
 
   await zipToXlsx(workDir, xlsxPath);
-  rimrafSync(workDir);
+  fs.rmSync(workDir, { recursive: true });
 }
 
 export function createExcelFiles(worksheets: Worksheet[]) {

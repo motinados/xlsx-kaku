@@ -1,4 +1,4 @@
-import { stringifySorted } from "./fonts";
+import { stringifySorted } from "./utils";
 
 export type Fill =
   | {

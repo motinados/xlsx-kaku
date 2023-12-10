@@ -1,4 +1,4 @@
-import { stringifySorted } from "./fonts";
+import { stringifySorted } from "./utils";
 
 type CellStyleXf = {
   fillId: number;

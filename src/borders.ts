@@ -1,4 +1,4 @@
-import { stringifySorted } from "./fonts";
+import { stringifySorted } from "./utils";
 
 // https://learn.microsoft.com/ja-jp/dotnet/api/documentformat.openxml.spreadsheet.borderstylevalues?view=openxml-2.8.1
 type BorderStyle =

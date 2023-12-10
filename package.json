@@ -1,7 +1,7 @@
 {
   "name": "excel-writer",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "excel xlsx file writer",
   "type": "module",
   "exports": {
     ".": {
@@ -16,9 +16,13 @@
     "build": "tsup ./src",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "excel",
+    "xlsx",
+    "writer"
+  ],
+  "author": "motinados",
+  "license": "MIT",
   "devDependencies": {
     "@types/archiver": "^6.0.2",
     "@types/jest": "^29.5.8",

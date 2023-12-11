@@ -2,6 +2,7 @@
   "name": "excel-writer",
   "version": "0.1.0",
   "description": "excel xlsx file writer",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
@@ -23,6 +24,9 @@
   ],
   "author": "motinados",
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/archiver": "^6.0.2",
     "@types/jest": "^29.5.8",

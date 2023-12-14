@@ -1,7 +1,7 @@
 {
-  "name": "excel-writer",
+  "name": "xlsx-kaku",
   "version": "0.1.0",
-  "description": "excel xlsx file writer",
+  "description": "Nodejs library for writing Excel xlsx files.",
   "sideEffects": false,
   "type": "module",
   "exports": {

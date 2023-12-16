@@ -4,7 +4,7 @@ import {
   devideAddress,
 } from "../src/utils";
 
-describe("SheetData", () => {
+describe("utils", () => {
   test("convColumnToNumber", () => {
     expect(convColumnToNumber("A")).toBe(0);
     expect(convColumnToNumber("B")).toBe(1);

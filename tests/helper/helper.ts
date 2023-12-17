@@ -1,8 +1,6 @@
 import * as fflate from "fflate";
-import { readFile, writeFile, mkdir } from "node:fs";
-import { basename, dirname, extname, join } from "node:path";
-
-const EXPECTED_FILE_DIR = "tests/expected";
+import { readFile, mkdir, writeFile } from "node:fs";
+import { dirname, join } from "node:path";
 
 function createDirectory(dir: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -16,11 +14,8 @@ function createDirectory(dir: string): Promise<void> {
   });
 }
 
-export function unzip(xlsxFilePath: string): Promise<void> {
+export function unzip(xlsxFilePath: string, outputDir: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    const extension = extname(xlsxFilePath);
-    const xlsxNameWithoutExtension = basename(xlsxFilePath, extension);
-
     readFile(xlsxFilePath, (err, data) => {
       if (err) {
         console.error(err);
@@ -35,13 +30,9 @@ export function unzip(xlsxFilePath: string): Promise<void> {
 
         for (const [filename, fileContent] of Object.entries(unzipped)) {
           try {
-            const filepath = join(
-              EXPECTED_FILE_DIR,
-              xlsxNameWithoutExtension,
-              filename
-            );
-            const dir = dirname(filepath);
-            await createDirectory(dir);
+            const filepath = join(outputDir, filename);
+            const fileDir = dirname(filepath);
+            await createDirectory(fileDir);
             writeFile(filepath, Buffer.from(fileContent), (writeErr) => {
               if (writeErr) {
                 console.error(writeErr);

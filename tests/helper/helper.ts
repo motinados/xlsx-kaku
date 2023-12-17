@@ -33,11 +33,15 @@ export function unzip(xlsxFilePath: string, outputDir: string): Promise<void> {
             const filepath = join(outputDir, filename);
             const fileDir = dirname(filepath);
             await createDirectory(fileDir);
-            writeFile(filepath, Buffer.from(fileContent), (writeErr) => {
-              if (writeErr) {
-                console.error(writeErr);
-              }
-            });
+
+            // When unzipping a file created with xlsx-kaku, some filenames with size 0 are included.
+            if (fileContent.length > 0) {
+              writeFile(filepath, Buffer.from(fileContent), (writeErr) => {
+                if (writeErr) {
+                  console.error(writeErr);
+                }
+              });
+            }
           } catch (dirErr) {
             console.error(dirErr);
           }

@@ -1,5 +1,5 @@
 import * as fflate from "fflate";
-import { readFile, mkdir, writeFile } from "node:fs";
+import { readFile, mkdir, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 function createDirectory(dir: string): Promise<void> {
@@ -36,11 +36,7 @@ export function unzip(xlsxFilePath: string, outputDir: string): Promise<void> {
 
             // When unzipping a file created with xlsx-kaku, some filenames with size 0 are included.
             if (fileContent.length > 0) {
-              writeFile(filepath, Buffer.from(fileContent), (writeErr) => {
-                if (writeErr) {
-                  console.error(writeErr);
-                }
-              });
+              writeFileSync(filepath, Buffer.from(fileContent));
             }
           } catch (dirErr) {
             console.error(dirErr);

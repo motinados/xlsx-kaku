@@ -1,7 +1,13 @@
 import path, { basename, extname } from "node:path";
-import { listFiles, removeBasePath, unzip } from "./helper/helper";
+import {
+  deletePropertyFromObject,
+  listFiles,
+  removeBasePath,
+  unzip,
+} from "./helper/helper";
 import { Workbook } from "../src/index";
-import { rmSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
+import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 const OUTPUT_DIR = "tests/output";
 const XLSX_Dir = "tests/xlsx";
@@ -10,6 +16,8 @@ const ACTUAL_UNZIPPED_DIR = "tests/actuall";
 
 describe("number", () => {
   test("number", async () => {
+    const parser = new XMLParser({ ignoreAttributes: false });
+    const builder = new XMLBuilder();
     const filepath = path.resolve(XLSX_Dir, "number.xlsx");
 
     const extension = extname(filepath);
@@ -37,6 +45,32 @@ describe("number", () => {
     );
 
     expect(actualSubPaths).toEqual(expectedSubPaths);
+
+    const expectedXlStylesXmlPath = path.resolve(
+      expectedFileDir,
+      "xl/styles.xml"
+    );
+    const expectedXlStylesXml = readFileSync(expectedXlStylesXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXlStylesXml);
+    deletePropertyFromObject(expectedObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
+    const expectedXlStylesXmlWithoutFonts = builder.build(
+      expectedObj.styleSheet
+    );
+
+    const actualXlStylesXmlPath = path.resolve(actualFileDir, "xl/styles.xml");
+    const actualXlStylesXml = readFileSync(actualXlStylesXmlPath, "utf8");
+    const actualObj = parser.parse(actualXlStylesXml);
+    deletePropertyFromObject(actualObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");
+    const actualXlStylesXmlWithoutFonts = builder.build(actualObj.styleSheet);
+
+    expect(actualXlStylesXmlWithoutFonts).toEqual(
+      expectedXlStylesXmlWithoutFonts
+    );
 
     rmSync(OUTPUT_DIR, { recursive: true });
     rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });

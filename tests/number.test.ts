@@ -1,5 +1,5 @@
 import path, { basename, extname } from "node:path";
-import { unzip } from "./helper/helper";
+import { listFiles, removeBasePath, unzip } from "./helper/helper";
 import { Workbook } from "../src/index";
 import { rmSync } from "node:fs";
 
@@ -25,7 +25,17 @@ describe("number", () => {
     const actualFileDir = path.resolve(ACTUAL_FILE_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
 
-    expect(1).toBe(1);
+    const expectedFiles = listFiles(expectedFileDir);
+    const actualFiles = listFiles(actualFileDir);
+
+    const expectedSubPaths = expectedFiles.map((it) =>
+      removeBasePath(it, expectedFileDir)
+    );
+    const actualSubPaths = actualFiles.map((it) =>
+      removeBasePath(it, actualFileDir)
+    );
+
+    expect(actualSubPaths).toEqual(expectedSubPaths);
 
     rmSync(OUTPUT_DIR, { recursive: true });
     rmSync(EXPECTED_FILE_DIR, { recursive: true });

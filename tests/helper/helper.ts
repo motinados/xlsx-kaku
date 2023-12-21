@@ -1,6 +1,6 @@
 import * as fflate from "fflate";
-import { readFile, mkdir, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readFile, mkdir, writeFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, normalize } from "node:path";
 
 function createDirectory(dir: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -46,4 +46,35 @@ export function unzip(xlsxFilePath: string, outputDir: string): Promise<void> {
       });
     });
   });
+}
+
+export function listFiles(dir: string) {
+  let fileList: string[] = [];
+
+  const files = readdirSync(dir);
+  files.forEach((file) => {
+    const filePath = join(dir, file);
+    const stat = statSync(filePath);
+
+    if (stat.isDirectory()) {
+      // ディレクトリの場合、再帰的に中のファイルをリストに追加
+      fileList = fileList.concat(listFiles(filePath));
+    } else {
+      // ファイルの場合、ファイルパスをリストに追加
+      fileList.push(filePath);
+    }
+  });
+
+  return fileList;
+}
+
+export function removeBasePath(fullPath: string, basePath: string): string {
+  const normalizedFullPath = normalize(fullPath);
+  const normalizedBasePath = normalize(basePath);
+
+  if (normalizedFullPath.startsWith(normalizedBasePath)) {
+    return normalizedFullPath.substring(normalizedBasePath.length);
+  }
+
+  return fullPath;
 }

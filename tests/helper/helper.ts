@@ -78,3 +78,22 @@ export function removeBasePath(fullPath: string, basePath: string): string {
 
   return fullPath;
 }
+
+export function deletePropertyFromObject(obj: any, propertyPath: string): void {
+  const pathElements = propertyPath.split(".");
+
+  let currentObj = obj;
+  for (let i = 0; i < pathElements.length - 1; i++) {
+    const key = pathElements[i];
+    if (key) {
+      currentObj = currentObj[key];
+    }
+  }
+
+  const lastKey = pathElements[pathElements.length - 1];
+  if (lastKey) {
+    if (lastKey in currentObj) {
+      delete currentObj[lastKey];
+    }
+  }
+}

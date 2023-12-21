@@ -4,16 +4,17 @@ import { Workbook } from "../src/index";
 import { rmSync } from "node:fs";
 
 const OUTPUT_DIR = "tests/output";
-const EXPECTED_FILE_DIR = "tests/expected";
-const ACTUAL_FILE_DIR = "tests/actuall";
+const XLSX_Dir = "tests/xlsx";
+const EXPECTED_UNZIPPED_DIR = "tests/expected";
+const ACTUAL_UNZIPPED_DIR = "tests/actuall";
 
 describe("number", () => {
   test("number", async () => {
-    const filepath = path.resolve("tests/xlsx/number.xlsx");
+    const filepath = path.resolve(XLSX_Dir, "number.xlsx");
 
     const extension = extname(filepath);
     const xlsxBaseName = basename(filepath, extension);
-    const expectedFileDir = path.resolve(EXPECTED_FILE_DIR, xlsxBaseName);
+    const expectedFileDir = path.resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -22,7 +23,7 @@ describe("number", () => {
     const outputPath = path.resolve(OUTPUT_DIR, "number.xlsx");
     await wb.save(outputPath);
 
-    const actualFileDir = path.resolve(ACTUAL_FILE_DIR, xlsxBaseName);
+    const actualFileDir = path.resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
 
     const expectedFiles = listFiles(expectedFileDir);
@@ -38,7 +39,7 @@ describe("number", () => {
     expect(actualSubPaths).toEqual(expectedSubPaths);
 
     rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_FILE_DIR, { recursive: true });
-    rmSync(ACTUAL_FILE_DIR, { recursive: true });
+    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
+    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
   });
 });

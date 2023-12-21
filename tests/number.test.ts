@@ -53,6 +53,7 @@ describe("number", () => {
     const expectedXlStylesXml = readFileSync(expectedXlStylesXmlPath, "utf8");
 
     const expectedObj = parser.parse(expectedXlStylesXml);
+    // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
     // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
@@ -63,6 +64,7 @@ describe("number", () => {
     const actualXlStylesXmlPath = path.resolve(actualFileDir, "xl/styles.xml");
     const actualXlStylesXml = readFileSync(actualXlStylesXmlPath, "utf8");
     const actualObj = parser.parse(actualXlStylesXml);
+    // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
     // It should be a problem-free difference.
     deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");

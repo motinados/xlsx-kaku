@@ -15,7 +15,10 @@ async function main() {
   const wb = new Workbook();
 
   const ws = wb.addWorksheet("Sheet1");
+
   ws.setCell(0, 0, { type: "string", value: "Hello" });
+  ws.setCell(0, 1, { type: "number", value: 123 });
+  ws.setCell(1, 0, { type: "date", value: new Date().toISOString() });
 
   await wb.save("Hello.xlsx");
 }

@@ -57,7 +57,9 @@ describe("number", () => {
     );
 
     expect(actualSubPaths).toEqual(expectedSubPaths);
+  });
 
+  test("compare StylesXml", () => {
     const expectedXlStylesXmlPath = path.resolve(
       expectedFileDir,
       "xl/styles.xml"

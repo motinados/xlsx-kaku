@@ -23,13 +23,7 @@ describe("number", () => {
   let actualFileDir: string;
   let outputPath: string;
 
-  afterAll(() => {
-    rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
-  });
-
-  test("number", async () => {
+  beforeAll(async () => {
     const filepath = path.resolve(XLSX_Dir, "number.xlsx");
 
     const extension = extname(filepath);
@@ -45,7 +39,15 @@ describe("number", () => {
 
     actualFileDir = path.resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
+  });
 
+  afterAll(() => {
+    rmSync(OUTPUT_DIR, { recursive: true });
+    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
+    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+  });
+
+  test("compare files", async () => {
     const expectedFiles = listFiles(expectedFileDir);
     const actualFiles = listFiles(actualFileDir);
 

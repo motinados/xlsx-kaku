@@ -14,10 +14,11 @@ const XLSX_Dir = "tests/xlsx";
 const EXPECTED_UNZIPPED_DIR = "tests/expected";
 const ACTUAL_UNZIPPED_DIR = "tests/actuall";
 
+const parser = new XMLParser({ ignoreAttributes: false });
+const builder = new XMLBuilder();
+
 describe("number", () => {
   test("number", async () => {
-    const parser = new XMLParser({ ignoreAttributes: false });
-    const builder = new XMLBuilder();
     const filepath = path.resolve(XLSX_Dir, "number.xlsx");
 
     const extension = extname(filepath);
@@ -74,8 +75,55 @@ describe("number", () => {
       expectedXlStylesXmlWithoutFonts
     );
 
+    compareWorkbookXmlRels(expectedFileDir, actualFileDir);
+
     rmSync(OUTPUT_DIR, { recursive: true });
     rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
     rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
   });
 });
+
+function compareWorkbookXmlRels(
+  expectedFileDir: string,
+  actualFileDir: string
+) {
+  function sortById(a: any, b: any) {
+    const rIdA = parseInt(a["@_Id"].substring(3));
+    const rIdB = parseInt(b["@_Id"].substring(3));
+    if (rIdA < rIdB) {
+      return -1;
+    }
+    if (rIdA > rIdB) {
+      return 1;
+    }
+    return 0;
+  }
+
+  const expectedXlWorkbookXmlRelsPath = path.resolve(
+    expectedFileDir,
+    "xl/_rels/workbook.xml.rels"
+  );
+  const expectedXlWorkbookXmlRels = readFileSync(
+    expectedXlWorkbookXmlRelsPath,
+    "utf8"
+  );
+  const actualXlWorkbookXmlRelsPath = path.resolve(
+    actualFileDir,
+    "xl/_rels/workbook.xml.rels"
+  );
+  const actualXlWorkbookXmlRels = readFileSync(
+    actualXlWorkbookXmlRelsPath,
+    "utf8"
+  );
+
+  const expectedObj = parser.parse(expectedXlWorkbookXmlRels);
+  const actualObj = parser.parse(actualXlWorkbookXmlRels);
+
+  const expectedRelationships = expectedObj.Relationships.Relationship;
+  expectedRelationships.sort(sortById);
+
+  const actualRelationships = actualObj.Relationships.Relationship;
+  actualRelationships.sort(sortById);
+
+  expect(actualRelationships).toEqual(expectedRelationships);
+}

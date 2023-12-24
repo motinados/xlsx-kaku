@@ -18,21 +18,32 @@ const parser = new XMLParser({ ignoreAttributes: false });
 const builder = new XMLBuilder();
 
 describe("number", () => {
+  let xlsxBaseName: string;
+  let expectedFileDir: string;
+  let actualFileDir: string;
+  let outputPath: string;
+
+  afterAll(() => {
+    rmSync(OUTPUT_DIR, { recursive: true });
+    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
+    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+  });
+
   test("number", async () => {
     const filepath = path.resolve(XLSX_Dir, "number.xlsx");
 
     const extension = extname(filepath);
-    const xlsxBaseName = basename(filepath, extension);
-    const expectedFileDir = path.resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+    xlsxBaseName = basename(filepath, extension);
+    expectedFileDir = path.resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
     ws.setCell(0, 0, { type: "number", value: 15 });
-    const outputPath = path.resolve(OUTPUT_DIR, "number.xlsx");
+    outputPath = path.resolve(OUTPUT_DIR, "number.xlsx");
     await wb.save(outputPath);
 
-    const actualFileDir = path.resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
+    actualFileDir = path.resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
 
     const expectedFiles = listFiles(expectedFileDir);
@@ -74,56 +85,47 @@ describe("number", () => {
     expect(actualXlStylesXmlWithoutFonts).toEqual(
       expectedXlStylesXmlWithoutFonts
     );
+  });
 
-    compareWorkbookXmlRels(expectedFileDir, actualFileDir);
+  test("compare WorkbookXmlRels", () => {
+    function sortById(a: any, b: any) {
+      const rIdA = parseInt(a["@_Id"].substring(3));
+      const rIdB = parseInt(b["@_Id"].substring(3));
+      if (rIdA < rIdB) {
+        return -1;
+      }
+      if (rIdA > rIdB) {
+        return 1;
+      }
+      return 0;
+    }
 
-    rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    const expectedXlWorkbookXmlRelsPath = path.resolve(
+      expectedFileDir,
+      "xl/_rels/workbook.xml.rels"
+    );
+    const expectedXlWorkbookXmlRels = readFileSync(
+      expectedXlWorkbookXmlRelsPath,
+      "utf8"
+    );
+    const actualXlWorkbookXmlRelsPath = path.resolve(
+      actualFileDir,
+      "xl/_rels/workbook.xml.rels"
+    );
+    const actualXlWorkbookXmlRels = readFileSync(
+      actualXlWorkbookXmlRelsPath,
+      "utf8"
+    );
+
+    const expectedObj = parser.parse(expectedXlWorkbookXmlRels);
+    const actualObj = parser.parse(actualXlWorkbookXmlRels);
+
+    const expectedRelationships = expectedObj.Relationships.Relationship;
+    expectedRelationships.sort(sortById);
+
+    const actualRelationships = actualObj.Relationships.Relationship;
+    actualRelationships.sort(sortById);
+
+    expect(actualRelationships).toEqual(expectedRelationships);
   });
 });
-
-function compareWorkbookXmlRels(
-  expectedFileDir: string,
-  actualFileDir: string
-) {
-  function sortById(a: any, b: any) {
-    const rIdA = parseInt(a["@_Id"].substring(3));
-    const rIdB = parseInt(b["@_Id"].substring(3));
-    if (rIdA < rIdB) {
-      return -1;
-    }
-    if (rIdA > rIdB) {
-      return 1;
-    }
-    return 0;
-  }
-
-  const expectedXlWorkbookXmlRelsPath = path.resolve(
-    expectedFileDir,
-    "xl/_rels/workbook.xml.rels"
-  );
-  const expectedXlWorkbookXmlRels = readFileSync(
-    expectedXlWorkbookXmlRelsPath,
-    "utf8"
-  );
-  const actualXlWorkbookXmlRelsPath = path.resolve(
-    actualFileDir,
-    "xl/_rels/workbook.xml.rels"
-  );
-  const actualXlWorkbookXmlRels = readFileSync(
-    actualXlWorkbookXmlRelsPath,
-    "utf8"
-  );
-
-  const expectedObj = parser.parse(expectedXlWorkbookXmlRels);
-  const actualObj = parser.parse(actualXlWorkbookXmlRels);
-
-  const expectedRelationships = expectedObj.Relationships.Relationship;
-  expectedRelationships.sort(sortById);
-
-  const actualRelationships = actualObj.Relationships.Relationship;
-  actualRelationships.sort(sortById);
-
-  expect(actualRelationships).toEqual(expectedRelationships);
-}

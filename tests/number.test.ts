@@ -132,4 +132,32 @@ describe("number", () => {
 
     expect(actualRelationships).toEqual(expectedRelationships);
   });
+
+  test("compare WorkbookXml", () => {
+    const expectedXlWorkbookXmlPath = path.resolve(
+      expectedFileDir,
+      "xl/workbook.xml"
+    );
+    const expectedXlWorkbookXml = readFileSync(
+      expectedXlWorkbookXmlPath,
+      "utf8"
+    );
+    const actualXlWorkbookXmlPath = path.resolve(
+      actualFileDir,
+      "xl/workbook.xml"
+    );
+    const actualXlWorkbookXml = readFileSync(actualXlWorkbookXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXlWorkbookXml);
+    const actualObj = parser.parse(actualXlWorkbookXml);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "workbook.xr:revisionPtr.@_documentId"
+    );
+    deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
 });

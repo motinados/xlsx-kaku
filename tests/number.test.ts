@@ -155,6 +155,10 @@ describe("number", () => {
     const actualObj = parser.parse(actualXlWorkbookXml);
 
     // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "workbook.fileVersion.@_rupBuild");
+    deletePropertyFromObject(actualObj, "workbook.fileVersion.@_rupBuild");
+
+    // It should be a problem-free difference.
     deletePropertyFromObject(
       expectedObj,
       "workbook.xr:revisionPtr.@_documentId"

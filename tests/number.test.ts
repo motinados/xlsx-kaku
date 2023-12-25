@@ -33,7 +33,10 @@ describe("number", () => {
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
-    ws.setCell(0, 0, { type: "number", value: 15 });
+    ws.setCell(0, 0, { type: "number", value: 1 });
+    ws.setCell(0, 1, { type: "number", value: 2 });
+    ws.setCell(1, 0, { type: "number", value: 3 });
+    ws.setCell(1, 1, { type: "number", value: 4 });
     outputPath = path.resolve(OUTPUT_DIR, "number.xlsx");
     await wb.save(outputPath);
 
@@ -157,6 +160,34 @@ describe("number", () => {
       "workbook.xr:revisionPtr.@_documentId"
     );
     deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("compare worksheets", () => {
+    const expectedXlSheet1XmlPath = path.resolve(
+      expectedFileDir,
+      "xl/worksheets/sheet1.xml"
+    );
+    const expectedXlSheet1Xml = readFileSync(expectedXlSheet1XmlPath, "utf8");
+    const actualXlSheet1XmlPath = path.resolve(
+      actualFileDir,
+      "xl/worksheets/sheet1.xml"
+    );
+    const actualXlSheet1Xml = readFileSync(actualXlSheet1XmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXlSheet1Xml);
+    const actualObj = parser.parse(actualXlSheet1Xml);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
 
     expect(actualObj).toEqual(expectedObj);
   });

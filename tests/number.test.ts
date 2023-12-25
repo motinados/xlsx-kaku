@@ -7,7 +7,7 @@ import {
 } from "./helper/helper";
 import { Workbook } from "../src/index";
 import { readFileSync, rmSync } from "node:fs";
-import { XMLParser, XMLBuilder } from "fast-xml-parser";
+import { XMLParser } from "fast-xml-parser";
 
 const OUTPUT_DIR = "tests/output";
 const XLSX_Dir = "tests/xlsx";
@@ -15,7 +15,6 @@ const EXPECTED_UNZIPPED_DIR = "tests/expected";
 const ACTUAL_UNZIPPED_DIR = "tests/actuall";
 
 const parser = new XMLParser({ ignoreAttributes: false });
-const builder = new XMLBuilder();
 
 describe("number", () => {
   let xlsxBaseName: string;
@@ -65,33 +64,24 @@ describe("number", () => {
   });
 
   test("compare StylesXml", () => {
-    const expectedXlStylesXmlPath = path.resolve(
-      expectedFileDir,
-      "xl/styles.xml"
-    );
-    const expectedXlStylesXml = readFileSync(expectedXlStylesXmlPath, "utf8");
+    const expectedXmlPath = path.resolve(expectedFileDir, "xl/styles.xml");
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXlStylesXml);
+    const expectedObj = parser.parse(expectedXml);
     // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
     // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
-    const expectedXlStylesXmlWithoutFonts = builder.build(
-      expectedObj.styleSheet
-    );
 
-    const actualXlStylesXmlPath = path.resolve(actualFileDir, "xl/styles.xml");
-    const actualXlStylesXml = readFileSync(actualXlStylesXmlPath, "utf8");
-    const actualObj = parser.parse(actualXlStylesXml);
+    const actualXmlPath = path.resolve(actualFileDir, "xl/styles.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+    const actualObj = parser.parse(actualXml);
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
     // It should be a problem-free difference.
     deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");
-    const actualXlStylesXmlWithoutFonts = builder.build(actualObj.styleSheet);
 
-    expect(actualXlStylesXmlWithoutFonts).toEqual(
-      expectedXlStylesXmlWithoutFonts
-    );
+    expect(actualObj).toEqual(expectedObj);
   });
 
   test("compare WorkbookXmlRels", () => {
@@ -107,25 +97,19 @@ describe("number", () => {
       return 0;
     }
 
-    const expectedXlWorkbookXmlRelsPath = path.resolve(
+    const expectedRelsPath = path.resolve(
       expectedFileDir,
       "xl/_rels/workbook.xml.rels"
     );
-    const expectedXlWorkbookXmlRels = readFileSync(
-      expectedXlWorkbookXmlRelsPath,
-      "utf8"
-    );
-    const actualXlWorkbookXmlRelsPath = path.resolve(
+    const expectedRels = readFileSync(expectedRelsPath, "utf8");
+    const actualRelsPath = path.resolve(
       actualFileDir,
       "xl/_rels/workbook.xml.rels"
     );
-    const actualXlWorkbookXmlRels = readFileSync(
-      actualXlWorkbookXmlRelsPath,
-      "utf8"
-    );
+    const actualRels = readFileSync(actualRelsPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXlWorkbookXmlRels);
-    const actualObj = parser.parse(actualXlWorkbookXmlRels);
+    const expectedObj = parser.parse(expectedRels);
+    const actualObj = parser.parse(actualRels);
 
     const expectedRelationships = expectedObj.Relationships.Relationship;
     expectedRelationships.sort(sortById);
@@ -137,22 +121,13 @@ describe("number", () => {
   });
 
   test("compare WorkbookXml", () => {
-    const expectedXlWorkbookXmlPath = path.resolve(
-      expectedFileDir,
-      "xl/workbook.xml"
-    );
-    const expectedXlWorkbookXml = readFileSync(
-      expectedXlWorkbookXmlPath,
-      "utf8"
-    );
-    const actualXlWorkbookXmlPath = path.resolve(
-      actualFileDir,
-      "xl/workbook.xml"
-    );
-    const actualXlWorkbookXml = readFileSync(actualXlWorkbookXmlPath, "utf8");
+    const expectedXmlPath = path.resolve(expectedFileDir, "xl/workbook.xml");
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = path.resolve(actualFileDir, "xl/workbook.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXlWorkbookXml);
-    const actualObj = parser.parse(actualXlWorkbookXml);
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
 
     // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "workbook.fileVersion.@_rupBuild");
@@ -169,19 +144,19 @@ describe("number", () => {
   });
 
   test("compare worksheets", () => {
-    const expectedXlSheet1XmlPath = path.resolve(
+    const expectedXmlPath = path.resolve(
       expectedFileDir,
       "xl/worksheets/sheet1.xml"
     );
-    const expectedXlSheet1Xml = readFileSync(expectedXlSheet1XmlPath, "utf8");
-    const actualXlSheet1XmlPath = path.resolve(
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = path.resolve(
       actualFileDir,
       "xl/worksheets/sheet1.xml"
     );
-    const actualXlSheet1Xml = readFileSync(actualXlSheet1XmlPath, "utf8");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXlSheet1Xml);
-    const actualObj = parser.parse(actualXlSheet1Xml);
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
 
     // It should be a problem-free difference.
     deletePropertyFromObject(

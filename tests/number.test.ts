@@ -9,10 +9,10 @@ import { Workbook } from "../src/index";
 import { readFileSync, rmSync } from "node:fs";
 import { XMLParser } from "fast-xml-parser";
 
-const OUTPUT_DIR = "tests/output";
 const XLSX_Dir = "tests/xlsx";
-const EXPECTED_UNZIPPED_DIR = "tests/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/actuall";
+const OUTPUT_DIR = "tests/temp/number/output";
+const EXPECTED_UNZIPPED_DIR = "tests/temp/number/expected";
+const ACTUAL_UNZIPPED_DIR = "tests/temp/number/actuall";
 
 const parser = new XMLParser({ ignoreAttributes: false });
 

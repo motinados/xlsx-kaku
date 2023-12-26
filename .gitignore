@@ -1,2 +1,5 @@
 node_modules/
 dist/
+
+# generated files for tests
+tests/temp/

@@ -36,18 +36,38 @@ describe("date", () => {
     ws.setCell(0, 0, {
       type: "date",
       value: new Date("2023-12-27").toISOString(),
+      style: {
+        numberFormat: {
+          formatCode: "yyyy/m/d",
+        },
+      },
     });
     ws.setCell(0, 1, {
       type: "date",
       value: new Date("2023-12-28").toISOString(),
+      style: {
+        numberFormat: {
+          formatCode: "yyyy-mm-dd",
+        },
+      },
     });
     ws.setCell(1, 0, {
       type: "date",
       value: new Date("2023-12-26").toISOString(),
+      style: {
+        numberFormat: {
+          formatCode: "dd-mmm-yy",
+        },
+      },
     });
     ws.setCell(1, 1, {
       type: "date",
       value: new Date("2023-12-25").toISOString(),
+      style: {
+        numberFormat: {
+          formatCode: "mmm-yy",
+        },
+      },
     });
     outputPath = resolve(OUTPUT_DIR, "date.xlsx");
     await wb.save(outputPath);
@@ -146,5 +166,33 @@ describe("date", () => {
     actualRelationships.sort(sortById);
 
     expect(actualRelationships).toEqual(expectedRelationships);
+  });
+
+  test("worksheets", () => {
+    const expectedXmlPath = resolve(
+      expectedFileDir,
+      "xl/worksheets/sheet1.xml"
+    );
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/worksheets/sheet1.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+
+    // It maybe be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "worksheet.cols");
+
+    expect(actualObj).toEqual(expectedObj);
   });
 });

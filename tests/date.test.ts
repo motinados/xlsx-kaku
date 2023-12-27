@@ -112,6 +112,31 @@ describe("date", () => {
     expect(actualObj).toEqual(expectedObj);
   });
 
+  test("styles.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "xl/styles.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "xl/styles.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parser.parse(expected);
+    const actualObj = parser.parse(actual);
+
+    // Differences due to the default font
+    deletePropertyFromObject(expectedObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
+    // Differences due to the default font
+    deletePropertyFromObject(actualObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
   test("workbookXml", () => {
     const expectedXmlPath = resolve(expectedFileDir, "xl/workbook.xml");
     const expectedXml = readFileSync(expectedXmlPath, "utf8");

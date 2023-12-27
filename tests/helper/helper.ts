@@ -57,10 +57,8 @@ export function listFiles(dir: string) {
     const stat = statSync(filePath);
 
     if (stat.isDirectory()) {
-      // ディレクトリの場合、再帰的に中のファイルをリストに追加
       fileList = fileList.concat(listFiles(filePath));
     } else {
-      // ファイルの場合、ファイルパスをリストに追加
       fileList.push(filePath);
     }
   });

@@ -36,4 +36,14 @@ describe("Styles", () => {
     expect(numberFormats.getNumFmtId("yyyy-mm-dd")).toBe(176);
     expect(numberFormats.getNumFmtId("mm-yyyy-dd")).toBe(177);
   });
+
+  test("makeXml", () => {
+    const numberFormats = new NumberFormats();
+    numberFormats.getNumFmtId("yyyy-mm-dd");
+    numberFormats.getNumFmtId("yyyy/m/d h:mm");
+    const xml = numberFormats.makeXml();
+    expect(xml).toBe(
+      `<numFmts count="2"><numFmt numFmtId="176" formatCode="yyyy\\-mm\\-dd;@"/><numFmt numFmtId="177" formatCode="yyyy/m/d\\ h:mm;@"/></numFmts>`
+    );
+  });
 });

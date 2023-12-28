@@ -75,7 +75,8 @@ export class NumberFormats {
 
     let xml = `<numFmts count="${items.size}">`;
     items.forEach((numFmtId, formatCode) => {
-      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${formatCode}"/>`;
+      const code = formatCode.replace(/ /g, "\\ ").replace(/-/g, "\\-");
+      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${code};@"/>`;
     });
     xml += "</numFmts>";
     return xml;

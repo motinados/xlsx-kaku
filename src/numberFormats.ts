@@ -68,6 +68,18 @@ export class NumberFormats {
   //   <numFmt numFmtId="176" formatCode="yyyy/m/d\ h:mm;@"/>
   // </numFmts>
   makeXml(): string {
+    function escapeString(input: string): string {
+      const regex = /(\[\$-\d+\])([^\[]+)/g;
+
+      if (input.match(regex)) {
+        return input.replace(regex, (_, p1, p2) => {
+          return p1 + p2.replace(/-/g, "\\-").replace(/ /g, "\\ ");
+        });
+      } else {
+        return input.replace(/-/g, "\\-").replace(/ /g, "\\ ");
+      }
+    }
+
     const items = this.extractItemsWithIdAbove176();
     if (items.size === 0) {
       return "";
@@ -75,7 +87,7 @@ export class NumberFormats {
 
     let xml = `<numFmts count="${items.size}">`;
     items.forEach((numFmtId, formatCode) => {
-      const code = formatCode.replace(/ /g, "\\ ").replace(/-/g, "\\-");
+      const code = escapeString(formatCode);
       xml += `<numFmt numFmtId="${numFmtId}" formatCode="${code};@"/>`;
     });
     xml += "</numFmts>";

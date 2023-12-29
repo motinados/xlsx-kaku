@@ -46,4 +46,13 @@ describe("Styles", () => {
       `<numFmts count="2"><numFmt numFmtId="176" formatCode="yyyy\\-mm\\-dd;@"/><numFmt numFmtId="177" formatCode="yyyy/m/d\\ h:mm;@"/></numFmts>`
     );
   });
+
+  test("makeXml with locale", () => {
+    const numberFormats = new NumberFormats();
+    numberFormats.getNumFmtId("[$-409]yyyy-mm-dd");
+    const xml = numberFormats.makeXml();
+    expect(xml).toBe(
+      `<numFmts count="1"><numFmt numFmtId="176" formatCode="[$-409]yyyy\\-mm\\-dd;@"/></numFmts>`
+    );
+  });
 });

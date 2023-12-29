@@ -35,37 +35,37 @@ describe("date", () => {
     const ws = wb.addWorksheet("Sheet1");
     ws.setCell(0, 0, {
       type: "date",
-      value: new Date("2023-12-27").toISOString(),
-      style: {
-        numberFormat: {
-          formatCode: "yyyy/m/d",
-        },
-      },
-    });
-    ws.setCell(0, 1, {
-      type: "date",
-      value: new Date("2023-12-28").toISOString(),
+      value: "2023-01-02T00:00:00.000Z",
       style: {
         numberFormat: {
           formatCode: "yyyy-mm-dd",
         },
       },
     });
-    ws.setCell(1, 0, {
+    ws.setCell(0, 1, {
       type: "date",
-      value: new Date("2023-12-26").toISOString(),
+      value: "2023-01-02T00:00:00.000Z",
       style: {
         numberFormat: {
-          formatCode: "dd-mmm-yy",
+          formatCode: "m/d/yy",
+        },
+      },
+    });
+    ws.setCell(1, 0, {
+      type: "date",
+      value: "2023-01-03T00:00:00.000Z",
+      style: {
+        numberFormat: {
+          formatCode: "yyyy-mm-dd",
         },
       },
     });
     ws.setCell(1, 1, {
       type: "date",
-      value: new Date("2023-12-25").toISOString(),
+      value: "2023-01-03T00:00:00.000Z",
       style: {
         numberFormat: {
-          formatCode: "mmm-yy",
+          formatCode: "m/d/yy",
         },
       },
     });

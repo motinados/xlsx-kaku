@@ -8,6 +8,12 @@ It is exclusively for outputting xlsx files and cannot read them.
 It currently only supports minimal functionality.
 Please also see our [Roadmap](https://github.com/motinados/xlsx-kaku/issues/1).
 
+## Installation
+
+```
+npm install xlsx-kaku
+```
+
 ## Example
 
 ```ts
@@ -18,7 +24,13 @@ async function main() {
 
   ws.setCell(0, 0, { type: "string", value: "Hello" });
   ws.setCell(0, 1, { type: "number", value: 123 });
-  ws.setCell(1, 0, { type: "date", value: new Date().toISOString() });
+  ws.setCell(1, 0, {
+    type: "date",
+    value: new Date().toISOString(),
+    style: {
+      numberFormat: { formatCode: "yyyy-mm-dd" },
+    },
+  });
 
   await wb.save("Hello.xlsx");
 }

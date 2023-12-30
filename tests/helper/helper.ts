@@ -1,6 +1,13 @@
 import * as fflate from "fflate";
 import { readFile, mkdir, writeFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, join, normalize } from "node:path";
+import { XMLParser } from "fast-xml-parser";
+
+const xmlParser = new XMLParser({ ignoreAttributes: false });
+
+export function parseXml(xml: string) {
+  return xmlParser.parse(xml);
+}
 
 function createDirectory(dir: string): Promise<void> {
   return new Promise((resolve, reject) => {

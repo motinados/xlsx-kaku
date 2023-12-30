@@ -1,9 +1,9 @@
 import { readFileSync, rmSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
-import { XMLParser } from "fast-xml-parser";
 import {
   deletePropertyFromObject,
   listFiles,
+  parseXml,
   removeBasePath,
   unzip,
 } from "../helper/helper";
@@ -13,8 +13,6 @@ const XLSX_Dir = "tests/xlsx";
 const OUTPUT_DIR = "tests/temp/cols/output";
 const EXPECTED_UNZIPPED_DIR = "tests/temp/cols/expected";
 const ACTUAL_UNZIPPED_DIR = "tests/temp/cols/actuall";
-
-const parser = new XMLParser({ ignoreAttributes: false });
 
 describe("string", () => {
   let xlsxBaseName: string;
@@ -80,8 +78,8 @@ describe("string", () => {
       "utf-8"
     );
 
-    const expectedObj = parser.parse(expected);
-    const actualObj = parser.parse(actual);
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -96,8 +94,8 @@ describe("string", () => {
       "utf-8"
     );
 
-    const expectedObj = parser.parse(expected);
-    const actualObj = parser.parse(actual);
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
 
     // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
@@ -117,8 +115,8 @@ describe("string", () => {
     const actualXmlPath = resolve(actualFileDir, "xl/workbook.xml");
     const actualXml = readFileSync(actualXmlPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXml);
-    const actualObj = parser.parse(actualXml);
+    const expectedObj = parseXml(expectedXml);
+    const actualObj = parseXml(actualXml);
 
     // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "workbook.fileVersion.@_rupBuild");
@@ -155,8 +153,8 @@ describe("string", () => {
     const actualRelsPath = resolve(actualFileDir, "xl/_rels/workbook.xml.rels");
     const actualRels = readFileSync(actualRelsPath, "utf8");
 
-    const expectedObj = parser.parse(expectedRels);
-    const actualObj = parser.parse(actualRels);
+    const expectedObj = parseXml(expectedRels);
+    const actualObj = parseXml(actualRels);
 
     const expectedRelationships = expectedObj.Relationships.Relationship;
     expectedRelationships.sort(sortById);
@@ -176,8 +174,8 @@ describe("string", () => {
     const actualXmlPath = resolve(actualFileDir, "xl/worksheets/sheet1.xml");
     const actualXml = readFileSync(actualXmlPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXml);
-    const actualObj = parser.parse(actualXml);
+    const expectedObj = parseXml(expectedXml);
+    const actualObj = parseXml(actualXml);
 
     // It should be a problem-free difference.
     deletePropertyFromObject(

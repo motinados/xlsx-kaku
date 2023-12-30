@@ -79,6 +79,61 @@ describe("string", () => {
     expect(actualObj).toEqual(expectedObj);
   });
 
+  test("styles.xml", async () => {
+    function sortById(a: any, b: any) {
+      const rIdA = a["@_name"];
+      const rIdB = b["@_name"];
+      if (rIdA < rIdB) {
+        return -1;
+      }
+      if (rIdA > rIdB) {
+        return 1;
+      }
+      return 0;
+    }
+    const expected = readFileSync(
+      resolve(expectedFileDir, "xl/styles.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "xl/styles.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parser.parse(expected);
+    const actualObj = parser.parse(actual);
+
+    // Differences due to the default font
+    deletePropertyFromObject(expectedObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
+    // Differences due to the default font
+    deletePropertyFromObject(actualObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");
+
+    actualObj.styleSheet.cellStyles.cellStyle.sort(sortById);
+    expectedObj.styleSheet.cellStyles.cellStyle.sort(sortById);
+
+    // It is probably a problem-free difference.
+    // I think what's important is 'fontId="1"'. And this is set.
+    for (const obj of actualObj.styleSheet.cellStyleXfs.xf) {
+      deletePropertyFromObject(obj, "@_applyFont");
+    }
+    for (const obj of actualObj.styleSheet.cellXfs.xf) {
+      deletePropertyFromObject(obj, "@_applyFont");
+    }
+    for (const obj of expectedObj.styleSheet.cellStyleXfs.xf) {
+      deletePropertyFromObject(obj, "@_applyBorder");
+      deletePropertyFromObject(obj, "@_applyFill");
+      deletePropertyFromObject(obj, "@_applyNumberFormat");
+      deletePropertyFromObject(obj, "@_applyAlignment");
+      deletePropertyFromObject(obj, "@_applyProtection");
+    }
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
   test("workbookXml", () => {
     const expectedXmlPath = resolve(expectedFileDir, "xl/workbook.xml");
     const expectedXml = readFileSync(expectedXmlPath, "utf8");

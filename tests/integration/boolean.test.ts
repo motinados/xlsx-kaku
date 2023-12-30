@@ -159,4 +159,29 @@ describe("string", () => {
 
     expect(actualRelationships).toEqual(expectedRelationships);
   });
+
+  test("worksheets", () => {
+    const expectedXmlPath = resolve(
+      expectedFileDir,
+      "xl/worksheets/sheet1.xml"
+    );
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/worksheets/sheet1.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+
+    expect(actualObj).toEqual(expectedObj);
+  });
 });

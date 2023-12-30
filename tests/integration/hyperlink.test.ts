@@ -184,4 +184,40 @@ describe("string", () => {
 
     expect(actualObj).toEqual(expectedObj);
   });
+
+  test("wroksheetsXmlRels", () => {
+    function sortById(a: any, b: any) {
+      const rIdA = parseInt(a["@_Id"].substring(3));
+      const rIdB = parseInt(b["@_Id"].substring(3));
+      if (rIdA < rIdB) {
+        return -1;
+      }
+      if (rIdA > rIdB) {
+        return 1;
+      }
+      return 0;
+    }
+
+    const expectedRelsPath = resolve(
+      expectedFileDir,
+      "xl/worksheets/_rels/sheet1.xml.rels"
+    );
+    const expectedRels = readFileSync(expectedRelsPath, "utf8");
+    const actualRelsPath = resolve(
+      actualFileDir,
+      "xl/worksheets/_rels/sheet1.xml.rels"
+    );
+    const actualRels = readFileSync(actualRelsPath, "utf8");
+
+    const expectedObj = parser.parse(expectedRels);
+    const actualObj = parser.parse(actualRels);
+
+    const expectedRelationships = expectedObj.Relationships.Relationship;
+    expectedRelationships.sort(sortById);
+
+    const actualRelationships = actualObj.Relationships.Relationship;
+    actualRelationships.sort(sortById);
+
+    expect(actualRelationships).toEqual(expectedRelationships);
+  });
 });

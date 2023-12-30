@@ -1,8 +1,16 @@
 import { NullableCell, SheetData } from "./sheetData";
 
+export type Col = {
+  min: number;
+  max: number;
+  width: number;
+};
+
 export class Worksheet {
   private _name: string;
   private _sheetData: SheetData = [];
+  private _cols: Col[] = [];
+
   constructor(name: string) {
     this._name = name;
   }
@@ -17,6 +25,10 @@ export class Worksheet {
 
   get sheetData() {
     return this._sheetData;
+  }
+
+  get cols() {
+    return this._cols;
   }
 
   setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
@@ -37,5 +49,10 @@ export class Worksheet {
     }
 
     rows[colIndex] = cell;
+  }
+
+  setColWidth(col: Col) {
+    // TODO: validate col
+    this._cols.push(col);
   }
 }

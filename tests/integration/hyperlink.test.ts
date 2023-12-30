@@ -146,4 +146,42 @@ describe("string", () => {
 
     expect(actualRelationships).toEqual(expectedRelationships);
   });
+
+  test("worksheets", () => {
+    const expectedXmlPath = resolve(
+      expectedFileDir,
+      "xl/worksheets/sheet1.xml"
+    );
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/worksheets/sheet1.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+
+    // It should be a problem-free difference.
+    for (const obj of expectedObj.worksheet.hyperlinks.hyperlink) {
+      deletePropertyFromObject(obj, "@_xr:uid");
+    }
+    for (const obj of actualObj.worksheet.hyperlinks.hyperlink) {
+      deletePropertyFromObject(obj, "@_xr:uid");
+    }
+
+    // It should be a problem-free difference.
+    for (const obj of expectedObj.worksheet.sheetData.row) {
+      deletePropertyFromObject(obj, "@_ht");
+    }
+
+    expect(actualObj).toEqual(expectedObj);
+  });
 });

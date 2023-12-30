@@ -222,6 +222,10 @@ export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
 }
 
 export function makeColsXml(cols: Col[]): string {
+  if (cols.length === 0) {
+    return "";
+  }
+
   const results: string[] = [];
   results.push("<cols>");
   for (const col of cols) {

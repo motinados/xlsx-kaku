@@ -39,8 +39,9 @@ describe("string", () => {
     ws.setCell(0, 4, { type: "number", value: 5 });
     ws.setCell(0, 5, { type: "number", value: 6 });
 
-    ws.setColWidth({ min: 2, max: 2, width: 25 });
-    ws.setColWidth({ min: 3, max: 5, width: 6 });
+    // In online Excel, I set the width to 25, but in the saved styles.xml, it is 25.625.
+    ws.setColWidth({ min: 2, max: 2, width: 25.625 });
+    ws.setColWidth({ min: 3, max: 5, width: 6.625 });
 
     outputPath = resolve(OUTPUT_DIR, "cols.xlsx");
     await wb.save(outputPath);
@@ -164,5 +165,30 @@ describe("string", () => {
     actualRelationships.sort(sortById);
 
     expect(actualRelationships).toEqual(expectedRelationships);
+  });
+
+  test("worksheets", () => {
+    const expectedXmlPath = resolve(
+      expectedFileDir,
+      "xl/worksheets/sheet1.xml"
+    );
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/worksheets/sheet1.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+
+    expect(actualObj).toEqual(expectedObj);
   });
 });

@@ -1,4 +1,6 @@
+import { readFileSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
+import { XMLParser } from "fast-xml-parser";
 import { listFiles, removeBasePath, unzip } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -6,6 +8,8 @@ const XLSX_Dir = "tests/xlsx";
 const OUTPUT_DIR = "tests/temp/hyperlink/output";
 const EXPECTED_UNZIPPED_DIR = "tests/temp/hyperlink/expected";
 const ACTUAL_UNZIPPED_DIR = "tests/temp/hyperlink/actuall";
+
+const parser = new XMLParser({ ignoreAttributes: false });
 
 describe("string", () => {
   let xlsxBaseName: string;
@@ -52,5 +56,21 @@ describe("string", () => {
     );
 
     expect(actualSubPaths).toEqual(expectedSubPaths);
+  });
+
+  test("Content_Types.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parser.parse(expected);
+    const actualObj = parser.parse(actual);
+
+    expect(actualObj).toEqual(expectedObj);
   });
 });

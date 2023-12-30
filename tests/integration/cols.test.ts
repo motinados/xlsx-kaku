@@ -109,4 +109,27 @@ describe("string", () => {
 
     expect(actualObj).toEqual(expectedObj);
   });
+
+  test("workbookXml", () => {
+    const expectedXmlPath = resolve(expectedFileDir, "xl/workbook.xml");
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/workbook.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "workbook.fileVersion.@_rupBuild");
+    deletePropertyFromObject(actualObj, "workbook.fileVersion.@_rupBuild");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "workbook.xr:revisionPtr.@_documentId"
+    );
+    deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
 });

@@ -5,8 +5,8 @@ import {
   listFiles,
   removeBasePath,
   unzip,
-} from "./helper/helper";
-import { Workbook } from "../src";
+} from "../helper/helper";
+import { Workbook } from "../../src";
 import { XMLParser } from "fast-xml-parser";
 
 const XLSX_Dir = "tests/xlsx";

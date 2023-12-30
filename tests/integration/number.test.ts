@@ -4,8 +4,8 @@ import {
   listFiles,
   removeBasePath,
   unzip,
-} from "./helper/helper";
-import { Workbook } from "../src/index";
+} from "../helper/helper";
+import { Workbook } from "../../src/index";
 import { readFileSync, rmSync } from "node:fs";
 import { XMLParser } from "fast-xml-parser";
 

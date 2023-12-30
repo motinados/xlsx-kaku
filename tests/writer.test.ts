@@ -8,6 +8,7 @@ import {
   getDimension,
   getSpans,
   getSpansFromSheetData,
+  makeColsXml,
   makeSheetDataXml,
   rowToString,
 } from "../src/writer";
@@ -20,6 +21,7 @@ import { CellStyleXfs } from "../src/cellStyleXfs";
 import { CellStyles } from "../src/cellStyles";
 import { Hyperlinks } from "../src/hyperlinks";
 import { WorksheetRels } from "../src/worksheetRels";
+import { Col } from "../src/worksheet";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
@@ -316,6 +318,18 @@ describe("Writer", () => {
     const sheetDataXml = makeSheetDataXml(sheetData, styleMappers);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:3"><c r="C2" t="s"><v>0</v></c></row><row r="3" spans="1:3"><c r="A3" t="s"><v>1</v></c><c r="B3" t="s"><v>1</v></c></row></sheetData>`
+    );
+  });
+
+  test("makeColsXml", () => {
+    const cols: Col[] = [
+      { min: 1, max: 1, width: 10 },
+      { min: 2, max: 2, width: 75 },
+      { min: 3, max: 6, width: 25 },
+    ];
+
+    expect(makeColsXml(cols)).toBe(
+      `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
     );
   });
 });

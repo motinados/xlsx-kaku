@@ -36,7 +36,7 @@ export class CellStyleXfs {
     let xml = `<cellStyleXfs count="${this.cellStyleXfs.size}">`;
     this.cellStyleXfs.forEach((_, key) => {
       const cellStyleXf = JSON.parse(key) as CellStyleXf;
-      xml += `<xf numFmtId="${cellStyleXf.numFmtId}" fontId="${cellStyleXf.fontId}" fillId="${cellStyleXf.fillId}" borderId="${cellStyleXf.borderId}" xfId="0"`;
+      xml += `<xf numFmtId="${cellStyleXf.numFmtId}" fontId="${cellStyleXf.fontId}" fillId="${cellStyleXf.fillId}" borderId="${cellStyleXf.borderId}"`;
       if (cellStyleXf.fillId > 0) {
         xml += ' applyFill="1"';
       }

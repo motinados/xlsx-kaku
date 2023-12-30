@@ -14,7 +14,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Worksheet } from "./worksheet";
+import { Col, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
 
 type StyleMappers = {
@@ -150,9 +150,11 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
     const sheetData = worksheet.sheetData;
+    const colsXml = makeColsXml(worksheet.cols);
     const sheetDataXml = makeSheetDataXml(sheetData, styleMappers);
     const dimension = getDimension(sheetData);
     const sheetXml = makeSheetXml(
+      colsXml,
       sheetDataXml,
       dimension,
       styleMappers.hyperlinks
@@ -219,7 +221,20 @@ export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
   });
 }
 
+export function makeColsXml(cols: Col[]): string {
+  const results: string[] = [];
+  results.push("<cols>");
+  for (const col of cols) {
+    results.push(
+      `<col min="${col.min}" max="${col.max}" width="${col.width}" customWidth="1"/>`
+    );
+  }
+  results.push("</cols>");
+  return results.join("");
+}
+
 export function makeSheetXml(
+  colsXml: string,
   sheetDataString: string,
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
@@ -236,6 +251,7 @@ export function makeSheetXml(
   );
   results.push("</sheetViews>");
   results.push('<sheetFormatPr defaultRowHeight="13.5"/>');
+  results.push(colsXml);
   results.push(sheetDataString);
 
   if (hyperlinks.getHyperlinks().length > 0) {

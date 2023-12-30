@@ -16,6 +16,8 @@ npm install xlsx-kaku
 
 ## Example
 
+### basic usage
+
 ```ts
 async function main() {
   const wb = new Workbook();
@@ -33,5 +35,22 @@ async function main() {
   });
 
   await wb.save("Hello.xlsx");
+}
+```
+
+### changing the width of columns
+
+```ts
+async function main() {
+  const wb = new Workbook();
+  const ws = wb.addWorksheet("Sheet1");
+
+  // The width of only column A willl be changed.
+  ws.setColWidth({ min: 1, max: 1, width: 12 });
+
+  // The width of columns B to F will be changed.
+  ws.setColWidth({ min: 2, max: 6, width: 24 });
+
+  await wb.save("test.xlsx");
 }
 ```

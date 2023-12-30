@@ -13,4 +13,10 @@ describe("workbook", () => {
     expect(fs.existsSync(filepath)).toBe(true);
     fs.rmSync(testdir, { recursive: true });
   });
+
+  test("The same name will cause an error", async () => {
+    const wb = new Workbook();
+    wb.addWorksheet("Sheet1");
+    expect(() => wb.addWorksheet("Sheet1")).toThrow();
+  });
 });

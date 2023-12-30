@@ -101,4 +101,16 @@ describe("string", () => {
 
     expect(actualObj).toEqual(expectedObj);
   });
+
+  test("sharedStringsXml", () => {
+    const expectedXmlPath = resolve(expectedFileDir, "xl/sharedStrings.xml");
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/sharedStrings.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parser.parse(expectedXml);
+    const actualObj = parser.parse(actualXml);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
 });

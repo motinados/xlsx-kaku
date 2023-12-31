@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
 import { v4 as uuidv4 } from "uuid";
-import { Cell, Row, SheetData } from "./sheetData";
+import { Cell, RowData, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
@@ -14,7 +14,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Col, Worksheet } from "./worksheet";
+import { Col, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
 
 type StyleMappers = {
@@ -151,7 +151,11 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   for (const worksheet of worksheets) {
     const sheetData = worksheet.sheetData;
     const colsXml = makeColsXml(worksheet.cols);
-    const sheetDataXml = makeSheetDataXml(sheetData, styleMappers);
+    const sheetDataXml = makeSheetDataXml(
+      sheetData,
+      worksheet.rows,
+      styleMappers
+    );
     const dimension = getDimension(sheetData);
     const sheetXml = makeSheetXml(
       colsXml,
@@ -329,6 +333,7 @@ export function getDimension(sheetData: SheetData) {
 
 export function makeSheetDataXml(
   sheetData: SheetData,
+  rows: Row[],
   styleMappers: StyleMappers
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
@@ -336,9 +341,11 @@ export function makeSheetDataXml(
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
+    const rowHeight = rows.find((it) => it.index === rowIndex)?.height ?? null;
     const str = rowToString(
       row,
       rowIndex,
+      rowHeight,
       startNumber,
       endNumber,
       styleMappers
@@ -356,8 +363,9 @@ export function makeSheetDataXml(
  * <row r="1" spans="1:2"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>
  */
 export function rowToString(
-  row: Row,
+  row: RowData,
   rowIndex: number,
+  rowHeight: number | null,
   startNumber: number,
   endNumber: number,
   styleMappers: StyleMappers
@@ -367,7 +375,10 @@ export function rowToString(
   }
 
   const rowNumber = rowIndex + 1;
-  let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
+
+  let result = rowHeight
+    ? `<row r="${rowNumber}" spans="${startNumber}:${endNumber}" ht="${rowHeight}" customHeight="1">`
+    : `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
 
   let columnIndex = 0;
   for (const cell of row) {
@@ -400,7 +411,7 @@ export function getSpansFromSheetData(sheetData: SheetData) {
   return { startNumber: minStartNumber, endNumber: maxEndNumber };
 }
 
-export function findFirstNonNullCell(row: Row) {
+export function findFirstNonNullCell(row: RowData) {
   let index = 0;
   let firstNonNullCell = null;
   for (let i = 0; i < row.length; i++) {
@@ -416,7 +427,7 @@ export function findFirstNonNullCell(row: Row) {
 /**
  *  [null, null, null, nonnull, null] => index is 3
  */
-export function findLastNonNullCell(row: Row) {
+export function findLastNonNullCell(row: RowData) {
   let index = 0;
   let lastNonNullCell = null;
   for (let i = row.length - 1; i >= 0; i--) {
@@ -429,7 +440,7 @@ export function findLastNonNullCell(row: Row) {
   return { lastNonNullCell, index };
 }
 
-export function getSpans(row: Row) {
+export function getSpans(row: RowData) {
   const first = findFirstNonNullCell(row);
   if (first === undefined || first === null) {
     return null;

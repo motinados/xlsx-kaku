@@ -58,3 +58,29 @@ async function main() {
   await wb.save("test.xlsx");
 }
 ```
+
+### changing the height of rows
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+async function main() {
+  const wb = new Workbook();
+  const ws = wb.addWorksheet("Sheet1");
+
+  ws.setCell(0, 0, { type: "number", value: 1 });
+  ws.setCell(1, 0, { type: "number", value: 2 });
+  ws.setCell(2, 0, { type: "number", value: 3 });
+  ws.setCell(3, 0, { type: "number", value: 4 });
+
+  // Change the height of the first row.
+  ws.setRowHeight({ index: 0, height: 20.25 });
+
+  // Unlike column width, it is necessary to set each row individually.
+  ws.setRowHeight({ index: 1, height: 39.75 });
+  ws.setRowHeight({ index: 2, height: 39.75 });
+  ws.setRowHeight({ index: 3, height: 39.75 });
+
+  await wb.save("test.xlsx");
+}
+```

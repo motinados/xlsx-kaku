@@ -6,10 +6,16 @@ export type Col = {
   width: number;
 };
 
+export type Row = {
+  index: number;
+  height: number;
+};
+
 export class Worksheet {
   private _name: string;
   private _sheetData: SheetData = [];
   private _cols: Col[] = [];
+  private _rows: Row[] = [];
 
   constructor(name: string) {
     this._name = name;
@@ -29,6 +35,10 @@ export class Worksheet {
 
   get cols() {
     return this._cols;
+  }
+
+  get rows() {
+    return this._rows;
   }
 
   setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
@@ -54,5 +64,9 @@ export class Worksheet {
   setColWidth(col: Col) {
     // TODO: validate col
     this._cols.push(col);
+  }
+
+  setRowHeight(row: Row) {
+    this._rows.push(row);
   }
 }

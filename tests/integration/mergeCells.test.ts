@@ -1,5 +1,6 @@
+import { readFileSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
-import { listFiles, removeBasePath, unzip } from "../helper/helper";
+import { listFiles, parseXml, removeBasePath, unzip } from "../helper/helper";
 import { Workbook } from "../../src";
 
 const XLSX_Dir = "tests/xlsx";
@@ -53,5 +54,21 @@ describe("string", () => {
     );
 
     expect(actualSubPaths).toEqual(expectedSubPaths);
+  });
+
+  test("Content_Types.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    expect(actualObj).toEqual(expectedObj);
   });
 });

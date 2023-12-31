@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
 import {
   deletePropertyFromObject,
@@ -50,9 +50,9 @@ describe("string", () => {
   });
 
   afterAll(() => {
-    // rmSync(OUTPUT_DIR, { recursive: true });
-    // rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    // rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(OUTPUT_DIR, { recursive: true });
+    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
+    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
   });
 
   test("compare files", async () => {

@@ -49,7 +49,7 @@ async function main() {
   const wb = new Workbook();
   const ws = wb.addWorksheet("Sheet1");
 
-  // The width of only column A willl be changed.
+  // The width of only column A will be changed.
   ws.setColWidth({ min: 1, max: 1, width: 12 });
 
   // The width of columns B to F will be changed.

@@ -1,4 +1,5 @@
 import { NullableCell, SheetData } from "./sheetData";
+import { expandRange } from "./utils";
 
 export type Col = {
   min: number;
@@ -53,6 +54,16 @@ export class Worksheet {
     return this._mergeCells;
   }
 
+  private getCell(rowIndex: number, colIndex: number): NullableCell {
+    const rows = this._sheetData[rowIndex];
+    if (!rows) {
+      return null;
+    }
+
+    return rows[colIndex] || null;
+  }
+
+  // TODO: Cells that have been merged cannot be set.
   setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
     if (!this._sheetData[rowIndex]) {
       const diff = rowIndex - this._sheetData.length + 1;
@@ -83,6 +94,25 @@ export class Worksheet {
   }
 
   setMergeCell(mergeCell: MergeCell) {
+    // Within the range to be merged, cells are set with the type of "merged".
+    const addresses = expandRange(mergeCell.ref);
+    for (let i = 0; i < addresses.length; i++) {
+      const address = addresses[i];
+      if (address) {
+        const [colIndex, rowIndex] = address;
+
+        // If the cell is not set, set it as empty string.
+        if (i === 0) {
+          const cell = this.getCell(rowIndex, colIndex);
+          if (!cell) {
+            this.setCell(rowIndex, colIndex, { type: "string", value: "" });
+          }
+        } else {
+          this.setCell(rowIndex, colIndex, { type: "merged" });
+        }
+      }
+    }
+
     this._mergeCells.push(mergeCell);
   }
 }

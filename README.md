@@ -40,6 +40,24 @@ async function main() {
 }
 ```
 
+### merge cells
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+async function main() {
+  const wb = new Workbook();
+  const ws = wb.addWorksheet("Sheet1");
+
+  ws.setCell(0, 0, { type: "number", value: 1 });
+  ws.setCell(1, 0, { type: "number", value: 2 });
+  ws.setMergeCell({ ref: "A1:C1" });
+  ws.setMergeCell({ ref: "A2:A4" });
+
+  await wb.save("test.xlsx");
+}
+```
+
 ### changing the width of columns
 
 ```ts

@@ -1,6 +1,12 @@
 import { readFileSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
-import { listFiles, parseXml, removeBasePath, unzip } from "../helper/helper";
+import {
+  deletePropertyFromObject,
+  listFiles,
+  parseXml,
+  removeBasePath,
+  unzip,
+} from "../helper/helper";
 import { Workbook } from "../../src";
 
 const XLSX_Dir = "tests/xlsx";
@@ -68,6 +74,34 @@ describe("string", () => {
 
     const expectedObj = parseXml(expected);
     const actualObj = parseXml(actual);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("styles.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "xl/styles.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "xl/styles.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    // // Differences due to the default font
+    deletePropertyFromObject(expectedObj, "styleSheet.fonts");
+    // // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
+    // // Differences due to the default font
+    deletePropertyFromObject(actualObj, "styleSheet.fonts");
+
+    // In online Excel, when merging cells, styles are automatically added.
+    // This is the difference caused by those styles.
+    deletePropertyFromObject(expectedObj, "styleSheet.cellXfs");
+    deletePropertyFromObject(actualObj, "styleSheet.cellXfs");
 
     expect(actualObj).toEqual(expectedObj);
   });

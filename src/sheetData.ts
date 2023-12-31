@@ -35,6 +35,10 @@ export type Cell =
       type: "boolean";
       value: boolean;
       style?: CellStyle;
+    }
+  | {
+      type: "merged";
+      style?: CellStyle;
     };
 
 export type NullableCell = Cell | null;

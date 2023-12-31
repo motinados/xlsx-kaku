@@ -1,4 +1,4 @@
-import { Cell, Row, SheetData } from "../src/sheetData";
+import { Cell, RowData, SheetData } from "../src/sheetData";
 import { SharedStrings } from "../src/sharedStrings";
 import {
   cellToString,
@@ -25,7 +25,7 @@ import { Col } from "../src/worksheet";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
-    const row: Row = [
+    const row: RowData = [
       null,
       null,
       { type: "string", value: "name" },
@@ -37,7 +37,7 @@ describe("Writer", () => {
   });
 
   test("findLastNonNullCell", () => {
-    const row: Row = [
+    const row: RowData = [
       null,
       null,
       { type: "string", value: "name" },
@@ -49,7 +49,7 @@ describe("Writer", () => {
   });
 
   test("getSpans", () => {
-    const row: Row = [
+    const row: RowData = [
       null,
       null,
       { type: "string", value: "name" },
@@ -228,7 +228,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const row: Row = [
+    const row: RowData = [
       null,
       null,
       { type: "number", value: 15 },
@@ -253,7 +253,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const row: Row = [
+    const row: RowData = [
       null,
       null,
       { type: "string", value: "hello" },

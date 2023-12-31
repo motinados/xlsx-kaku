@@ -607,6 +607,13 @@ export function cellToString(
       const v = cell.value ? 1 : 0;
       return `<c r="${column}${rowNumber}"${s} t="b"><v>${v}</v></c>`;
     }
+    case "merged": {
+      const cellXfId = xlsxCellStyle
+        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+        : null;
+      const s = cellXfId ? ` s="${cellXfId}"` : "";
+      return `<c r="${column}${rowNumber}"${s}/>`;
+    }
     default: {
       const _exhaustiveCheck: never = cell;
       throw new Error(`unknown cell type: ${_exhaustiveCheck}`);

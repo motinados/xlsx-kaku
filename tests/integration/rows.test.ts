@@ -1,9 +1,9 @@
-// import { readFileSync, rmSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
 import {
   //   deletePropertyFromObject,
   listFiles,
-  //   parseXml,
+  parseXml,
   removeBasePath,
   unzip,
 } from "../helper/helper";
@@ -67,5 +67,21 @@ describe("string", () => {
     );
 
     expect(actualSubPaths).toEqual(expectedSubPaths);
+  });
+
+  test("Content_Types.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    expect(actualObj).toEqual(expectedObj);
   });
 });

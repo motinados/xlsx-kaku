@@ -14,7 +14,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Col, Row, Worksheet } from "./worksheet";
+import { Col, MergeCell, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
 
 type StyleMappers = {
@@ -151,6 +151,7 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   for (const worksheet of worksheets) {
     const sheetData = worksheet.sheetData;
     const colsXml = makeColsXml(worksheet.cols);
+    const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
       sheetData,
       worksheet.rows,
@@ -160,6 +161,7 @@ export function createExcelFiles(worksheets: Worksheet[]) {
     const sheetXml = makeSheetXml(
       colsXml,
       sheetDataXml,
+      mergeCellsXml,
       dimension,
       styleMappers.hyperlinks
     );
@@ -241,9 +243,24 @@ export function makeColsXml(cols: Col[]): string {
   return results.join("");
 }
 
+export function makeMergeCellsXml(mergeCells: MergeCell[]) {
+  if (mergeCells.length === 0) {
+    return "";
+  }
+
+  const results: string[] = [];
+  results.push(`<mergeCells count="${mergeCells.length}">`);
+  for (const mergeCell of mergeCells) {
+    results.push(`<mergeCell ref="${mergeCell.ref}"/>`);
+  }
+  results.push("</mergeCells>");
+  return results.join("");
+}
+
 export function makeSheetXml(
   colsXml: string,
   sheetDataString: string,
+  mergeCellsXml: string,
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
 ) {
@@ -266,6 +283,7 @@ export function makeSheetXml(
     results.push(hyperlinks.makeXML());
   }
 
+  results.push(mergeCellsXml);
   results.push(
     '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>'
   );

@@ -9,6 +9,7 @@ import {
   getSpans,
   getSpansFromSheetData,
   makeColsXml,
+  makeMergeCellsXml,
   makeSheetDataXml,
   rowToString,
 } from "../src/writer";
@@ -21,7 +22,7 @@ import { CellStyleXfs } from "../src/cellStyleXfs";
 import { CellStyles } from "../src/cellStyles";
 import { Hyperlinks } from "../src/hyperlinks";
 import { WorksheetRels } from "../src/worksheetRels";
-import { Col } from "../src/worksheet";
+import { Col, MergeCell } from "../src/worksheet";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
@@ -350,6 +351,18 @@ describe("Writer", () => {
 
     expect(makeColsXml(cols)).toBe(
       `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
+    );
+  });
+
+  test("makeMergeCellsXml", () => {
+    const mergeCells: MergeCell[] = [
+      { ref: "A1:B2" },
+      { ref: "C3:D4" },
+      { ref: "E5:F6" },
+    ];
+
+    expect(makeMergeCellsXml(mergeCells)).toBe(
+      `<mergeCells count="3"><mergeCell ref="A1:B2"/><mergeCell ref="C3:D4"/><mergeCell ref="E5:F6"/></mergeCells>`
     );
   });
 });

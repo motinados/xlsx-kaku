@@ -104,8 +104,6 @@ describe("string", () => {
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
-    // // It should be a problem-free difference.
-    deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");
 
     expect(actualObj).toEqual(expectedObj);
   });

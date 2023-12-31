@@ -14,7 +14,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Col, Worksheet } from "./worksheet";
+import { Col, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
 
 type StyleMappers = {
@@ -151,7 +151,11 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   for (const worksheet of worksheets) {
     const sheetData = worksheet.sheetData;
     const colsXml = makeColsXml(worksheet.cols);
-    const sheetDataXml = makeSheetDataXml(sheetData, styleMappers);
+    const sheetDataXml = makeSheetDataXml(
+      sheetData,
+      worksheet.rows,
+      styleMappers
+    );
     const dimension = getDimension(sheetData);
     const sheetXml = makeSheetXml(
       colsXml,
@@ -329,6 +333,7 @@ export function getDimension(sheetData: SheetData) {
 
 export function makeSheetDataXml(
   sheetData: SheetData,
+  rows: Row[],
   styleMappers: StyleMappers
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
@@ -336,9 +341,11 @@ export function makeSheetDataXml(
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
+    const rowHeight = rows.find((it) => it.index === rowIndex)?.height ?? null;
     const str = rowToString(
       row,
       rowIndex,
+      rowHeight,
       startNumber,
       endNumber,
       styleMappers
@@ -358,6 +365,7 @@ export function makeSheetDataXml(
 export function rowToString(
   row: RowData,
   rowIndex: number,
+  rowHeight: number | null,
   startNumber: number,
   endNumber: number,
   styleMappers: StyleMappers
@@ -367,7 +375,10 @@ export function rowToString(
   }
 
   const rowNumber = rowIndex + 1;
-  let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
+
+  let result = rowHeight
+    ? `<row r="${rowNumber}" spans="${startNumber}:${endNumber}" ht="${rowHeight}" customHeight="1">`
+    : `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
 
   let columnIndex = 0;
   for (const cell of row) {

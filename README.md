@@ -19,6 +19,8 @@ npm install xlsx-kaku
 ### basic usage
 
 ```ts
+import { Workbook } from "xlsx-kaku";
+
 async function main() {
   const wb = new Workbook();
 
@@ -41,6 +43,8 @@ async function main() {
 ### changing the width of columns
 
 ```ts
+import { Workbook } from "xlsx-kaku";
+
 async function main() {
   const wb = new Workbook();
   const ws = wb.addWorksheet("Sheet1");

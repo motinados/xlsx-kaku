@@ -184,6 +184,21 @@ describe("string", () => {
       "worksheet.sheetViews.sheetView.selection"
     );
 
+    // In online Excel, when merging cells, styles are automatically added.
+    // This is the difference caused by those styles.
+    for (const obj of expectedObj.worksheet.sheetData.row) {
+      deletePropertyFromObject(obj, "@_ht");
+      deletePropertyFromObject(obj, "@_customHeight");
+
+      if (!Array.isArray(obj.c)) {
+        deletePropertyFromObject(obj.c, "@_s");
+      } else {
+        for (const c of obj.c) {
+          deletePropertyFromObject(c, "@_s");
+        }
+      }
+    }
+
     expect(actualObj).toEqual(expectedObj);
   });
 });

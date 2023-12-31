@@ -11,11 +11,19 @@ export type Row = {
   height: number;
 };
 
+export type MergeCell = {
+  /**
+   * e.g. "A2:B4"
+   */
+  ref: string;
+};
+
 export class Worksheet {
   private _name: string;
   private _sheetData: SheetData = [];
   private _cols: Col[] = [];
   private _rows: Row[] = [];
+  private _mergeCells: MergeCell[] = [];
 
   constructor(name: string) {
     this._name = name;
@@ -39,6 +47,10 @@ export class Worksheet {
 
   get rows() {
     return this._rows;
+  }
+
+  get mergeCells() {
+    return this._mergeCells;
   }
 
   setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
@@ -68,5 +80,9 @@ export class Worksheet {
 
   setRowHeight(row: Row) {
     this._rows.push(row);
+  }
+
+  setMergeCell(mergeCell: MergeCell) {
+    this._mergeCells.push(mergeCell);
   }
 }

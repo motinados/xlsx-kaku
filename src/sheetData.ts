@@ -39,6 +39,6 @@ export type Cell =
 
 export type NullableCell = Cell | null;
 
-export type Row = NullableCell[];
+export type RowData = NullableCell[];
 
-export type SheetData = Row[];
+export type SheetData = RowData[];

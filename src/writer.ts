@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
 import { v4 as uuidv4 } from "uuid";
-import { Cell, Row, SheetData } from "./sheetData";
+import { Cell, RowData, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
@@ -356,7 +356,7 @@ export function makeSheetDataXml(
  * <row r="1" spans="1:2"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>
  */
 export function rowToString(
-  row: Row,
+  row: RowData,
   rowIndex: number,
   startNumber: number,
   endNumber: number,
@@ -400,7 +400,7 @@ export function getSpansFromSheetData(sheetData: SheetData) {
   return { startNumber: minStartNumber, endNumber: maxEndNumber };
 }
 
-export function findFirstNonNullCell(row: Row) {
+export function findFirstNonNullCell(row: RowData) {
   let index = 0;
   let firstNonNullCell = null;
   for (let i = 0; i < row.length; i++) {
@@ -416,7 +416,7 @@ export function findFirstNonNullCell(row: Row) {
 /**
  *  [null, null, null, nonnull, null] => index is 3
  */
-export function findLastNonNullCell(row: Row) {
+export function findLastNonNullCell(row: RowData) {
   let index = 0;
   let lastNonNullCell = null;
   for (let i = row.length - 1; i >= 0; i--) {
@@ -429,7 +429,7 @@ export function findLastNonNullCell(row: Row) {
   return { lastNonNullCell, index };
 }
 
-export function getSpans(row: Row) {
+export function getSpans(row: RowData) {
   const first = findFirstNonNullCell(row);
   if (first === undefined || first === null) {
     return null;

@@ -561,7 +561,7 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
   }
 }
 
-export function getXlsxCellStyle(
+export function composeXlsxCellStyle(
   cell: Cell,
   mappers: StyleMappers
 ): XlsxCellStyle | null {
@@ -593,44 +593,44 @@ export function cellToString(
 
   assignDateStyleIfUndefined(cell);
   assignHyperlinkStyleIfUndefined(cell);
-  const xlsxCellStyle = getXlsxCellStyle(cell, styleMappers);
+  const composedStyle = composeXlsxCellStyle(cell, styleMappers);
 
   switch (cell.type) {
     case "number": {
-      const cellXfId = xlsxCellStyle
-        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+      const cellXfId = composedStyle
+        ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
       const s = cellXfId ? ` s="${cellXfId}"` : "";
       return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
-      const cellXfId = xlsxCellStyle
-        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+      const cellXfId = composedStyle
+        ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
       const s = cellXfId ? ` s="${cellXfId}"` : "";
       const index = styleMappers.sharedStrings.getIndex(cell.value);
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     case "date": {
-      const cellXfId = xlsxCellStyle
-        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+      const cellXfId = composedStyle
+        ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
       const s = cellXfId ? ` s="${cellXfId}"` : "";
       const serialValue = convertIsoStringToSerialValue(cell.value);
       return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
     }
     case "hyperlink": {
-      if (xlsxCellStyle === null) {
-        throw new Error("xlsxCellStyle is null for hyperlink");
+      if (composedStyle === null) {
+        throw new Error("composedStyle is null for hyperlink");
       }
-      const xfId = styleMappers.cellStyleXfs.getCellStyleXfId(xlsxCellStyle);
+      const xfId = styleMappers.cellStyleXfs.getCellStyleXfId(composedStyle);
       if (xfId === null) {
         throw new Error("xfId is null for hyperlink");
       }
 
       const cellXf: CellXf = {
         xfId: xfId,
-        ...xlsxCellStyle,
+        ...composedStyle,
       };
       const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
       const s = ` s="${cellXfId}"`;
@@ -653,16 +653,16 @@ export function cellToString(
       return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
     }
     case "boolean": {
-      const cellXfId = xlsxCellStyle
-        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+      const cellXfId = composedStyle
+        ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
       const s = cellXfId ? ` s="${cellXfId}"` : "";
       const v = cell.value ? 1 : 0;
       return `<c r="${column}${rowNumber}"${s} t="b"><v>${v}</v></c>`;
     }
     case "merged": {
-      const cellXfId = xlsxCellStyle
-        ? styleMappers.cellXfs.getCellXfId(xlsxCellStyle)
+      const cellXfId = composedStyle
+        ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
       const s = cellXfId ? ` s="${cellXfId}"` : "";
       return `<c r="${column}${rowNumber}"${s}/>`;

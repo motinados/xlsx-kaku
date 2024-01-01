@@ -301,7 +301,7 @@ export function makeSheetViewsXml(
       }" topLeftCell="${convNumberToColumn(
         freezePane.split
       )}1" activePane="topRight" state="frozen"/>`;
-      result += `<selection pane="topRight" activeCell="${dimension.start}" sqref="${dimension.start}"/> `;
+      result += `<selection pane="topRight" activeCell="${dimension.start}" sqref="${dimension.start}"/>`;
       result += "</sheetView>";
       result += "</sheetViews>";
       return result;

@@ -19,12 +19,18 @@ export type MergeCell = {
   ref: string;
 };
 
+export type FreezePane = {
+  type: "column" | "row";
+  split: number;
+};
+
 export class Worksheet {
   private _name: string;
   private _sheetData: SheetData = [];
   private _cols: Col[] = [];
   private _rows: Row[] = [];
   private _mergeCells: MergeCell[] = [];
+  private _freezePane: FreezePane | null = null;
 
   constructor(name: string) {
     this._name = name;
@@ -52,6 +58,10 @@ export class Worksheet {
 
   get mergeCells() {
     return this._mergeCells;
+  }
+
+  get freezePane() {
+    return this._freezePane;
   }
 
   private getCell(rowIndex: number, colIndex: number): NullableCell {
@@ -114,5 +124,9 @@ export class Worksheet {
     }
 
     this._mergeCells.push(mergeCell);
+  }
+
+  setFreezePane(freezePane: FreezePane) {
+    this._freezePane = freezePane;
   }
 }

@@ -14,7 +14,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Col, MergeCell, Row, Worksheet } from "./worksheet";
+import { Col, FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
 
 type StyleMappers = {
@@ -158,8 +158,10 @@ export function createExcelFiles(worksheets: Worksheet[]) {
       styleMappers
     );
     const dimension = getDimension(sheetData);
+    const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
     const sheetXml = makeSheetXml(
       colsXml,
+      sheetViewsXml,
       sheetDataXml,
       mergeCellsXml,
       dimension,
@@ -257,8 +259,63 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
   return results.join("");
 }
 
+// <sheetViews>
+// <sheetView tabSelected="1" workbookViewId="0">
+//     <pane xSplit="1" topLeftCell="B1" activePane="topRight" state="frozen"/>
+//     <selection pane="topRight"/>
+// </sheetView>
+// </sheetViews>
+export function makeSheetViewsXml(
+  dimension: { start: string; end: string },
+  freezePane: FreezePane | null
+) {
+  if (freezePane === null) {
+    let result = "";
+    result += "<sheetViews>";
+    result += `<sheetView tabSelected="1" workbookViewId="0">`;
+    result += `<selection activeCell="${dimension.start}" sqref="${dimension.start}"/>`;
+    result += "</sheetView>";
+    result += "</sheetViews>";
+    return result;
+  }
+
+  switch (freezePane.type) {
+    case "column": {
+      let result = "";
+      result += "<sheetViews>";
+      result += `<sheetView tabSelected="1" workbookViewId="0">`;
+      result += `<pane ySplit="${freezePane.split}" topLeftCell="A${
+        freezePane.split + 1
+      }" activePane="bottomLeft" state="frozen"/>`;
+      result += `<selection pane="bottomLeft" activeCell="${dimension.start}" sqref="${dimension.start}"/>`;
+      result += "</sheetView>";
+      result += "</sheetViews>";
+      return result;
+    }
+    case "row": {
+      let result = "";
+      result += "<sheetViews>";
+      result += `<sheetView tabSelected="1" workbookViewId="0">`;
+      result += `<pane xSplit="${
+        freezePane.split
+      }" topLeftCell="${convNumberToColumn(
+        freezePane.split
+      )}1" activePane="topRight" state="frozen"/>`;
+      result += `<selection pane="topRight" activeCell="${dimension.start}" sqref="${dimension.start}"/>`;
+      result += "</sheetView>";
+      result += "</sheetViews>";
+      return result;
+    }
+    default: {
+      const _exhaustiveCheck: never = freezePane.type;
+      throw new Error(`unknown freezePane type: ${_exhaustiveCheck}`);
+    }
+  }
+}
+
 export function makeSheetXml(
   colsXml: string,
+  sheetViewsXml: string,
   sheetDataString: string,
   mergeCellsXml: string,
   dimension: { start: string; end: string },
@@ -270,11 +327,7 @@ export function makeSheetXml(
     '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">'
   );
   results.push(`<dimension ref="${dimension.start}:${dimension.end}"/>`);
-  results.push("<sheetViews>");
-  results.push(
-    `<sheetView tabSelected="1" workbookViewId="0"><selection activeCell="${dimension.start}" sqref="${dimension.start}"/></sheetView>`
-  );
-  results.push("</sheetViews>");
+  results.push(sheetViewsXml);
   results.push('<sheetFormatPr defaultRowHeight="13.5"/>');
   results.push(colsXml);
   results.push(sheetDataString);

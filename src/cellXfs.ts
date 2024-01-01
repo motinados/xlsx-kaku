@@ -1,11 +1,18 @@
 import { stringifySorted } from "./utils";
 
+export type Alignment = {
+  horizontal?: "left" | "center" | "right";
+  vertical?: "top" | "center" | "bottom";
+  textRotation?: number;
+};
+
 export type CellXf = {
   fillId: number;
   fontId: number;
   borderId: number;
   numFmtId: number;
   xfId?: number;
+  alignment?: Alignment;
 };
 
 export class CellXfs {
@@ -50,7 +57,12 @@ export class CellXfs {
     this._cellXfs.forEach((_, key) => {
       const cellXf = JSON.parse(key) as CellXf;
       const xfId = cellXf.xfId ?? 0;
+
       xml += `<xf numFmtId="${cellXf.numFmtId}" fontId="${cellXf.fontId}" fillId="${cellXf.fillId}" borderId="${cellXf.borderId}" xfId="${xfId}"`;
+
+      if (cellXf.alignment) {
+        xml += ' applyAlignment="1"';
+      }
       if (cellXf.fillId > 0) {
         xml += ' applyFill="1"';
       }
@@ -63,7 +75,24 @@ export class CellXfs {
       if (cellXf.borderId > 0) {
         xml += ' applyBorder="1"';
       }
-      xml += "/>";
+
+      if (cellXf.alignment) {
+        xml += ">";
+        xml += "<alignment";
+        if (cellXf.alignment.horizontal) {
+          xml += ` horizontal="${cellXf.alignment.horizontal}"`;
+        }
+        if (cellXf.alignment.vertical) {
+          xml += ` vertical="${cellXf.alignment.vertical}"`;
+        }
+        if (cellXf.alignment.textRotation) {
+          xml += ` textRotation="${cellXf.alignment.textRotation}"`;
+        }
+        xml += "/>";
+        xml += "</xf>";
+      } else {
+        xml += "/>";
+      }
     });
     xml += "</cellXfs>";
     return xml;

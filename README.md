@@ -102,3 +102,48 @@ async function main() {
   await wb.save("test.xlsx");
 }
 ```
+
+### alignment
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+async function main() {
+  const wb = new Workbook();
+  const ws = wb.addWorksheet("Sheet1");
+
+  ws.setCell(0, 0, {
+    type: "number",
+    value: 12,
+    style: {
+      alignment: { horizontal: "center", vertical: "top", textRotation: 90 },
+    },
+  });
+
+  await wb.save("test.xlsx");
+}
+```
+
+### freeze pane
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+async function main() {
+  const wb = new Workbook();
+  const ws = wb.addWorksheet("Sheet1");
+
+  ws.setCell(0, 0, { type: "number", value: 1 });
+  ws.setCell(0, 1, { type: "number", value: 2 });
+  ws.setCell(1, 0, { type: "number", value: 3 });
+  ws.setCell(1, 1, { type: "number", value: 4 });
+
+  // the first row will be fixed.
+  ws.setFreezePane({ type: "row", split: 1 });
+
+  // Column A will be fixed.
+  // ws.setFreezePane({ type: "column", split: 1 });
+
+  await wb.save("test.xlsx");
+}
+```

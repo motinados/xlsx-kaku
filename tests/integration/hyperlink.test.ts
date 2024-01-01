@@ -14,7 +14,7 @@ const OUTPUT_DIR = "tests/temp/hyperlink/output";
 const EXPECTED_UNZIPPED_DIR = "tests/temp/hyperlink/expected";
 const ACTUAL_UNZIPPED_DIR = "tests/temp/hyperlink/actuall";
 
-describe("string", () => {
+describe("hyperlink", () => {
   let xlsxBaseName: string;
   let expectedFileDir: string;
   let actualFileDir: string;

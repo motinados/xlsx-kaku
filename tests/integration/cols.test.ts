@@ -14,7 +14,7 @@ const OUTPUT_DIR = "tests/temp/cols/output";
 const EXPECTED_UNZIPPED_DIR = "tests/temp/cols/expected";
 const ACTUAL_UNZIPPED_DIR = "tests/temp/cols/actuall";
 
-describe("string", () => {
+describe("cols", () => {
   let xlsxBaseName: string;
   let expectedFileDir: string;
   let actualFileDir: string;

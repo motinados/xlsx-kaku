@@ -14,7 +14,7 @@ const OUTPUT_DIR = "tests/temp/mergeCells/output";
 const EXPECTED_UNZIPPED_DIR = "tests/temp/mergeCells/expected";
 const ACTUAL_UNZIPPED_DIR = "tests/temp/mergeCells/actuall";
 
-describe("string", () => {
+describe("mergeCells", () => {
   let xlsxBaseName: string;
   let expectedFileDir: string;
   let actualFileDir: string;

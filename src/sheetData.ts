@@ -8,6 +8,11 @@ type CellStyle = {
   fill?: Fill;
   border?: Border;
   numberFormat?: NumberFormat;
+  alignment?: {
+    horizontal?: "left" | "center" | "right";
+    vertical?: "top" | "center" | "bottom";
+    textRotation?: number;
+  };
 };
 
 export type Cell =

@@ -6,7 +6,7 @@ import { Cell, RowData, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
-import { CellXf, CellXfs } from "./cellXfs";
+import { Alignment, CellXf, CellXfs } from "./cellXfs";
 import { Fonts } from "./fonts";
 import { Borders } from "./borders";
 import { NumberFormats } from "./numberFormats";
@@ -35,6 +35,7 @@ type XlsxCellStyle = {
   fillId: number;
   borderId: number;
   numFmtId: number;
+  alignment?: Alignment;
 };
 
 export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
@@ -566,7 +567,7 @@ export function composeXlsxCellStyle(
   mappers: StyleMappers
 ): XlsxCellStyle | null {
   if (cell.style) {
-    const style = {
+    const style: XlsxCellStyle = {
       fillId: cell.style.fill ? mappers.fills.getFillId(cell.style.fill) : 0,
       fontId: cell.style.font ? mappers.fonts.getFontId(cell.style.font) : 0,
       borderId: cell.style.border
@@ -576,6 +577,11 @@ export function composeXlsxCellStyle(
         ? mappers.numberFormats.getNumFmtId(cell.style.numberFormat.formatCode)
         : 0,
     };
+
+    if (cell.style.alignment) {
+      style.alignment = cell.style.alignment;
+    }
+
     return style;
   }
 

@@ -31,18 +31,72 @@ describe("alignment", () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
 
-    ws.setCell(0, 0, { type: "number", value: 1 });
-    ws.setCell(0, 1, { type: "number", value: 2 });
-    ws.setCell(0, 2, { type: "number", value: 3 });
-    ws.setCell(1, 0, { type: "number", value: 4 });
-    ws.setCell(1, 1, { type: "number", value: 5 });
-    ws.setCell(1, 2, { type: "number", value: 6 });
-    ws.setCell(2, 0, { type: "number", value: 7 });
-    ws.setCell(2, 1, { type: "number", value: 8 });
-    ws.setCell(2, 2, { type: "number", value: 9 });
-    ws.setCell(3, 0, { type: "number", value: 10 });
-    ws.setCell(3, 1, { type: "number", value: 11 });
-    ws.setCell(3, 2, { type: "number", value: 12 });
+    ws.setCell(0, 0, {
+      type: "number",
+      value: 1,
+      style: { alignment: { vertical: "top" } },
+    });
+    ws.setCell(0, 1, {
+      type: "number",
+      value: 2,
+      style: { alignment: { vertical: "center" } },
+    });
+    ws.setCell(0, 2, {
+      type: "number",
+      value: 3,
+      style: { alignment: { vertical: "bottom" } },
+    });
+    ws.setCell(1, 0, {
+      type: "number",
+      value: 4,
+      style: { alignment: { horizontal: "left" } },
+    });
+    ws.setCell(1, 1, {
+      type: "number",
+      value: 5,
+      style: {
+        alignment: {
+          horizontal: "center",
+        },
+      },
+    });
+    ws.setCell(1, 2, {
+      type: "number",
+      value: 6,
+      style: { alignment: { horizontal: "right" } },
+    });
+    ws.setCell(2, 0, {
+      type: "number",
+      value: 7,
+      style: { alignment: { textRotation: 45 } },
+    });
+    ws.setCell(2, 1, {
+      type: "number",
+      value: 8,
+      style: { alignment: { textRotation: 135 } },
+    });
+    ws.setCell(2, 2, {
+      type: "number",
+      value: 9,
+      style: { alignment: { textRotation: 90 } },
+    });
+    ws.setCell(3, 0, {
+      type: "number",
+      value: 10,
+      style: { alignment: { horizontal: "left", textRotation: 90 } },
+    });
+    ws.setCell(3, 1, {
+      type: "number",
+      value: 11,
+      style: { alignment: { horizontal: "center", textRotation: 180 } },
+    });
+    ws.setCell(3, 2, {
+      type: "number",
+      value: 12,
+      style: {
+        alignment: { horizontal: "center", vertical: "top", textRotation: 255 },
+      },
+    });
 
     ws.setRowHeight({ index: 0, height: 39.75 });
     ws.setRowHeight({ index: 1, height: 39.75 });
@@ -111,6 +165,11 @@ describe("alignment", () => {
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
+
+    // <xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"/>
+    // Probably "bottom" is the default value, so it seems that it does not appear in the expected XML.
+    const obj = actualObj.styleSheet.cellXfs.xf[3];
+    deletePropertyFromObject(obj, "alignment");
 
     expect(actualObj).toEqual(expectedObj);
   });

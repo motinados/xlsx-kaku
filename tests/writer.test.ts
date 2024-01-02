@@ -344,7 +344,7 @@ describe("Writer", () => {
     );
   });
 
-  test("makeColsXml", () => {
+  test("makeColsXml for width", () => {
     const styleMappers = {
       fills: new Fills(),
       fonts: new Fonts(),
@@ -365,6 +365,40 @@ describe("Writer", () => {
 
     expect(makeColsXml(cols, styleMappers)).toBe(
       `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
+    );
+  });
+
+  test("makeColsXml for style", () => {
+    const styleMappers = {
+      fills: new Fills(),
+      fonts: new Fonts(),
+      borders: new Borders(),
+      numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
+      cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
+    };
+    const cols: Col[] = [
+      { min: 1, max: 1, style: { alignment: { horizontal: "center" } } },
+      {
+        min: 2,
+        max: 3,
+        style: {
+          fill: { patternType: "solid", fgColor: "FFFF0000" },
+        },
+      },
+      {
+        min: 2,
+        max: 3,
+        width: 25,
+      },
+    ];
+
+    expect(makeColsXml(cols, styleMappers)).toBe(
+      `<cols><col min="1" max="1" style="1"/><col min="2" max="3" width="25" customWidth="1" style="2"/></cols>`
     );
   });
 

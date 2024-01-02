@@ -235,15 +235,13 @@ export function makeColsXml(cols: Col[]): string {
     return "";
   }
 
-  const results: string[] = [];
-  results.push("<cols>");
+  let result = "<cols>";
   for (const col of cols) {
-    results.push(
-      `<col min="${col.min}" max="${col.max}" width="${col.width}" customWidth="1"/>`
-    );
+    result += `<col min="${col.min}" max="${col.max}" width="${col.width}" customWidth="1"/>`;
   }
-  results.push("</cols>");
-  return results.join("");
+  result += "</cols>";
+
+  return result;
 }
 
 export function makeMergeCellsXml(mergeCells: MergeCell[]) {
@@ -251,13 +249,13 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
     return "";
   }
 
-  const results: string[] = [];
-  results.push(`<mergeCells count="${mergeCells.length}">`);
+  let result = `<mergeCells count="${mergeCells.length}">`;
   for (const mergeCell of mergeCells) {
-    results.push(`<mergeCell ref="${mergeCell.ref}"/>`);
+    result += `<mergeCell ref="${mergeCell.ref}"/>`;
   }
-  results.push("</mergeCells>");
-  return results.join("");
+  result += "</mergeCells>";
+
+  return result;
 }
 
 // <sheetViews>

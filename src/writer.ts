@@ -870,7 +870,7 @@ function makeAppXml() {
   results.push(
     '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
   );
-  results.push("<Application>excel-writer</Application>");
+  results.push("<Application>xlsx-kaku</Application>");
   results.push("<Manager></Manager>");
   results.push("<Company></Company>");
   results.push("<HyperlinkBase></HyperlinkBase>");

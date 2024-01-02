@@ -235,15 +235,13 @@ export function makeColsXml(cols: Col[]): string {
     return "";
   }
 
-  const results: string[] = [];
-  results.push("<cols>");
+  let result = "<cols>";
   for (const col of cols) {
-    results.push(
-      `<col min="${col.min}" max="${col.max}" width="${col.width}" customWidth="1"/>`
-    );
+    result += `<col min="${col.min}" max="${col.max}" width="${col.width}" customWidth="1"/>`;
   }
-  results.push("</cols>");
-  return results.join("");
+  result += "</cols>";
+
+  return result;
 }
 
 export function makeMergeCellsXml(mergeCells: MergeCell[]) {
@@ -251,13 +249,13 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
     return "";
   }
 
-  const results: string[] = [];
-  results.push(`<mergeCells count="${mergeCells.length}">`);
+  let result = `<mergeCells count="${mergeCells.length}">`;
   for (const mergeCell of mergeCells) {
-    results.push(`<mergeCell ref="${mergeCell.ref}"/>`);
+    result += `<mergeCell ref="${mergeCell.ref}"/>`;
   }
-  results.push("</mergeCells>");
-  return results.join("");
+  result += "</mergeCells>";
+
+  return result;
 }
 
 // <sheetViews>
@@ -271,40 +269,38 @@ export function makeSheetViewsXml(
   freezePane: FreezePane | null
 ) {
   if (freezePane === null) {
-    let result = "";
-    result += "<sheetViews>";
-    result += `<sheetView tabSelected="1" workbookViewId="0">`;
-    result += `<selection activeCell="${dimension.start}" sqref="${dimension.start}"/>`;
-    result += "</sheetView>";
-    result += "</sheetViews>";
+    let result =
+      "<sheetViews>" +
+      `<sheetView tabSelected="1" workbookViewId="0">` +
+      `<selection activeCell="${dimension.start}" sqref="${dimension.start}"/>` +
+      "</sheetView>" +
+      "</sheetViews>";
     return result;
   }
 
   switch (freezePane.type) {
     case "column": {
-      let result = "";
-      result += "<sheetViews>";
-      result += `<sheetView tabSelected="1" workbookViewId="0">`;
-      result += `<pane ySplit="${freezePane.split}" topLeftCell="A${
-        freezePane.split + 1
-      }" activePane="bottomLeft" state="frozen"/>`;
-      result += `<selection pane="bottomLeft" activeCell="${dimension.start}" sqref="${dimension.start}"/>`;
-      result += "</sheetView>";
-      result += "</sheetViews>";
+      let result =
+        "<sheetViews>" +
+        `<sheetView tabSelected="1" workbookViewId="0">` +
+        `<pane ySplit="${freezePane.split}" topLeftCell="A${
+          freezePane.split + 1
+        }" activePane="bottomLeft" state="frozen"/>` +
+        `<selection pane="bottomLeft" activeCell="${dimension.start}" sqref="${dimension.start}"/>` +
+        "</sheetView>" +
+        "</sheetViews>";
       return result;
     }
     case "row": {
-      let result = "";
-      result += "<sheetViews>";
-      result += `<sheetView tabSelected="1" workbookViewId="0">`;
-      result += `<pane xSplit="${
-        freezePane.split
-      }" topLeftCell="${convNumberToColumn(
-        freezePane.split
-      )}1" activePane="topRight" state="frozen"/>`;
-      result += `<selection pane="topRight" activeCell="${dimension.start}" sqref="${dimension.start}"/>`;
-      result += "</sheetView>";
-      result += "</sheetViews>";
+      let result =
+        "<sheetViews>" +
+        `<sheetView tabSelected="1" workbookViewId="0">` +
+        `<pane xSplit="${freezePane.split}" topLeftCell="${convNumberToColumn(
+          freezePane.split
+        )}1" activePane="topRight" state="frozen"/>` +
+        `<selection pane="topRight" activeCell="${dimension.start}" sqref="${dimension.start}"/>` +
+        "</sheetView>" +
+        "</sheetViews>";
       return result;
     }
     default: {
@@ -322,26 +318,24 @@ export function makeSheetXml(
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
 ) {
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">'
-  );
-  results.push(`<dimension ref="${dimension.start}:${dimension.end}"/>`);
-  results.push(sheetViewsXml);
-  results.push('<sheetFormatPr defaultRowHeight="13.5"/>');
-  results.push(colsXml);
-  results.push(sheetDataString);
+  let result =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">' +
+    `<dimension ref="${dimension.start}:${dimension.end}"/>` +
+    sheetViewsXml +
+    '<sheetFormatPr defaultRowHeight="13.5"/>' +
+    colsXml +
+    sheetDataString;
 
   if (hyperlinks.getHyperlinks().length > 0) {
-    results.push(hyperlinks.makeXML());
+    result += hyperlinks.makeXML();
   }
 
-  results.push(mergeCellsXml);
-  results.push(
-    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>'
-  );
-  return results.join("");
+  result +=
+    mergeCellsXml +
+    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>';
+
+  return result;
 }
 
 export function makeSharedStringsXml(sharedStrings: SharedStrings) {
@@ -684,259 +678,190 @@ function makeWorkbookXmlRels(
   sharedStrings: boolean,
   wooksheetsLength: number
 ): string {
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-  );
+  let result =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
 
   let index = 1;
   while (index <= wooksheetsLength) {
-    results.push(
-      `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${index}.xml"/>`
-    );
+    result += `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${index}.xml"/>`;
     index++;
   }
 
-  results.push(
-    `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>`
-  );
+  result += `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>`;
   index++;
 
-  results.push(
-    `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`
-  );
+  result += `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
   index++;
 
   if (sharedStrings) {
-    results.push(
-      `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`
-    );
+    result += `<Relationship Id="rId${index}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>`;
   }
-  results.push("</Relationships>");
-  return results.join("");
+
+  result += "</Relationships>";
+  return result;
 }
 
 function makeCoreXml() {
   const isoDate = new Date().toISOString();
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-  );
-  results.push("<dc:title></dc:title>");
-  results.push("<dc:subject></dc:subject>");
-  results.push("<dc:creator></dc:creator>");
-  results.push("<cp:keywords></cp:keywords>");
-  results.push("<dc:description></dc:description>");
-  results.push("<cp:lastModifiedBy></cp:lastModifiedBy>");
-  results.push("<cp:revision></cp:revision>");
-  results.push(
-    `<dcterms:created xsi:type="dcterms:W3CDTF">${isoDate}</dcterms:created>`
-  );
-  results.push(
-    `<dcterms:modified xsi:type="dcterms:W3CDTF">${isoDate}</dcterms:modified><cp:category></cp:category>`
-  );
-  results.push("<cp:contentStatus></cp:contentStatus>");
-  results.push("</cp:coreProperties>");
-  return results.join("");
+
+  let result =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+    "<dc:title></dc:title>" +
+    "<dc:subject></dc:subject>" +
+    "<dc:creator></dc:creator>" +
+    "<cp:keywords></cp:keywords>" +
+    "<dc:description></dc:description>" +
+    "<cp:lastModifiedBy></cp:lastModifiedBy>" +
+    "<cp:revision></cp:revision>" +
+    `<dcterms:created xsi:type="dcterms:W3CDTF">${isoDate}</dcterms:created>` +
+    `<dcterms:modified xsi:type="dcterms:W3CDTF">${isoDate}</dcterms:modified><cp:category></cp:category>` +
+    "<cp:contentStatus></cp:contentStatus>" +
+    "</cp:coreProperties>";
+
+  return result;
 }
 
 function makeStylesXml(styleMappers: StyleMappers) {
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">'
-  );
+  let result =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">' +
+    styleMappers.numberFormats.makeXml() +
+    // results.push('<fonts count="1">');
+    // results.push("<font>");
+    // results.push('<sz val="11"/>');
+    // results.push('<color theme="1"/>');
+    // results.push('<name val="Calibri"/>');
+    // results.push('<family val="2"/>');
+    // results.push('<scheme val="minor"/></font>');
+    // results.push("</fonts>");
+    styleMappers.fonts.makeXml() +
+    // results.push('<fills count="2">');
+    // results.push('<fill><patternFill patternType="none"/></fill>');
+    // results.push('<fill><patternFill patternType="gray125"/></fill>');
+    // results.push("</fills>");
+    styleMappers.fills.makeXml() +
+    // results.push('<borders count="1">');
+    // results.push("<border><left/><right/><top/><bottom/><diagonal/></border>");
+    // results.push("</borders>");
+    styleMappers.borders.makeXml() +
+    // results.push(
+    //   '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    // );
+    styleMappers.cellStyleXfs.makeXml() +
+    // results.push(
+    //   '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
+    // );
+    styleMappers.cellXfs.makeXml() +
+    // results.push(
+    //   '<cellStyles count="1"><cellStyle name="標準" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/>'
+    // );
+    styleMappers.cellStyles.makeXml() +
+    '<tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleMedium9"/>' +
+    "<extLst>" +
+    '<ext uri="{EB79DEF2-80B8-43e5-95BD-54CBDDF9020C}" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main">' +
+    '<x14:slicerStyles defaultSlicerStyle="SlicerStyleLight1"/></ext>' +
+    '<ext uri="{9260A510-F301-46a8-8635-F512D64BE5F5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">' +
+    '<x15:timelineStyles defaultTimelineStyle="TimeSlicerStyleLight1"/></ext>' +
+    "</extLst>" +
+    "</styleSheet>";
 
-  results.push(styleMappers.numberFormats.makeXml());
-
-  // results.push('<fonts count="1">');
-  // results.push("<font>");
-  // results.push('<sz val="11"/>');
-  // results.push('<color theme="1"/>');
-  // results.push('<name val="Calibri"/>');
-  // results.push('<family val="2"/>');
-  // results.push('<scheme val="minor"/></font>');
-  // results.push("</fonts>");
-  results.push(styleMappers.fonts.makeXml());
-
-  // results.push('<fills count="2">');
-  // results.push('<fill><patternFill patternType="none"/></fill>');
-  // results.push('<fill><patternFill patternType="gray125"/></fill>');
-  // results.push("</fills>");
-  results.push(styleMappers.fills.makeXml());
-
-  // results.push('<borders count="1">');
-  // results.push("<border><left/><right/><top/><bottom/><diagonal/></border>");
-  // results.push("</borders>");
-  results.push(styleMappers.borders.makeXml());
-
-  // results.push(
-  //   '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-  // );
-  results.push(styleMappers.cellStyleXfs.makeXml());
-
-  // results.push(
-  //   '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>'
-  // );
-  results.push(styleMappers.cellXfs.makeXml());
-
-  // results.push(
-  //   '<cellStyles count="1"><cellStyle name="標準" xfId="0" builtinId="0"/></cellStyles><dxfs count="0"/>'
-  // );
-  results.push(styleMappers.cellStyles.makeXml());
-
-  results.push(
-    '<tableStyles count="0" defaultTableStyle="TableStyleMedium2" defaultPivotStyle="PivotStyleMedium9"/>'
-  );
-  results.push("<extLst>");
-  results.push(
-    '<ext uri="{EB79DEF2-80B8-43e5-95BD-54CBDDF9020C}" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main">'
-  );
-  results.push(
-    '<x14:slicerStyles defaultSlicerStyle="SlicerStyleLight1"/></ext>'
-  );
-  results.push(
-    '<ext uri="{9260A510-F301-46a8-8635-F512D64BE5F5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">'
-  );
-  results.push(
-    '<x15:timelineStyles defaultTimelineStyle="TimeSlicerStyleLight1"/></ext>'
-  );
-  results.push("</extLst>");
-  results.push("</styleSheet>");
-  return results.join("");
+  return result;
 }
 
 function makeWorkbookXml(worksheets: Worksheet[]) {
   const documentId = uuidv4();
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x15 xr xr6 xr10 xr2" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr6="http://schemas.microsoft.com/office/spreadsheetml/2016/revision6" xmlns:xr10="http://schemas.microsoft.com/office/spreadsheetml/2016/revision10" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2">'
-  );
-  results.push(
-    '<fileVersion appName="xl" lastEdited="7" lowestEdited="4" rupBuild="27123"/>'
-  );
-  results.push('<workbookPr defaultThemeVersion="166925"/>');
-  results.push(
-    `<xr:revisionPtr revIDLastSave="0" documentId="8_{${documentId}}" xr6:coauthVersionLast="47" xr6:coauthVersionMax="47" xr10:uidLastSave="{00000000-0000-0000-0000-000000000000}"/>`
-  );
-  results.push("<bookViews>");
-  results.push(
-    '<workbookView xWindow="240" yWindow="105" windowWidth="14805" windowHeight="8010" xr2:uid="{00000000-000D-0000-FFFF-FFFF00000000}"/>'
-  );
-  results.push("</bookViews>");
 
-  results.push("<sheets>");
+  let result =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x15 xr xr6 xr10 xr2" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr6="http://schemas.microsoft.com/office/spreadsheetml/2016/revision6" xmlns:xr10="http://schemas.microsoft.com/office/spreadsheetml/2016/revision10" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2">' +
+    '<fileVersion appName="xl" lastEdited="7" lowestEdited="4" rupBuild="27123"/>' +
+    '<workbookPr defaultThemeVersion="166925"/>' +
+    `<xr:revisionPtr revIDLastSave="0" documentId="8_{${documentId}}" xr6:coauthVersionLast="47" xr6:coauthVersionMax="47" xr10:uidLastSave="{00000000-0000-0000-0000-000000000000}"/>` +
+    "<bookViews>" +
+    '<workbookView xWindow="240" yWindow="105" windowWidth="14805" windowHeight="8010" xr2:uid="{00000000-000D-0000-FFFF-FFFF00000000}"/>' +
+    "</bookViews>" +
+    "<sheets>";
+
   let sheetId = 1;
   for (const sheet of worksheets) {
-    // results.push('<sheet name="Sheet1" sheetId="1" r:id="rId1"/>');
-    results.push(
-      `<sheet name="${sheet.name}" sheetId="${sheetId}" r:id="rId${sheetId}"/>`
-    );
+    result += `<sheet name="${sheet.name}" sheetId="${sheetId}" r:id="rId${sheetId}"/>`;
     sheetId++;
   }
-  results.push("</sheets>");
 
-  results.push('<calcPr calcId="191028"/>');
-  results.push("<extLst>");
-  results.push(
-    '<ext uri="{140A7094-0E35-4892-8432-C4D2E57EDEB5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">'
-  );
-  results.push('<x15:workbookPr chartTrackingRefBase="1"/>');
-  results.push("</ext>");
-  results.push(
-    '<ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures">'
-  );
-  results.push("<xcalcf:calcFeatures>");
-  results.push('<xcalcf:feature name="microsoft.com:RD"/>');
-  results.push('<xcalcf:feature name="microsoft.com:Single"/>');
-  results.push('<xcalcf:feature name="microsoft.com:FV"/>');
-  results.push('<xcalcf:feature name="microsoft.com:CNMTM"/>');
-  results.push('<xcalcf:feature name="microsoft.com:LET_WF"/>');
-  results.push('<xcalcf:feature name="microsoft.com:LAMBDA_WF"/>');
-  results.push('<xcalcf:feature name="microsoft.com:ARRAYTEXT_WF"/>');
-  results.push("</xcalcf:calcFeatures>");
-  results.push("</ext>");
-  results.push("</extLst>");
-  results.push("</workbook>");
-  return results.join("");
+  result +=
+    "</sheets>" +
+    '<calcPr calcId="191028"/>' +
+    "<extLst>" +
+    '<ext uri="{140A7094-0E35-4892-8432-C4D2E57EDEB5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">' +
+    '<x15:workbookPr chartTrackingRefBase="1"/>' +
+    "</ext>" +
+    '<ext uri="{B58B0392-4F1F-4190-BB64-5DF3571DCE5F}" xmlns:xcalcf="http://schemas.microsoft.com/office/spreadsheetml/2018/calcfeatures">' +
+    "<xcalcf:calcFeatures>" +
+    '<xcalcf:feature name="microsoft.com:RD"/>' +
+    '<xcalcf:feature name="microsoft.com:Single"/>' +
+    '<xcalcf:feature name="microsoft.com:FV"/>' +
+    '<xcalcf:feature name="microsoft.com:CNMTM"/>' +
+    '<xcalcf:feature name="microsoft.com:LET_WF"/>' +
+    '<xcalcf:feature name="microsoft.com:LAMBDA_WF"/>' +
+    '<xcalcf:feature name="microsoft.com:ARRAYTEXT_WF"/>' +
+    "</xcalcf:calcFeatures>" +
+    "</ext>" +
+    "</extLst>" +
+    "</workbook>";
+
+  return result;
 }
 
 function makeAppXml() {
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">'
+  return (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"' +
+    "<Application>xlsx-kaku</Application>" +
+    "<Manager></Manager>" +
+    "<Company></Company>" +
+    "<HyperlinkBase></HyperlinkBase>" +
+    "<AppVersion>16.0300</AppVersion>" +
+    "</Properties>"
   );
-  results.push("<Application>xlsx-kaku</Application>");
-  results.push("<Manager></Manager>");
-  results.push("<Company></Company>");
-  results.push("<HyperlinkBase></HyperlinkBase>");
-  results.push("<AppVersion>16.0300</AppVersion>");
-  results.push("</Properties>");
-  return results.join("");
 }
 
 function makeRelsFile() {
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+  return (
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>' +
+    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>' +
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+    "</Relationships>"
   );
-  results.push(
-    '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>'
-  );
-  results.push(
-    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>'
-  );
-  results.push(
-    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
-  );
-  results.push("</Relationships>");
-  return results.join("");
 }
 
 function makeContentTypesXml(sharedStrings: boolean, sheetsLength: number) {
-  const results: string[] = [];
-  results.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  results.push(
-    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-  );
-  results.push(
-    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-  );
-  results.push('<Default Extension="xml" ContentType="application/xml"/>');
-  results.push(
-    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-  );
-  results.push(
-    '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
-  );
-  results.push(
-    '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
-  );
+  let result =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+    '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>' +
+    '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>';
 
-  // <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
-  // <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
   for (let i = 1; i <= sheetsLength; i++) {
-    results.push(
-      `<Override PartName="/xl/worksheets/sheet${i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`
-    );
+    result += `<Override PartName="/xl/worksheets/sheet${i}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`;
   }
 
-  results.push(
-    '<Override PartName="/xl/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
-  );
-  results.push(
-    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
-  );
+  result +=
+    '<Override PartName="/xl/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>' +
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
+
   if (sharedStrings) {
-    results.push(
-      '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
-    );
+    result +=
+      '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>';
   }
-  results.push("</Types>");
-  return results.join("");
+
+  result += "</Types>";
+
+  return result;
 }

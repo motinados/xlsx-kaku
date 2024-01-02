@@ -14,15 +14,9 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import {
-  Col,
-  FreezePane,
-  MergeCell,
-  Row,
-  Worksheet,
-  combineColProps,
-} from "./worksheet";
+import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
+import { Col, combineColProps } from "./col";
 
 type StyleMappers = {
   fills: Fills;

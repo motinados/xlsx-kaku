@@ -3,7 +3,7 @@ import { Fill } from "./fills";
 import { Font } from "./fonts";
 import { NumberFormat } from "./numberFormats";
 
-type CellStyle = {
+export type CellStyle = {
   font?: Font;
   fill?: Fill;
   border?: Border;

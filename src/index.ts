@@ -4,7 +4,14 @@ import { Font } from "./fonts";
 import { NumberFormat } from "./numberFormats";
 import { Cell, NullableCell, RowData, SheetData } from "./sheetData";
 import { Workbook } from "./workbook";
-import { Worksheet, Col, Row, MergeCell, FreezePane } from "./worksheet";
+import {
+  Worksheet,
+  ColWidth,
+  ColStyle,
+  Row,
+  MergeCell,
+  FreezePane,
+} from "./worksheet";
 
 export { Border };
 export { Fill };
@@ -12,4 +19,4 @@ export { Font };
 export { NumberFormat };
 export { Cell, NullableCell, RowData, SheetData };
 export { Workbook };
-export { Worksheet, Col, Row, MergeCell, FreezePane };
+export { Worksheet, ColWidth, ColStyle, Row, MergeCell, FreezePane };

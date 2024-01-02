@@ -23,7 +23,8 @@ import { CellStyleXfs } from "../src/cellStyleXfs";
 import { CellStyles } from "../src/cellStyles";
 import { Hyperlinks } from "../src/hyperlinks";
 import { WorksheetRels } from "../src/worksheetRels";
-import { Col, FreezePane, MergeCell } from "../src/worksheet";
+import { FreezePane, MergeCell } from "../src/worksheet";
+import { Col } from "../src/col";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
@@ -344,13 +345,25 @@ describe("Writer", () => {
   });
 
   test("makeColsXml", () => {
+    const styleMappers = {
+      fills: new Fills(),
+      fonts: new Fonts(),
+      borders: new Borders(),
+      numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
+      cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
+    };
     const cols: Col[] = [
       { min: 1, max: 1, width: 10 },
       { min: 2, max: 2, width: 75 },
       { min: 3, max: 6, width: 25 },
     ];
 
-    expect(makeColsXml(cols)).toBe(
+    expect(makeColsXml(cols, styleMappers)).toBe(
       `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
     );
   });

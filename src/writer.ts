@@ -243,7 +243,7 @@ export function makeColsXml(cols: Col[], mappers: StyleMappers): string {
     result += `<col min="${col.min}" max="${col.max}"`;
 
     if (col.width) {
-      result += `width="${col.width}" customWidth="1"`;
+      result += ` width="${col.width}" customWidth="1"`;
     }
 
     if (col.style) {

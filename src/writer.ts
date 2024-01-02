@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import path from "node:path";
 import archiver from "archiver";
 import { v4 as uuidv4 } from "uuid";
-import { Cell, RowData, SheetData } from "./sheetData";
+import { Cell, CellStyle, RowData, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
 import { makeThemeXml } from "./theme";
 import { Fills } from "./fills";
@@ -14,7 +14,14 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Col, FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
+import {
+  Col,
+  FreezePane,
+  MergeCell,
+  Row,
+  Worksheet,
+  combineColProps,
+} from "./worksheet";
 import { convNumberToColumn } from "./utils";
 
 type StyleMappers = {
@@ -151,7 +158,7 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
     const sheetData = worksheet.sheetData;
-    const colsXml = makeColsXml(worksheet.cols);
+    const colsXml = makeColsXml(worksheet.cols, styleMappers);
     const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
       sheetData,
@@ -230,14 +237,31 @@ export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
   });
 }
 
-export function makeColsXml(cols: Col[]): string {
+export function makeColsXml(cols: Col[], mappers: StyleMappers): string {
   if (cols.length === 0) {
     return "";
   }
 
+  const combined = combineColProps(cols);
+
   let result = "<cols>";
-  for (const col of cols) {
-    result += `<col min="${col.min}" max="${col.max}" width="${col.width}" customWidth="1"/>`;
+  for (const col of combined) {
+    result += `<col min="${col.min}" max="${col.max}"`;
+
+    if (col.width) {
+      result += `width="${col.width}" customWidth="1"`;
+    }
+
+    if (col.style) {
+      const style = composeXlsxCellStyle(col.style, mappers);
+      if (style === null) {
+        throw new Error("style is null");
+      }
+      const id = mappers.cellXfs.getCellXfId(style);
+      result += ` style="${id}"`;
+    }
+
+    result += "/>";
   }
   result += "</cols>";
 
@@ -557,26 +581,24 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
 }
 
 export function composeXlsxCellStyle(
-  cell: Cell,
+  style: CellStyle | undefined,
   mappers: StyleMappers
 ): XlsxCellStyle | null {
-  if (cell.style) {
-    const style: XlsxCellStyle = {
-      fillId: cell.style.fill ? mappers.fills.getFillId(cell.style.fill) : 0,
-      fontId: cell.style.font ? mappers.fonts.getFontId(cell.style.font) : 0,
-      borderId: cell.style.border
-        ? mappers.borders.getBorderId(cell.style.border)
-        : 0,
-      numFmtId: cell.style.numberFormat
-        ? mappers.numberFormats.getNumFmtId(cell.style.numberFormat.formatCode)
+  if (style) {
+    const _style: XlsxCellStyle = {
+      fillId: style.fill ? mappers.fills.getFillId(style.fill) : 0,
+      fontId: style.font ? mappers.fonts.getFontId(style.font) : 0,
+      borderId: style.border ? mappers.borders.getBorderId(style.border) : 0,
+      numFmtId: style.numberFormat
+        ? mappers.numberFormats.getNumFmtId(style.numberFormat.formatCode)
         : 0,
     };
 
-    if (cell.style.alignment) {
-      style.alignment = cell.style.alignment;
+    if (style.alignment) {
+      _style.alignment = style.alignment;
     }
 
-    return style;
+    return _style;
   }
 
   return null;
@@ -593,7 +615,7 @@ export function cellToString(
 
   assignDateStyleIfUndefined(cell);
   assignHyperlinkStyleIfUndefined(cell);
-  const composedStyle = composeXlsxCellStyle(cell, styleMappers);
+  const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
 
   switch (cell.type) {
     case "number": {

@@ -10,17 +10,17 @@ import {
 import { Workbook } from "../../src";
 
 describe("boolean", () => {
-  const XLSX_Dir = "tests/xlsx";
-  const OUTPUT_DIR = "tests/temp/boolean/output";
-  const EXPECTED_UNZIPPED_DIR = "tests/temp/boolean/expected";
-  const ACTUAL_UNZIPPED_DIR = "tests/temp/boolean/actuall";
+  const xlsxDir = "tests/xlsx";
+  const outputDir = "tests/temp/boolean/output";
+  const expectedUnzippedDir = "tests/temp/boolean/expected";
+  const actualUnzippedDir = "tests/temp/boolean/actuall";
 
-  const filepath = resolve(XLSX_Dir, "boolean.xlsx");
+  const filepath = resolve(xlsxDir, "boolean.xlsx");
   const extension = extname(filepath);
   const xlsxBaseName = basename(filepath, extension);
-  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
-  const outputPath = resolve(OUTPUT_DIR, "boolean.xlsx");
-  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
+  const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
+  const outputPath = resolve(outputDir, "boolean.xlsx");
+  const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {
     await unzip(filepath, expectedFileDir);
@@ -37,9 +37,9 @@ describe("boolean", () => {
   });
 
   afterAll(() => {
-    rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(outputDir, { recursive: true });
+    rmSync(expectedUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {

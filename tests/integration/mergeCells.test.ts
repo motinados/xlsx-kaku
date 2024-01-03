@@ -10,17 +10,17 @@ import {
 import { Workbook } from "../../src";
 
 describe("mergeCells", () => {
-  const XLSX_Dir = "tests/xlsx";
-  const OUTPUT_DIR = "tests/temp/mergeCells/output";
-  const EXPECTED_UNZIPPED_DIR = "tests/temp/mergeCells/expected";
-  const ACTUAL_UNZIPPED_DIR = "tests/temp/mergeCells/actuall";
+  const xlsxDir = "tests/xlsx";
+  const outputDir = "tests/temp/mergeCells/output";
+  const expectedUnzippedDir = "tests/temp/mergeCells/expected";
+  const actualUnzippedDir = "tests/temp/mergeCells/actuall";
 
-  const filepath = resolve(XLSX_Dir, "mergeCells.xlsx");
+  const filepath = resolve(xlsxDir, "mergeCells.xlsx");
   const extension = extname(filepath);
   const xlsxBaseName = basename(filepath, extension);
-  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
-  const outputPath = resolve(OUTPUT_DIR, "mergeCells.xlsx");
-  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
+  const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
+  const outputPath = resolve(outputDir, "mergeCells.xlsx");
+  const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {
     await unzip(filepath, expectedFileDir);
@@ -38,9 +38,9 @@ describe("mergeCells", () => {
   });
 
   afterAll(() => {
-    rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(outputDir, { recursive: true });
+    rmSync(expectedUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {

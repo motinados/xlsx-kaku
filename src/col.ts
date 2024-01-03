@@ -1,5 +1,7 @@
 import { CellStyle } from "./sheetData";
 
+export const DEFAULT_COL_WIDTH = 9;
+
 export type ColWidth = {
   min: number;
   max: number;

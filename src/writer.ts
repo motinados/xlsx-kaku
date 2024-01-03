@@ -16,7 +16,7 @@ import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
 import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
-import { Col, combineColProps } from "./col";
+import { Col, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 
 type StyleMappers = {
   fills: Fills;
@@ -242,8 +242,10 @@ export function makeColsXml(cols: Col[], mappers: StyleMappers): string {
   for (const col of combined) {
     result += `<col min="${col.min}" max="${col.max}"`;
 
-    if (col.width) {
+    if (col.width && col.width !== DEFAULT_COL_WIDTH) {
       result += ` width="${col.width}" customWidth="1"`;
+    } else {
+      result += ` width="${DEFAULT_COL_WIDTH}"`;
     }
 
     if (col.style) {

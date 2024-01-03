@@ -1,11 +1,6 @@
+import { Col, ColStyle, ColWidth } from "./col";
 import { NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
-
-export type Col = {
-  min: number;
-  max: number;
-  width: number;
-};
 
 export type Row = {
   index: number;
@@ -94,9 +89,13 @@ export class Worksheet {
     rows[colIndex] = cell;
   }
 
-  setColWidth(col: Col) {
+  setColWidth(col: ColWidth) {
     // TODO: validate col
     this._cols.push(col);
+  }
+
+  setColStyle(colStyle: ColStyle) {
+    this._cols.push(colStyle);
   }
 
   setRowHeight(row: Row) {

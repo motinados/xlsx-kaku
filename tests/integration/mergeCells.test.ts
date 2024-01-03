@@ -9,24 +9,26 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/mergeCells/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/mergeCells/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/mergeCells/actuall";
-
 describe("mergeCells", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const testName = "mergeCells";
+
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
+
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
+
+  const expectedXlsxPath = resolve(xlsxDir, `${testName}.xlsx`);
+  const actualXlsxPath = resolve(outputDir, `${testName}.xlsx`);
+
+  const extension = extname(expectedXlsxPath);
+  const xlsxBaseName = basename(expectedXlsxPath, extension);
+
+  const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
+  const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "mergeCells.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(filepath, expectedFileDir);
+    await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
@@ -35,17 +37,15 @@ describe("mergeCells", () => {
     ws.setMergeCell({ ref: "A1:C1" });
     ws.setMergeCell({ ref: "A2:A4" });
 
-    outputPath = resolve(OUTPUT_DIR, "mergeCells.xlsx");
-    await wb.save(outputPath);
+    await wb.save(actualXlsxPath);
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(outputPath, actualFileDir);
+    await unzip(actualXlsxPath, actualFileDir);
   });
 
   afterAll(() => {
-    rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(outputDir, { recursive: true });
+    rmSync(expectedUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {

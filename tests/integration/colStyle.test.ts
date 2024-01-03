@@ -9,23 +9,26 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/colStyle/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/colStyle/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/colStyle/actuall";
-
 describe("col style", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const testName = "colStyle";
+
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
+
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
+
+  const expectedXlsxPath = resolve(xlsxDir, `${testName}.xlsx`);
+  const actualXlsxPath = resolve(outputDir, `${testName}.xlsx`);
+
+  const extension = extname(expectedXlsxPath);
+  const xlsxBaseName = basename(expectedXlsxPath, extension);
+
+  const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
+  const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "colStyle.xlsx");
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(filepath, expectedFileDir);
+    await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
@@ -41,16 +44,14 @@ describe("col style", () => {
       style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
     });
 
-    outputPath = resolve(OUTPUT_DIR, "colStyle.xlsx");
-    await wb.save(outputPath);
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(outputPath, actualFileDir);
+    await wb.save(actualXlsxPath);
+    await unzip(actualXlsxPath, actualFileDir);
   });
 
   afterAll(() => {
-    rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(outputDir, { recursive: true });
+    rmSync(expectedUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {

@@ -61,6 +61,22 @@ describe("number", () => {
     expect(actualSubPaths).toEqual(expectedSubPaths);
   });
 
+  test("Content_Types.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "[Content_Types].xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
   test("app.xml", async () => {
     const expected = readFileSync(
       resolve(expectedFileDir, "docProps/app.xml"),

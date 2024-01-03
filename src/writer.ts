@@ -395,6 +395,12 @@ function findLastNotBlankRow(sheetData: SheetData) {
 }
 
 export function getDimension(sheetData: SheetData) {
+  // FIXME: The dimension is alse affected by 'cols'. It can have the correct value even without sheetData.
+  if (sheetData.length === 0) {
+    // This is a workaround for the case where sheetData is empty.
+    return { start: "A1", end: "A1" };
+  }
+
   const firstRowIndex = findFirstNotBlankRow(sheetData);
   const lastRowIndex = findLastNotBlankRow(sheetData);
   if (firstRowIndex === null || lastRowIndex === null) {

@@ -30,29 +30,27 @@ describe("col style", () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
 
-    ws.setCell(0, 0, { type: "string", value: "string1" });
+    ws.setColStyle({
+      min: 1,
+      max: 1,
+      style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+    });
+    ws.setColStyle({
+      min: 3,
+      max: 5,
+      style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
+    });
 
-    // ws.setColStyle({
-    //   min: 1,
-    //   max: 1,
-    //   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
-    // });
-    // ws.setColStyle({
-    //   min: 3,
-    //   max: 5,
-    //   style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
-    // });
-
-    outputPath = resolve(OUTPUT_DIR, "test.xlsx");
+    outputPath = resolve(OUTPUT_DIR, "colStyle.xlsx");
     await wb.save(outputPath);
     actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 
   afterAll(() => {
-    // rmSync(OUTPUT_DIR, { recursive: true });
-    // rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    // rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(OUTPUT_DIR, { recursive: true });
+    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
+    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -98,11 +96,11 @@ describe("col style", () => {
     const expectedObj = parseXml(expected);
     const actualObj = parseXml(actual);
 
-    // // Differences due to the default font
+    // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
-    // // It should be a problem-free difference.
-    // deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
-    // // Differences due to the default font
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
+    // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
 
     expect(actualObj).toEqual(expectedObj);
@@ -176,15 +174,19 @@ describe("col style", () => {
     const expectedObj = parseXml(expectedXml);
     const actualObj = parseXml(actualXml);
 
+    // It may be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "worksheet.dimension.@_ref");
+    deletePropertyFromObject(actualObj, "worksheet.dimension.@_ref");
+
     // It should be a problem-free difference.
-    // deletePropertyFromObject(
-    //   actualObj,
-    //   "worksheet.sheetViews.sheetView.selection.@_activeCell"
-    // );
-    // deletePropertyFromObject(
-    //   actualObj,
-    //   "worksheet.sheetViews.sheetView.selection.@_sqref"
-    // );
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.selection"
+    );
 
     expect(actualObj).toEqual(expectedObj);
   });

@@ -14,18 +14,21 @@ describe("hyperlink", () => {
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
+
   const expectedUnzippedDir = `tests/temp/${testName}/expected`;
   const actualUnzippedDir = `tests/temp/${testName}/actual`;
 
-  const filepath = resolve(xlsxDir, `${testName}.xlsx`);
-  const extension = extname(filepath);
-  const xlsxBaseName = basename(filepath, extension);
+  const expectedXlsxPath = resolve(xlsxDir, `${testName}.xlsx`);
+  const actualXlsxPath = resolve(outputDir, `${testName}.xlsx`);
+
+  const extension = extname(expectedXlsxPath);
+  const xlsxBaseName = basename(expectedXlsxPath, extension);
+
   const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
-  const outputPath = resolve(outputDir, `${testName}.xlsx`);
   const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {
-    await unzip(filepath, expectedFileDir);
+    await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
@@ -33,9 +36,9 @@ describe("hyperlink", () => {
     ws.setCell(1, 0, { type: "hyperlink", value: "https://www.google.com" });
     ws.setCell(2, 0, { type: "hyperlink", value: "https://www.github.com" });
     ws.setCell(3, 0, { type: "hyperlink", value: "https://www.github.com" });
-    await wb.save(outputPath);
+    await wb.save(actualXlsxPath);
 
-    await unzip(outputPath, actualFileDir);
+    await unzip(actualXlsxPath, actualFileDir);
   });
 
   afterAll(() => {

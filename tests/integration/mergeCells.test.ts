@@ -14,18 +14,21 @@ describe("mergeCells", () => {
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
+
   const expectedUnzippedDir = `tests/temp/${testName}/expected`;
   const actualUnzippedDir = `tests/temp/${testName}/actual`;
 
-  const filepath = resolve(xlsxDir, `${testName}.xlsx`);
-  const extension = extname(filepath);
-  const xlsxBaseName = basename(filepath, extension);
+  const expectedXlsxPath = resolve(xlsxDir, `${testName}.xlsx`);
+  const actualXlsxPath = resolve(outputDir, `${testName}.xlsx`);
+
+  const extension = extname(expectedXlsxPath);
+  const xlsxBaseName = basename(expectedXlsxPath, extension);
+
   const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
-  const outputPath = resolve(outputDir, `${testName}.xlsx`);
   const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {
-    await unzip(filepath, expectedFileDir);
+    await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
@@ -34,9 +37,9 @@ describe("mergeCells", () => {
     ws.setMergeCell({ ref: "A1:C1" });
     ws.setMergeCell({ ref: "A2:A4" });
 
-    await wb.save(outputPath);
+    await wb.save(actualXlsxPath);
 
-    await unzip(outputPath, actualFileDir);
+    await unzip(actualXlsxPath, actualFileDir);
   });
 
   afterAll(() => {

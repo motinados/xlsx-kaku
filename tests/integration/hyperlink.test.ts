@@ -96,6 +96,30 @@ describe("hyperlink", () => {
     expect(actualObj).toEqual(expectedObj);
   });
 
+  test("core.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:created");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:created");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:modified");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:modified");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
   test("styles.xml", async () => {
     function sortById(a: any, b: any) {
       const rIdA = a["@_name"];

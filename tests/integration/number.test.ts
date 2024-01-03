@@ -1,4 +1,4 @@
-import path, { basename, extname, resolve } from "node:path";
+import { basename, extname, resolve } from "node:path";
 import {
   deletePropertyFromObject,
   listFiles,
@@ -21,11 +21,11 @@ describe("number", () => {
   let outputPath: string;
 
   beforeAll(async () => {
-    const filepath = path.resolve(XLSX_Dir, "number.xlsx");
+    const filepath = resolve(XLSX_Dir, "number.xlsx");
 
     const extension = extname(filepath);
     xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = path.resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -34,10 +34,10 @@ describe("number", () => {
     ws.setCell(0, 1, { type: "number", value: 2 });
     ws.setCell(1, 0, { type: "number", value: 3 });
     ws.setCell(1, 1, { type: "number", value: 4 });
-    outputPath = path.resolve(OUTPUT_DIR, "number.xlsx");
+    outputPath = resolve(OUTPUT_DIR, "number.xlsx");
     await wb.save(outputPath);
 
-    actualFileDir = path.resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
+    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 
@@ -97,7 +97,7 @@ describe("number", () => {
   });
 
   test("compare StylesXml", () => {
-    const expectedXmlPath = path.resolve(expectedFileDir, "xl/styles.xml");
+    const expectedXmlPath = resolve(expectedFileDir, "xl/styles.xml");
     const expectedXml = readFileSync(expectedXmlPath, "utf8");
     const expectedObj = parseXml(expectedXml);
 
@@ -106,7 +106,7 @@ describe("number", () => {
     // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
 
-    const actualXmlPath = path.resolve(actualFileDir, "xl/styles.xml");
+    const actualXmlPath = resolve(actualFileDir, "xl/styles.xml");
     const actualXml = readFileSync(actualXmlPath, "utf8");
     const actualObj = parseXml(actualXml);
 
@@ -129,15 +129,12 @@ describe("number", () => {
       return 0;
     }
 
-    const expectedRelsPath = path.resolve(
+    const expectedRelsPath = resolve(
       expectedFileDir,
       "xl/_rels/workbook.xml.rels"
     );
     const expectedRels = readFileSync(expectedRelsPath, "utf8");
-    const actualRelsPath = path.resolve(
-      actualFileDir,
-      "xl/_rels/workbook.xml.rels"
-    );
+    const actualRelsPath = resolve(actualFileDir, "xl/_rels/workbook.xml.rels");
     const actualRels = readFileSync(actualRelsPath, "utf8");
 
     const expectedObj = parseXml(expectedRels);
@@ -153,9 +150,9 @@ describe("number", () => {
   });
 
   test("compare WorkbookXml", () => {
-    const expectedXmlPath = path.resolve(expectedFileDir, "xl/workbook.xml");
+    const expectedXmlPath = resolve(expectedFileDir, "xl/workbook.xml");
     const expectedXml = readFileSync(expectedXmlPath, "utf8");
-    const actualXmlPath = path.resolve(actualFileDir, "xl/workbook.xml");
+    const actualXmlPath = resolve(actualFileDir, "xl/workbook.xml");
     const actualXml = readFileSync(actualXmlPath, "utf8");
 
     const expectedObj = parseXml(expectedXml);
@@ -176,15 +173,12 @@ describe("number", () => {
   });
 
   test("compare worksheets", () => {
-    const expectedXmlPath = path.resolve(
+    const expectedXmlPath = resolve(
       expectedFileDir,
       "xl/worksheets/sheet1.xml"
     );
     const expectedXml = readFileSync(expectedXmlPath, "utf8");
-    const actualXmlPath = path.resolve(
-      actualFileDir,
-      "xl/worksheets/sheet1.xml"
-    );
+    const actualXmlPath = resolve(actualFileDir, "xl/worksheets/sheet1.xml");
     const actualXml = readFileSync(actualXmlPath, "utf8");
 
     const expectedObj = parseXml(expectedXml);

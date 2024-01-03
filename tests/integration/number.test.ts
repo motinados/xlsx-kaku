@@ -10,16 +10,18 @@ import { Workbook } from "../../src/index";
 import { readFileSync, rmSync } from "node:fs";
 
 describe("number", () => {
-  const xlsxDir = "tests/xlsx";
-  const outputDir = "tests/temp/number/output";
-  const expectedUnzippedDir = "tests/temp/number/expected";
-  const actualUnzippedDir = "tests/temp/number/actuall";
+  const testName = "number";
 
-  const filepath = resolve(xlsxDir, "number.xlsx");
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
+
+  const filepath = resolve(xlsxDir, `${testName}.xlsx`);
   const extension = extname(filepath);
   const xlsxBaseName = basename(filepath, extension);
   const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
-  const outputPath = resolve(outputDir, "number.xlsx");
+  const outputPath = resolve(outputDir, `${testName}.xlsx`);
   const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {

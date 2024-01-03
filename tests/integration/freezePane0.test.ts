@@ -10,16 +10,18 @@ import {
 import { Workbook } from "../../src";
 
 describe("freeze pane 0", () => {
-  const xlsxDir = "tests/xlsx";
-  const outputDir = "tests/temp/freezePane0/output";
-  const expectedUnzippedDir = "tests/temp/freezePane0/expected";
-  const actualUnzippedDir = "tests/temp/freezePane0/actuall";
+  const testName = "freezePane0";
 
-  const filepath = resolve(xlsxDir, "freezePane0.xlsx");
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
+
+  const filepath = resolve(xlsxDir, `${testName}.xlsx`);
   const extension = extname(filepath);
   const xlsxBaseName = basename(filepath, extension);
   const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
-  const outputPath = resolve(outputDir, "freezePane0.xlsx");
+  const outputPath = resolve(outputDir, `${testName}.xlsx`);
   const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {

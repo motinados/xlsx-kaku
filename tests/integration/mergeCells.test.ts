@@ -10,16 +10,18 @@ import {
 import { Workbook } from "../../src";
 
 describe("mergeCells", () => {
-  const xlsxDir = "tests/xlsx";
-  const outputDir = "tests/temp/mergeCells/output";
-  const expectedUnzippedDir = "tests/temp/mergeCells/expected";
-  const actualUnzippedDir = "tests/temp/mergeCells/actuall";
+  const testName = "mergeCells";
 
-  const filepath = resolve(xlsxDir, "mergeCells.xlsx");
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
+
+  const filepath = resolve(xlsxDir, `${testName}.xlsx`);
   const extension = extname(filepath);
   const xlsxBaseName = basename(filepath, extension);
   const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
-  const outputPath = resolve(outputDir, "mergeCells.xlsx");
+  const outputPath = resolve(outputDir, `${testName}.xlsx`);
   const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {

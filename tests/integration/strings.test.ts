@@ -10,16 +10,18 @@ import {
 import { Workbook } from "../../src";
 
 describe("string", () => {
-  const xlsxDir = "tests/xlsx";
-  const outputDir = "tests/temp/string/output";
-  const expectedUnzippedDir = "tests/temp/string/expected";
-  const actualUnzippedDir = "tests/temp/string/actuall";
+  const testName = "string";
 
-  const filepath = resolve(xlsxDir, "string.xlsx");
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
+
+  const filepath = resolve(xlsxDir, `${testName}.xlsx`);
   const extension = extname(filepath);
   const xlsxBaseName = basename(filepath, extension);
   const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
-  const outputPath = resolve(outputDir, "string.xlsx");
+  const outputPath = resolve(outputDir, `${testName}.xlsx`);
   const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {

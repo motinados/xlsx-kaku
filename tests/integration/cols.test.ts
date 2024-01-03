@@ -9,23 +9,20 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/cols/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/cols/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/cols/actuall";
-
 describe("cols", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const XLSX_Dir = "tests/xlsx";
+  const OUTPUT_DIR = "tests/temp/cols/output";
+  const EXPECTED_UNZIPPED_DIR = "tests/temp/cols/expected";
+  const ACTUAL_UNZIPPED_DIR = "tests/temp/cols/actuall";
+
+  const filepath = resolve(XLSX_Dir, "cols.xlsx");
+  const extension = extname(filepath);
+  const xlsxBaseName = basename(filepath, extension);
+  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+  const outputPath = resolve(OUTPUT_DIR, "cols.xlsx");
+  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "cols.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -41,10 +38,8 @@ describe("cols", () => {
     ws.setColWidth({ min: 2, max: 2, width: 25.625 });
     ws.setColWidth({ min: 3, max: 5, width: 6.625 });
 
-    outputPath = resolve(OUTPUT_DIR, "cols.xlsx");
     await wb.save(outputPath);
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 

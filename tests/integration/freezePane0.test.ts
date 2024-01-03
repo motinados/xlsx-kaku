@@ -9,23 +9,20 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/freezePane0/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/freezePane0/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/freezePane0/actuall";
-
 describe("freeze pane 0", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const XLSX_Dir = "tests/xlsx";
+  const OUTPUT_DIR = "tests/temp/freezePane0/output";
+  const EXPECTED_UNZIPPED_DIR = "tests/temp/freezePane0/expected";
+  const ACTUAL_UNZIPPED_DIR = "tests/temp/freezePane0/actuall";
+
+  const filepath = resolve(XLSX_Dir, "freezePane0.xlsx");
+  const extension = extname(filepath);
+  const xlsxBaseName = basename(filepath, extension);
+  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+  const outputPath = resolve(OUTPUT_DIR, "freezePane0.xlsx");
+  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "freezePane0.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -43,10 +40,8 @@ describe("freeze pane 0", () => {
 
     ws.setFreezePane({ type: "column", split: 1 });
 
-    outputPath = resolve(OUTPUT_DIR, "freezePane0.xlsx");
     await wb.save(outputPath);
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 

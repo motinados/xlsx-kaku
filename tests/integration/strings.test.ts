@@ -9,23 +9,20 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/string/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/string/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/string/actuall";
-
 describe("string", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const XLSX_Dir = "tests/xlsx";
+  const OUTPUT_DIR = "tests/temp/string/output";
+  const EXPECTED_UNZIPPED_DIR = "tests/temp/string/expected";
+  const ACTUAL_UNZIPPED_DIR = "tests/temp/string/actuall";
+
+  const filepath = resolve(XLSX_Dir, "string.xlsx");
+  const extension = extname(filepath);
+  const xlsxBaseName = basename(filepath, extension);
+  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+  const outputPath = resolve(OUTPUT_DIR, "string.xlsx");
+  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "string.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -34,10 +31,8 @@ describe("string", () => {
     ws.setCell(0, 1, { type: "string", value: "world" });
     ws.setCell(1, 0, { type: "string", value: "Hello" });
     ws.setCell(1, 1, { type: "string", value: "strings" });
-    outputPath = resolve(OUTPUT_DIR, "string.xlsx");
     await wb.save(outputPath);
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 

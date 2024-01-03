@@ -9,23 +9,20 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/boolean/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/boolean/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/boolean/actuall";
-
 describe("boolean", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const XLSX_Dir = "tests/xlsx";
+  const OUTPUT_DIR = "tests/temp/boolean/output";
+  const EXPECTED_UNZIPPED_DIR = "tests/temp/boolean/expected";
+  const ACTUAL_UNZIPPED_DIR = "tests/temp/boolean/actuall";
+
+  const filepath = resolve(XLSX_Dir, "boolean.xlsx");
+  const extension = extname(filepath);
+  const xlsxBaseName = basename(filepath, extension);
+  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+  const outputPath = resolve(OUTPUT_DIR, "boolean.xlsx");
+  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "boolean.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -34,10 +31,8 @@ describe("boolean", () => {
     ws.setCell(0, 1, { type: "boolean", value: false });
     ws.setCell(1, 0, { type: "boolean", value: false });
     ws.setCell(1, 1, { type: "boolean", value: true });
-    outputPath = resolve(OUTPUT_DIR, "boolean.xlsx");
     await wb.save(outputPath);
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 

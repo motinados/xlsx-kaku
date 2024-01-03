@@ -9,23 +9,20 @@ import {
 import { Workbook } from "../../src/index";
 import { readFileSync, rmSync } from "node:fs";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/number/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/number/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/number/actuall";
-
 describe("number", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const XLSX_Dir = "tests/xlsx";
+  const OUTPUT_DIR = "tests/temp/number/output";
+  const EXPECTED_UNZIPPED_DIR = "tests/temp/number/expected";
+  const ACTUAL_UNZIPPED_DIR = "tests/temp/number/actuall";
+
+  const filepath = resolve(XLSX_Dir, "number.xlsx");
+  const extension = extname(filepath);
+  const xlsxBaseName = basename(filepath, extension);
+  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+  const outputPath = resolve(OUTPUT_DIR, "number.xlsx");
+  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "number.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -34,10 +31,8 @@ describe("number", () => {
     ws.setCell(0, 1, { type: "number", value: 2 });
     ws.setCell(1, 0, { type: "number", value: 3 });
     ws.setCell(1, 1, { type: "number", value: 4 });
-    outputPath = resolve(OUTPUT_DIR, "number.xlsx");
     await wb.save(outputPath);
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 

@@ -9,22 +9,20 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/colStyle/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/colStyle/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/colStyle/actuall";
-
 describe("col style", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const XLSX_Dir = "tests/xlsx";
+  const OUTPUT_DIR = "tests/temp/colStyle/output";
+  const EXPECTED_UNZIPPED_DIR = "tests/temp/colStyle/expected";
+  const ACTUAL_UNZIPPED_DIR = "tests/temp/colStyle/actuall";
+
+  const filepath = resolve(XLSX_Dir, "colStyle.xlsx");
+  const extension = extname(filepath);
+  const xlsxBaseName = basename(filepath, extension);
+  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+  const outputPath = resolve(OUTPUT_DIR, "colStyle.xlsx");
+  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "colStyle.xlsx");
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -41,9 +39,7 @@ describe("col style", () => {
       style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
     });
 
-    outputPath = resolve(OUTPUT_DIR, "colStyle.xlsx");
     await wb.save(outputPath);
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 

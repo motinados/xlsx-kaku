@@ -9,23 +9,20 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/hyperlink/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/hyperlink/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/hyperlink/actuall";
-
 describe("hyperlink", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const XLSX_Dir = "tests/xlsx";
+  const OUTPUT_DIR = "tests/temp/hyperlink/output";
+  const EXPECTED_UNZIPPED_DIR = "tests/temp/hyperlink/expected";
+  const ACTUAL_UNZIPPED_DIR = "tests/temp/hyperlink/actuall";
+
+  const filepath = resolve(XLSX_Dir, "hyperlink.xlsx");
+  const extension = extname(filepath);
+  const xlsxBaseName = basename(filepath, extension);
+  const expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
+  const outputPath = resolve(OUTPUT_DIR, "hyperlink.xlsx");
+  const actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "hyperlink.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
     await unzip(filepath, expectedFileDir);
 
     const wb = new Workbook();
@@ -34,10 +31,8 @@ describe("hyperlink", () => {
     ws.setCell(1, 0, { type: "hyperlink", value: "https://www.google.com" });
     ws.setCell(2, 0, { type: "hyperlink", value: "https://www.github.com" });
     ws.setCell(3, 0, { type: "hyperlink", value: "https://www.github.com" });
-    outputPath = resolve(OUTPUT_DIR, "hyperlink.xlsx");
     await wb.save(outputPath);
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
     await unzip(outputPath, actualFileDir);
   });
 

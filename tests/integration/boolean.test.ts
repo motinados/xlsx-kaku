@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, rmSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
 import {
   deletePropertyFromObject,
@@ -42,9 +42,9 @@ describe("boolean", () => {
   });
 
   afterAll(() => {
-    // rmSync(OUTPUT_DIR, { recursive: true });
-    // rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    // rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(OUTPUT_DIR, { recursive: true });
+    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
+    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -73,6 +73,49 @@ describe("boolean", () => {
 
     const expectedObj = parseXml(expected);
     const actualObj = parseXml(actual);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("app.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "docProps/app.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "docProps/app.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    deletePropertyFromObject(expectedObj, "Properties.Application");
+    deletePropertyFromObject(actualObj, "Properties.Application");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("core.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:created");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:created");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:modified");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:modified");
 
     expect(actualObj).toEqual(expectedObj);
   });

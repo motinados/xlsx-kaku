@@ -84,6 +84,49 @@ describe("cols", () => {
     expect(actualObj).toEqual(expectedObj);
   });
 
+  test("app.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "docProps/app.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "docProps/app.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    deletePropertyFromObject(expectedObj, "Properties.Application");
+    deletePropertyFromObject(actualObj, "Properties.Application");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("core.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:created");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:created");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:modified");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:modified");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
   test("styles.xml", async () => {
     const expected = readFileSync(
       resolve(expectedFileDir, "xl/styles.xml"),

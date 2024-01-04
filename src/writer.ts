@@ -15,7 +15,7 @@ import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
 import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
-import { convNumberToColumn } from "./utils";
+import { convNumberToColumn, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 
 type StyleMappers = {
@@ -213,7 +213,8 @@ export function createExcelFiles(worksheets: Worksheet[]) {
     const sheetDataXml = makeSheetDataXml(
       sheetData,
       worksheet.rows,
-      styleMappers
+      styleMappers,
+      xlsxCols
     );
     const dimension = getDimension(sheetData);
     const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
@@ -497,7 +498,8 @@ export function getDimension(sheetData: SheetData) {
 export function makeSheetDataXml(
   sheetData: SheetData,
   rows: Row[],
-  styleMappers: StyleMappers
+  styleMappers: StyleMappers,
+  xlsxCols: XlsxCol[]
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
 
@@ -511,7 +513,8 @@ export function makeSheetDataXml(
       rowHeight,
       startNumber,
       endNumber,
-      styleMappers
+      styleMappers,
+      xlsxCols
     );
     if (str !== null) {
       result += str;
@@ -531,7 +534,8 @@ export function rowToString(
   rowHeight: number | null,
   startNumber: number,
   endNumber: number,
-  styleMappers: StyleMappers
+  styleMappers: StyleMappers,
+  xlsxCols: XlsxCol[]
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -547,7 +551,13 @@ export function rowToString(
   for (const cell of row) {
     if (cell !== null) {
       result += makeCellXml(
-        convertCellToXlsxCell(cell, columnIndex, rowIndex, styleMappers)
+        convertCellToXlsxCell(
+          cell,
+          columnIndex,
+          rowIndex,
+          styleMappers,
+          xlsxCols
+        )
       );
     }
 
@@ -679,26 +689,38 @@ export function composeXlsxCellStyle(
   return null;
 }
 
-function getCellXfId(cell: Cell, styleMappers: StyleMappers) {
+function getCellXfId(
+  cell: Cell,
+  column: string,
+  styleMappers: StyleMappers,
+  xlsxCols: XlsxCol[]
+) {
   const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
-  const cellXfId = composedStyle
-    ? styleMappers.cellXfs.getCellXfId(composedStyle)
-    : null;
-  return cellXfId;
+  if (composedStyle) {
+    return styleMappers.cellXfs.getCellXfId(composedStyle);
+  }
+
+  const foundCol = xlsxCols.find((it) => isInRange(column, it.min, it.max));
+  if (foundCol) {
+    return foundCol.cellXfId;
+  }
+
+  return null;
 }
 
 export function convertCellToXlsxCell(
   cell: Cell,
   columnIndex: number,
   rowIndex: number,
-  styleMappers: StyleMappers
+  styleMappers: StyleMappers,
+  xlsxCols: XlsxCol[]
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
 
   switch (cell.type) {
     case "number": {
-      const cellXfId = getCellXfId(cell, styleMappers);
+      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
       return {
         type: "number",
         column: column,
@@ -708,7 +730,7 @@ export function convertCellToXlsxCell(
       };
     }
     case "string": {
-      const cellXfId = getCellXfId(cell, styleMappers);
+      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
       const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
       return {
         type: "string",
@@ -721,7 +743,7 @@ export function convertCellToXlsxCell(
     }
     case "date": {
       assignDateStyleIfUndefined(cell);
-      const cellXfId = getCellXfId(cell, styleMappers);
+      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
       return {
         type: "date",
         column: column,
@@ -772,7 +794,7 @@ export function convertCellToXlsxCell(
       };
     }
     case "boolean": {
-      const cellXfId = getCellXfId(cell, styleMappers);
+      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
       return {
         type: "boolean",
         column: column,
@@ -782,7 +804,7 @@ export function convertCellToXlsxCell(
       };
     }
     case "merged": {
-      const cellXfId = getCellXfId(cell, styleMappers);
+      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
       return {
         type: "merged",
         column: column,

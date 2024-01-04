@@ -16,7 +16,7 @@ import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
 import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn } from "./utils";
-import { Col, DEFAULT_COL_WIDTH, combineColProps } from "./col";
+import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 
 type StyleMappers = {
   fills: Fills;
@@ -29,6 +29,14 @@ type StyleMappers = {
   cellStyles: CellStyles;
   hyperlinks: Hyperlinks;
   worksheetRels: WorksheetRels;
+};
+
+type XlsxCol = {
+  min: number;
+  max: number;
+  width: number;
+  customWidth: boolean;
+  cellXfId: number | null;
 };
 
 type XlsxCellStyle = {
@@ -197,7 +205,10 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
     const sheetData = worksheet.sheetData;
-    const colsXml = makeColsXml(worksheet.cols, styleMappers);
+    const xlsxCols = combineColProps(worksheet.cols).map((col) =>
+      convertCombinedColToXlsxCol(col, styleMappers)
+    );
+    const colsXml = makeColsXml(xlsxCols);
     const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
       sheetData,
@@ -276,30 +287,45 @@ export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
   });
 }
 
-export function makeColsXml(cols: Col[], mappers: StyleMappers): string {
+export function convertCombinedColToXlsxCol(
+  col: CombinedCol,
+  mappers: StyleMappers
+): XlsxCol {
+  let cellXfId: number | null = null;
+  if (col.style) {
+    const style = composeXlsxCellStyle(col.style, mappers);
+    if (style === null) {
+      throw new Error("style is null");
+    }
+    cellXfId = mappers.cellXfs.getCellXfId(style);
+  }
+
+  return {
+    min: col.min,
+    max: col.max,
+    width: col.width ?? DEFAULT_COL_WIDTH,
+    customWidth: col.width !== undefined && col.width !== DEFAULT_COL_WIDTH,
+    cellXfId: cellXfId,
+  };
+}
+
+export function makeColsXml(cols: XlsxCol[]): string {
   if (cols.length === 0) {
     return "";
   }
 
-  const combined = combineColProps(cols);
-
   let result = "<cols>";
-  for (const col of combined) {
+  for (const col of cols) {
     result += `<col min="${col.min}" max="${col.max}"`;
 
-    if (col.width && col.width !== DEFAULT_COL_WIDTH) {
+    if (col.customWidth) {
       result += ` width="${col.width}" customWidth="1"`;
     } else {
       result += ` width="${DEFAULT_COL_WIDTH}"`;
     }
 
-    if (col.style) {
-      const style = composeXlsxCellStyle(col.style, mappers);
-      if (style === null) {
-        throw new Error("style is null");
-      }
-      const id = mappers.cellXfs.getCellXfId(style);
-      result += ` style="${id}"`;
+    if (col.cellXfId) {
+      result += ` style="${col.cellXfId}"`;
     }
 
     result += "/>";

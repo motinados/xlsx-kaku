@@ -1,13 +1,15 @@
 import { Cell, RowData, SheetData } from "../src/sheetData";
 import { SharedStrings } from "../src/sharedStrings";
 import {
-  cellToString,
+  convertCombinedColToXlsxCol,
+  convertCellToXlsxCell,
   convertIsoStringToSerialValue,
   findFirstNonNullCell,
   findLastNonNullCell,
   getDimension,
   getSpans,
   getSpansFromSheetData,
+  makeCellXml,
   makeColsXml,
   makeMergeCellsXml,
   makeSheetDataXml,
@@ -24,7 +26,7 @@ import { CellStyles } from "../src/cellStyles";
 import { Hyperlinks } from "../src/hyperlinks";
 import { WorksheetRels } from "../src/worksheetRels";
 import { FreezePane, MergeCell } from "../src/worksheet";
-import { Col, DEFAULT_COL_WIDTH } from "../src/col";
+import { Col, DEFAULT_COL_WIDTH, combineColProps } from "../src/col";
 
 describe("Writer", () => {
   test("findFirstNonNullCell", () => {
@@ -127,7 +129,7 @@ describe("Writer", () => {
       type: "number",
       value: 15,
     };
-    const result = cellToString(cell, 2, 0, styleMappers);
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1"><v>15</v></c>`);
   });
 
@@ -148,7 +150,7 @@ describe("Writer", () => {
       type: "string",
       value: "hello",
     };
-    const result = cellToString(cell, 2, 0, styleMappers);
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1" t="s"><v>0</v></c>`);
     expect(styleMappers.sharedStrings.count).toBe(1);
     expect(styleMappers.sharedStrings.uniqueCount).toBe(1);
@@ -171,7 +173,7 @@ describe("Writer", () => {
       type: "date",
       value: "2020-01-01T00:00:00.000Z",
     };
-    const result = cellToString(cell, 2, 0, styleMappers);
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
 
@@ -192,7 +194,7 @@ describe("Writer", () => {
       type: "hyperlink",
       value: "https://www.google.com",
     };
-    const result = cellToString(cell, 2, 0, styleMappers);
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1" s="1" t="s"><v>0</v></c>`);
 
     const worksheetRels = styleMappers.worksheetRels.getWorksheetRels();
@@ -363,7 +365,10 @@ describe("Writer", () => {
       { min: 3, max: 6, width: 25 },
     ];
 
-    expect(makeColsXml(cols, styleMappers)).toBe(
+    const xlsxCols = combineColProps(cols).map((col) =>
+      convertCombinedColToXlsxCol(col, styleMappers)
+    );
+    expect(makeColsXml(xlsxCols)).toBe(
       `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
     );
   });
@@ -383,7 +388,10 @@ describe("Writer", () => {
     };
     const cols: Col[] = [{ min: 1, max: 1, width: DEFAULT_COL_WIDTH }];
 
-    expect(makeColsXml(cols, styleMappers)).toBe(
+    const xlsxCols = combineColProps(cols).map((col) =>
+      convertCombinedColToXlsxCol(col, styleMappers)
+    );
+    expect(makeColsXml(xlsxCols)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}"/></cols>`
     );
   });
@@ -417,7 +425,10 @@ describe("Writer", () => {
       },
     ];
 
-    expect(makeColsXml(cols, styleMappers)).toBe(
+    const xlsxCols = combineColProps(cols).map((col) =>
+      convertCombinedColToXlsxCol(col, styleMappers)
+    );
+    expect(makeColsXml(xlsxCols)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}" style="1"/><col min="2" max="3" width="25" customWidth="1" style="2"/></cols>`
     );
   });

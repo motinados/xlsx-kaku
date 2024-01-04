@@ -39,6 +39,51 @@ type XlsxCellStyle = {
   alignment?: Alignment;
 };
 
+type XlsxCell =
+  | {
+      type: "number";
+      column: string;
+      rowNumber: number;
+      value: number;
+      cellXfId: number | null;
+    }
+  | {
+      type: "string";
+      column: string;
+      rowNumber: number;
+      value: string;
+      sharedStringId: number;
+      cellXfId: number | null;
+    }
+  | {
+      type: "date";
+      column: string;
+      rowNumber: number;
+      value: string;
+      cellXfId: number | null;
+    }
+  | {
+      type: "hyperlink";
+      column: string;
+      rowNumber: number;
+      value: string;
+      sharedStringId: number;
+      cellXfId: number | null;
+    }
+  | {
+      type: "boolean";
+      column: string;
+      rowNumber: number;
+      value: boolean;
+      cellXfId: number | null;
+    }
+  | {
+      type: "merged";
+      column: string;
+      rowNumber: number;
+      cellXfId: number | null;
+    };
+
 export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
   const {
     sharedStringsXml,
@@ -475,7 +520,9 @@ export function rowToString(
   let columnIndex = 0;
   for (const cell of row) {
     if (cell !== null) {
-      result += cellToString(cell, columnIndex, rowIndex, styleMappers);
+      result += makeCellXml(
+        convertCellToXlsxCell(cell, columnIndex, rowIndex, styleMappers)
+      );
     }
 
     columnIndex++;
@@ -606,12 +653,12 @@ export function composeXlsxCellStyle(
   return null;
 }
 
-export function cellToString(
+export function convertCellToXlsxCell(
   cell: Cell,
   columnIndex: number,
   rowIndex: number,
   styleMappers: StyleMappers
-) {
+): XlsxCell {
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
 
@@ -624,24 +671,39 @@ export function cellToString(
       const cellXfId = composedStyle
         ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
-      const s = cellXfId ? ` s="${cellXfId}"` : "";
-      return `<c r="${column}${rowNumber}"${s}><v>${cell.value}</v></c>`;
+      return {
+        type: "number",
+        column: column,
+        rowNumber: rowNumber,
+        value: cell.value,
+        cellXfId: cellXfId,
+      };
     }
     case "string": {
       const cellXfId = composedStyle
         ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
-      const s = cellXfId ? ` s="${cellXfId}"` : "";
-      const index = styleMappers.sharedStrings.getIndex(cell.value);
-      return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
+      const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
+      return {
+        type: "string",
+        column: column,
+        rowNumber: rowNumber,
+        value: cell.value,
+        sharedStringId: sharedStringId,
+        cellXfId: cellXfId,
+      };
     }
     case "date": {
       const cellXfId = composedStyle
         ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
-      const s = cellXfId ? ` s="${cellXfId}"` : "";
-      const serialValue = convertIsoStringToSerialValue(cell.value);
-      return `<c r="${column}${rowNumber}"${s}><v>${serialValue}</v></c>`;
+      return {
+        type: "date",
+        column: column,
+        rowNumber: rowNumber,
+        value: cell.value,
+        cellXfId: cellXfId,
+      };
     }
     case "hyperlink": {
       if (composedStyle === null) {
@@ -657,8 +719,7 @@ export function cellToString(
         ...composedStyle,
       };
       const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
-      const s = ` s="${cellXfId}"`;
-      const index = styleMappers.sharedStrings.getIndex(cell.value);
+      const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
 
       styleMappers.cellStyles.getCellStyleId({
         name: "Hyperlink",
@@ -674,22 +735,72 @@ export function cellToString(
         uuid: uuidv4(),
       });
 
-      return `<c r="${column}${rowNumber}"${s} t="s"><v>${index}</v></c>`;
+      return {
+        type: "hyperlink",
+        column: column,
+        rowNumber: rowNumber,
+        value: cell.value,
+        sharedStringId: sharedStringId,
+        cellXfId: cellXfId,
+      };
     }
     case "boolean": {
       const cellXfId = composedStyle
         ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
-      const s = cellXfId ? ` s="${cellXfId}"` : "";
-      const v = cell.value ? 1 : 0;
-      return `<c r="${column}${rowNumber}"${s} t="b"><v>${v}</v></c>`;
+      return {
+        type: "boolean",
+        column: column,
+        rowNumber: rowNumber,
+        value: cell.value,
+        cellXfId: cellXfId,
+      };
     }
     case "merged": {
       const cellXfId = composedStyle
         ? styleMappers.cellXfs.getCellXfId(composedStyle)
         : null;
-      const s = cellXfId ? ` s="${cellXfId}"` : "";
-      return `<c r="${column}${rowNumber}"${s}/>`;
+      return {
+        type: "merged",
+        column: column,
+        rowNumber: rowNumber,
+        cellXfId: cellXfId,
+      };
+    }
+    default: {
+      const _exhaustiveCheck: never = cell;
+      throw new Error(`unknown cell type: ${_exhaustiveCheck}`);
+    }
+  }
+}
+
+export function makeCellXml(cell: XlsxCell) {
+  switch (cell.type) {
+    case "number": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      return `<c r="${cell.column}${cell.rowNumber}"${s}><v>${cell.value}</v></c>`;
+    }
+    case "string": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      return `<c r="${cell.column}${cell.rowNumber}"${s} t="s"><v>${cell.sharedStringId}</v></c>`;
+    }
+    case "date": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      const serialValue = convertIsoStringToSerialValue(cell.value);
+      return `<c r="${cell.column}${cell.rowNumber}"${s}><v>${serialValue}</v></c>`;
+    }
+    case "hyperlink": {
+      const s = ` s="${cell.cellXfId}"`;
+      return `<c r="${cell.column}${cell.rowNumber}"${s} t="s"><v>${cell.sharedStringId}</v></c>`;
+    }
+    case "boolean": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      const v = cell.value ? 1 : 0;
+      return `<c r="${cell.column}${cell.rowNumber}"${s} t="b"><v>${v}</v></c>`;
+    }
+    case "merged": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      return `<c r="${cell.column}${cell.rowNumber}"${s}/>`;
     }
     default: {
       const _exhaustiveCheck: never = cell;

@@ -679,6 +679,14 @@ export function composeXlsxCellStyle(
   return null;
 }
 
+function getCellXfId(cell: Cell, styleMappers: StyleMappers) {
+  const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
+  const cellXfId = composedStyle
+    ? styleMappers.cellXfs.getCellXfId(composedStyle)
+    : null;
+  return cellXfId;
+}
+
 export function convertCellToXlsxCell(
   cell: Cell,
   columnIndex: number,
@@ -688,15 +696,9 @@ export function convertCellToXlsxCell(
   const rowNumber = rowIndex + 1;
   const column = convNumberToColumn(columnIndex);
 
-  assignDateStyleIfUndefined(cell);
-  assignHyperlinkStyleIfUndefined(cell);
-  const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
-
   switch (cell.type) {
     case "number": {
-      const cellXfId = composedStyle
-        ? styleMappers.cellXfs.getCellXfId(composedStyle)
-        : null;
+      const cellXfId = getCellXfId(cell, styleMappers);
       return {
         type: "number",
         column: column,
@@ -706,9 +708,7 @@ export function convertCellToXlsxCell(
       };
     }
     case "string": {
-      const cellXfId = composedStyle
-        ? styleMappers.cellXfs.getCellXfId(composedStyle)
-        : null;
+      const cellXfId = getCellXfId(cell, styleMappers);
       const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
       return {
         type: "string",
@@ -720,9 +720,8 @@ export function convertCellToXlsxCell(
       };
     }
     case "date": {
-      const cellXfId = composedStyle
-        ? styleMappers.cellXfs.getCellXfId(composedStyle)
-        : null;
+      assignDateStyleIfUndefined(cell);
+      const cellXfId = getCellXfId(cell, styleMappers);
       return {
         type: "date",
         column: column,
@@ -732,6 +731,8 @@ export function convertCellToXlsxCell(
       };
     }
     case "hyperlink": {
+      assignHyperlinkStyleIfUndefined(cell);
+      const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
       if (composedStyle === null) {
         throw new Error("composedStyle is null for hyperlink");
       }
@@ -771,9 +772,7 @@ export function convertCellToXlsxCell(
       };
     }
     case "boolean": {
-      const cellXfId = composedStyle
-        ? styleMappers.cellXfs.getCellXfId(composedStyle)
-        : null;
+      const cellXfId = getCellXfId(cell, styleMappers);
       return {
         type: "boolean",
         column: column,
@@ -783,9 +782,7 @@ export function convertCellToXlsxCell(
       };
     }
     case "merged": {
-      const cellXfId = composedStyle
-        ? styleMappers.cellXfs.getCellXfId(composedStyle)
-        : null;
+      const cellXfId = getCellXfId(cell, styleMappers);
       return {
         type: "merged",
         column: column,

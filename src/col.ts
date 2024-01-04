@@ -16,7 +16,7 @@ export type ColStyle = {
 
 export type Col = ColWidth | ColStyle;
 
-type CombinedCol = {
+export type CombinedCol = {
   min: number;
   max: number;
   width?: number;

@@ -67,3 +67,8 @@ export function expandRange(range: string): [number, number][] {
 
   return result;
 }
+
+export function isInRange(column: string, min: number, max: number) {
+  const columnNumber = convColumnToNumber(column) + 1;
+  return columnNumber >= min && columnNumber <= max;
+}

@@ -129,7 +129,9 @@ describe("Writer", () => {
       type: "number",
       value: 15,
     };
-    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
+    const result = makeCellXml(
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+    );
     expect(result).toBe(`<c r="C1"><v>15</v></c>`);
   });
 
@@ -150,7 +152,9 @@ describe("Writer", () => {
       type: "string",
       value: "hello",
     };
-    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
+    const result = makeCellXml(
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+    );
     expect(result).toBe(`<c r="C1" t="s"><v>0</v></c>`);
     expect(styleMappers.sharedStrings.count).toBe(1);
     expect(styleMappers.sharedStrings.uniqueCount).toBe(1);
@@ -173,7 +177,9 @@ describe("Writer", () => {
       type: "date",
       value: "2020-01-01T00:00:00.000Z",
     };
-    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
+    const result = makeCellXml(
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+    );
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
 
@@ -194,7 +200,9 @@ describe("Writer", () => {
       type: "hyperlink",
       value: "https://www.google.com",
     };
-    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
+    const result = makeCellXml(
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+    );
     expect(result).toBe(`<c r="C1" s="1" t="s"><v>0</v></c>`);
 
     const worksheetRels = styleMappers.worksheetRels.getWorksheetRels();
@@ -239,7 +247,7 @@ describe("Writer", () => {
       { type: "number", value: 15 },
       { type: "number", value: 23 },
     ];
-    const result = rowToString(row, 0, null, 3, 4, styleMappers);
+    const result = rowToString(row, 0, null, 3, 4, styleMappers, []);
     expect(result).toBe(
       `<row r="1" spans="3:4"><c r="C1"><v>15</v></c><c r="D1"><v>23</v></c></row>`
     );
@@ -265,7 +273,7 @@ describe("Writer", () => {
       { type: "string", value: "world" },
       { type: "string", value: "hello" },
     ];
-    const result = rowToString(row, 0, null, 3, 5, styleMappers);
+    const result = rowToString(row, 0, null, 3, 5, styleMappers, []);
     expect(result).toBe(
       `<row r="1" spans="3:5"><c r="C1" t="s"><v>0</v></c><c r="D1" t="s"><v>1</v></c><c r="E1" t="s"><v>0</v></c></row>`
     );
@@ -287,7 +295,7 @@ describe("Writer", () => {
       worksheetRels: new WorksheetRels(),
     };
     const row: RowData = [{ type: "number", value: 10 }];
-    const result = rowToString(row, 0, 30, 1, 1, styleMappers);
+    const result = rowToString(row, 0, 30, 1, 1, styleMappers, []);
     expect(result).toBe(
       `<row r="1" spans="1:1" ht="30" customHeight="1"><c r="A1"><v>10</v></c></row>`
     );
@@ -311,7 +319,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers);
+    const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers, []);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:4"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
     );
@@ -340,7 +348,7 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers);
+    const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers, []);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:3"><c r="C2" t="s"><v>0</v></c></row><row r="3" spans="1:3"><c r="A3" t="s"><v>1</v></c><c r="B3" t="s"><v>1</v></c></row></sheetData>`
     );

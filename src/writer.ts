@@ -653,7 +653,7 @@ export function composeXlsxCellStyle(
   return null;
 }
 
-function convertCellToXlsxCell(
+export function convertCellToXlsxCell(
   cell: Cell,
   columnIndex: number,
   rowIndex: number,

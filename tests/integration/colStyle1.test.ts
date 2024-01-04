@@ -49,7 +49,11 @@ describe("col style with cell value", () => {
     ws.setCell(0, 2, { type: "number", value: 3 });
     ws.setCell(1, 0, { type: "number", value: 4 });
     ws.setCell(1, 1, { type: "number", value: 5 });
-    ws.setCell(1, 2, { type: "number", value: 6 });
+    ws.setCell(1, 2, {
+      type: "number",
+      value: 6,
+      style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+    });
     ws.setCell(2, 0, { type: "number", value: 7 });
     ws.setCell(2, 1, { type: "number", value: 8 });
     ws.setCell(2, 2, { type: "number", value: 9 });
@@ -227,10 +231,6 @@ describe("col style with cell value", () => {
 
     const expectedObj = parseXml(expectedXml);
     const actualObj = parseXml(actualXml);
-
-    // It may be a problem-free difference.
-    deletePropertyFromObject(expectedObj, "worksheet.dimension.@_ref");
-    deletePropertyFromObject(actualObj, "worksheet.dimension.@_ref");
 
     // It should be a problem-free difference.
     deletePropertyFromObject(

@@ -1,7 +1,7 @@
 import { Cell, RowData, SheetData } from "../src/sheetData";
 import { SharedStrings } from "../src/sharedStrings";
 import {
-  cellToString,
+  makeCellXml,
   convertCellToXlsxCell,
   convertIsoStringToSerialValue,
   findFirstNonNullCell,
@@ -128,9 +128,7 @@ describe("Writer", () => {
       type: "number",
       value: 15,
     };
-    const result = cellToString(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers)
-    );
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1"><v>15</v></c>`);
   });
 
@@ -151,9 +149,7 @@ describe("Writer", () => {
       type: "string",
       value: "hello",
     };
-    const result = cellToString(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers)
-    );
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1" t="s"><v>0</v></c>`);
     expect(styleMappers.sharedStrings.count).toBe(1);
     expect(styleMappers.sharedStrings.uniqueCount).toBe(1);
@@ -176,9 +172,7 @@ describe("Writer", () => {
       type: "date",
       value: "2020-01-01T00:00:00.000Z",
     };
-    const result = cellToString(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers)
-    );
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
 
@@ -199,9 +193,7 @@ describe("Writer", () => {
       type: "hyperlink",
       value: "https://www.google.com",
     };
-    const result = cellToString(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers)
-    );
+    const result = makeCellXml(convertCellToXlsxCell(cell, 2, 0, styleMappers));
     expect(result).toBe(`<c r="C1" s="1" t="s"><v>0</v></c>`);
 
     const worksheetRels = styleMappers.worksheetRels.getWorksheetRels();

@@ -520,7 +520,7 @@ export function rowToString(
   let columnIndex = 0;
   for (const cell of row) {
     if (cell !== null) {
-      result += cellToString(
+      result += makeCellXml(
         convertCellToXlsxCell(cell, columnIndex, rowIndex, styleMappers)
       );
     }
@@ -774,7 +774,7 @@ export function convertCellToXlsxCell(
   }
 }
 
-export function cellToString(cell: XlsxCell) {
+export function makeCellXml(cell: XlsxCell) {
   switch (cell.type) {
     case "number": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";

@@ -302,8 +302,8 @@ export function convertCombinedColToXlsxCol(
   }
 
   return {
-    min: col.min,
-    max: col.max,
+    min: col.startIndex + 1,
+    max: col.endIndex + 1,
     width: col.width ?? DEFAULT_COL_WIDTH,
     customWidth: col.width !== undefined && col.width !== DEFAULT_COL_WIDTH,
     cellXfId: cellXfId,

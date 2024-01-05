@@ -34,13 +34,13 @@ describe("col style with cell value", () => {
     const ws = wb.addWorksheet("Sheet1");
 
     ws.setColStyle({
-      min: 1,
-      max: 1,
+      startIndex: 0,
+      endIndex: 0,
       style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
     });
     ws.setColStyle({
-      min: 3,
-      max: 3,
+      startIndex: 2,
+      endIndex: 2,
       style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
     });
 

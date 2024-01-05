@@ -74,15 +74,15 @@ async function main() {
   const ws = wb.addWorksheet("Sheet1");
 
   // The width of only column A will be changed.
-  ws.setColWidth({ min: 1, max: 1, width: 12 });
+  ws.setColWidth({ startIndex: 0, endIndex: 0, width: 12 });
 
   // The width of columns B to C will be changed.
-  ws.setColWidth({ min: 2, max: 3, width: 24 });
+  ws.setColWidth({ startIndex: 1, endIndex: 2, width: 24 });
 
   // The style of column D will be changed.
   ws.setColStyle({
-    min: 4,
-    max: 4,
+    startIndex: 3,
+    endIndex: 3,
     style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
   });
 

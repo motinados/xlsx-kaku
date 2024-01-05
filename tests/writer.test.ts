@@ -368,9 +368,9 @@ describe("Writer", () => {
       worksheetRels: new WorksheetRels(),
     };
     const cols: Col[] = [
-      { min: 1, max: 1, width: 10 },
-      { min: 2, max: 2, width: 75 },
-      { min: 3, max: 6, width: 25 },
+      { startIndex: 0, endIndex: 0, width: 10 },
+      { startIndex: 1, endIndex: 1, width: 75 },
+      { startIndex: 2, endIndex: 5, width: 25 },
     ];
 
     const xlsxCols = combineColProps(cols).map((col) =>
@@ -394,7 +394,9 @@ describe("Writer", () => {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const cols: Col[] = [{ min: 1, max: 1, width: DEFAULT_COL_WIDTH }];
+    const cols: Col[] = [
+      { startIndex: 0, endIndex: 0, width: DEFAULT_COL_WIDTH },
+    ];
 
     const xlsxCols = combineColProps(cols).map((col) =>
       convertCombinedColToXlsxCol(col, styleMappers)
@@ -418,17 +420,21 @@ describe("Writer", () => {
       worksheetRels: new WorksheetRels(),
     };
     const cols: Col[] = [
-      { min: 1, max: 1, style: { alignment: { horizontal: "center" } } },
       {
-        min: 2,
-        max: 3,
+        startIndex: 0,
+        endIndex: 0,
+        style: { alignment: { horizontal: "center" } },
+      },
+      {
+        startIndex: 1,
+        endIndex: 2,
         style: {
           fill: { patternType: "solid", fgColor: "FFFF0000" },
         },
       },
       {
-        min: 2,
-        max: 3,
+        startIndex: 1,
+        endIndex: 2,
         width: 25,
       },
     ];

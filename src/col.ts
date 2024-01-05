@@ -3,22 +3,22 @@ import { CellStyle } from "./sheetData";
 export const DEFAULT_COL_WIDTH = 9;
 
 export type ColWidth = {
-  min: number;
-  max: number;
+  startIndex: number;
+  endIndex: number;
   width: number;
 };
 
 export type ColStyle = {
-  min: number;
-  max: number;
+  startIndex: number;
+  endIndex: number;
   style: CellStyle;
 };
 
 export type Col = ColWidth | ColStyle;
 
 export type CombinedCol = {
-  min: number;
-  max: number;
+  startIndex: number;
+  endIndex: number;
   width?: number;
   style?: CellStyle;
 };
@@ -28,7 +28,7 @@ export function combineColProps(cols: Col[]): CombinedCol[] {
   const combinedCols: CombinedCol[] = [];
   for (const col of cols) {
     const found = combinedCols.find(
-      (c) => c.min === col.min && c.max === col.max
+      (c) => c.startIndex === col.startIndex && c.endIndex === col.endIndex
     );
     if (found) {
       if ("width" in col) {
@@ -40,8 +40,8 @@ export function combineColProps(cols: Col[]): CombinedCol[] {
     }
 
     const newCombinedCol: CombinedCol = {
-      min: col.min,
-      max: col.max,
+      startIndex: col.startIndex,
+      endIndex: col.endIndex,
     };
     if ("width" in col) {
       newCombinedCol.width = col.width;

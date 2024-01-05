@@ -468,7 +468,7 @@ describe("Writer", () => {
 
   test("mekeSheetViewsXml with frozen column", () => {
     const dimension = { start: "A1", end: "B2" };
-    const freezePane: FreezePane = { type: "column", split: 1 };
+    const freezePane: FreezePane = { target: "column", split: 1 };
     expect(makeSheetViewsXml(dimension, freezePane)).toBe(
       `<sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A1" sqref="A1"/></sheetView></sheetViews>`
     );
@@ -476,7 +476,7 @@ describe("Writer", () => {
 
   test("mekeSheetViewsXml with frozen row", () => {
     const dimension = { start: "A1", end: "B2" };
-    const freezePane: FreezePane = { type: "row", split: 1 };
+    const freezePane: FreezePane = { target: "row", split: 1 };
     expect(makeSheetViewsXml(dimension, freezePane)).toBe(
       `<sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane xSplit="1" topLeftCell="B1" activePane="topRight" state="frozen"/><selection pane="topRight" activeCell="A1" sqref="A1"/></sheetView></sheetViews>`
     );

@@ -152,10 +152,10 @@ async function main() {
   ws.setCell(1, 1, { type: "number", value: 4 });
 
   // the first row will be fixed.
-  ws.setFreezePane({ type: "row", split: 1 });
+  ws.setFreezePane({ target: "row", split: 1 });
 
   // Column A will be fixed.
-  // ws.setFreezePane({ type: "column", split: 1 });
+  // ws.setFreezePane({ target: "column", split: 1 });
 
   await wb.save("test.xlsx");
 }

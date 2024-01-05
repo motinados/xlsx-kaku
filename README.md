@@ -8,6 +8,12 @@ It is exclusively for outputting xlsx files and cannot read them.
 It currently only supports minimal functionality.
 Please also see our [Roadmap](https://github.com/motinados/xlsx-kaku/issues/1).
 
+> [!IMPORTANT]  
+> This library is currently in the early stages of development.  
+> We are constantly working to improve and optimize our codebase, which may  
+> lead to changes that are not backward compatible.  
+> We recommend regularly checking the latest change logs and documentation.
+
 ## Installation
 
 ```
@@ -58,7 +64,7 @@ async function main() {
 }
 ```
 
-### changing the width of columns
+### columns
 
 ```ts
 import { Workbook } from "xlsx-kaku";
@@ -70,14 +76,21 @@ async function main() {
   // The width of only column A will be changed.
   ws.setColWidth({ min: 1, max: 1, width: 12 });
 
-  // The width of columns B to F will be changed.
-  ws.setColWidth({ min: 2, max: 6, width: 24 });
+  // The width of columns B to C will be changed.
+  ws.setColWidth({ min: 2, max: 3, width: 24 });
+
+  // The style of column D will be changed.
+  ws.setColStyle({
+    min: 4,
+    max: 4,
+    style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+  });
 
   await wb.save("test.xlsx");
 }
 ```
 
-### changing the height of rows
+### rows
 
 ```ts
 import { Workbook } from "xlsx-kaku";

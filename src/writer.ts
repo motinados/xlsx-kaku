@@ -32,7 +32,9 @@ type StyleMappers = {
 };
 
 type XlsxCol = {
+  /** e.g. column A is 1 */
   min: number;
+  /** e.g. column A is 1 */
   max: number;
   width: number;
   customWidth: boolean;

@@ -43,7 +43,7 @@ describe("freeze pane 0", () => {
     ws.setCell(2, 1, { type: "number", value: 8 });
     ws.setCell(2, 2, { type: "number", value: 9 });
 
-    ws.setFreezePane({ type: "column", split: 1 });
+    ws.setFreezePane({ target: "column", split: 1 });
 
     await wb.save(actualXlsxPath);
 

@@ -372,7 +372,7 @@ export function makeSheetViewsXml(
     return result;
   }
 
-  switch (freezePane.type) {
+  switch (freezePane.target) {
     case "column": {
       let result =
         "<sheetViews>" +
@@ -398,7 +398,7 @@ export function makeSheetViewsXml(
       return result;
     }
     default: {
-      const _exhaustiveCheck: never = freezePane.type;
+      const _exhaustiveCheck: never = freezePane.target;
       throw new Error(`unknown freezePane type: ${_exhaustiveCheck}`);
     }
   }

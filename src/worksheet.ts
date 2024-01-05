@@ -15,7 +15,7 @@ export type MergeCell = {
 };
 
 export type FreezePane = {
-  type: "column" | "row";
+  target: "column" | "row";
   split: number;
 };
 

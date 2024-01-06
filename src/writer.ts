@@ -95,10 +95,26 @@ type XlsxCell =
     };
 
 export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
+  const files = generateXMLFiles(worksheets);
+
   const xlsxPath = path.resolve(filepath);
   const basePath = path.dirname(filepath);
   const workDir = path.join(basePath, "work");
 
+  for (const file of files) {
+    const filePath = path.join(workDir, file.filename);
+    const dirPath = path.dirname(filePath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+    fs.writeFileSync(filePath, file.content);
+  }
+
+  await zipToXlsx(workDir, xlsxPath);
+  fs.rmSync(workDir, { recursive: true });
+}
+
+function generateXMLFiles(worksheets: Worksheet[]) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -145,17 +161,7 @@ export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
     });
   }
 
-  for (const file of files) {
-    const filePath = path.join(workDir, file.filename);
-    const dirPath = path.dirname(filePath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-    fs.writeFileSync(filePath, file.content);
-  }
-
-  await zipToXlsx(workDir, xlsxPath);
-  fs.rmSync(workDir, { recursive: true });
+  return files;
 }
 
 export function createExcelFiles(worksheets: Worksheet[]) {

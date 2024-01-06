@@ -1,6 +1,5 @@
 import * as fs from "node:fs";
 import path from "node:path";
-import archiver from "archiver";
 import { v4 as uuidv4 } from "uuid";
 import { Cell, CellStyle, RowData, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
@@ -17,6 +16,7 @@ import { WorksheetRels } from "./worksheetRels";
 import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
+import { strToU8, zipSync } from "fflate";
 
 type StyleMappers = {
   fills: Fills;
@@ -98,20 +98,22 @@ export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
   const files = generateXMLFiles(worksheets);
 
   const xlsxPath = path.resolve(filepath);
-  const basePath = path.dirname(filepath);
-  const workDir = path.join(basePath, "work");
+  const zipped = compressXMLs(files);
+  if (!fs.existsSync(path.dirname(xlsxPath))) {
+    fs.mkdirSync(path.dirname(xlsxPath), { recursive: true });
+  }
+  fs.writeFileSync(xlsxPath, zipped);
+}
+
+function compressXMLs(files: { filename: string; content: string }[]) {
+  const data: { [key: string]: Uint8Array } = {};
 
   for (const file of files) {
-    const filePath = path.join(workDir, file.filename);
-    const dirPath = path.dirname(filePath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-    fs.writeFileSync(filePath, file.content);
+    data[file.filename] = strToU8(file.content);
   }
 
-  await zipToXlsx(workDir, xlsxPath);
-  fs.rmSync(workDir, { recursive: true });
+  const zipped = zipSync(data);
+  return zipped;
 }
 
 function generateXMLFiles(worksheets: Worksheet[]) {
@@ -240,33 +242,6 @@ export function createExcelFiles(worksheets: Worksheet[]) {
     sheetXmls,
     styleMappers,
   };
-}
-
-export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const output = fs.createWriteStream(outPath);
-    const archive = archiver("zip", { zlib: { level: 9 } });
-
-    output.on("close", () => {
-      resolve();
-    });
-
-    archive.on("warning", (err) => {
-      if (err.code === "ENOENT") {
-        console.warn(err);
-      } else {
-        reject(err);
-      }
-    });
-
-    archive.on("error", (err) => {
-      reject(err);
-    });
-
-    archive.pipe(output);
-    archive.directory(sourceDir, false);
-    archive.finalize();
-  });
 }
 
 export function convertCombinedColToXlsxCol(

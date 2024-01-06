@@ -1,6 +1,5 @@
 import * as fs from "node:fs";
 import path from "node:path";
-import archiver from "archiver";
 import { v4 as uuidv4 } from "uuid";
 import { Cell, CellStyle, RowData, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
@@ -17,6 +16,7 @@ import { WorksheetRels } from "./worksheetRels";
 import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
 import { convNumberToColumn, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
+import { strToU8, zipSync } from "fflate";
 
 type StyleMappers = {
   fills: Fills;
@@ -95,6 +95,28 @@ type XlsxCell =
     };
 
 export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
+  const files = generateXMLFiles(worksheets);
+
+  const xlsxPath = path.resolve(filepath);
+  const zipped = compressXMLs(files);
+  if (!fs.existsSync(path.dirname(xlsxPath))) {
+    fs.mkdirSync(path.dirname(xlsxPath), { recursive: true });
+  }
+  fs.writeFileSync(xlsxPath, zipped);
+}
+
+function compressXMLs(files: { filename: string; content: string }[]) {
+  const data: { [key: string]: Uint8Array } = {};
+
+  for (const file of files) {
+    data[file.filename] = strToU8(file.content);
+  }
+
+  const zipped = zipSync(data);
+  return zipped;
+}
+
+function generateXMLFiles(worksheets: Worksheet[]) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -109,80 +131,39 @@ export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
     styleMappers,
   } = createExcelFiles(worksheets);
 
-  const xlsxPath = path.resolve(filepath);
-  const basePath = path.dirname(filepath);
-  const workDir = path.join(basePath, "work");
-  if (!fs.existsSync(workDir)) {
-    fs.mkdirSync(workDir, { recursive: true });
-  }
-  fs.writeFileSync(path.join(workDir, "[Content_Types].xml"), contentTypesXml);
+  const files: { filename: string; content: string }[] = [];
+  files.push({ filename: "[Content_Types].xml", content: contentTypesXml });
+  files.push({ filename: "_rels/.rels", content: relsFile });
+  files.push({ filename: "docProps/app.xml", content: appXml });
+  files.push({ filename: "docProps/core.xml", content: coreXml });
+  files.push({
+    filename: "xl/sharedStrings.xml",
+    content: sharedStringsXml ?? "",
+  });
+  files.push({ filename: "xl/styles.xml", content: stylesXml });
+  files.push({ filename: "xl/workbook.xml", content: workbookXml });
+  files.push({
+    filename: "xl/_rels/workbook.xml.rels",
+    content: workbookXmlRels,
+  });
+  files.push({ filename: "xl/theme/theme1.xml", content: themeXml });
 
-  const _relsPath = path.resolve(workDir, "_rels");
-  if (!fs.existsSync(_relsPath)) {
-    fs.mkdirSync(_relsPath, { recursive: true });
-  }
-  fs.writeFileSync(path.join(_relsPath, ".rels"), relsFile);
-
-  const docPropsPath = path.resolve(workDir, "docProps");
-  if (!fs.existsSync(docPropsPath)) {
-    fs.mkdirSync(docPropsPath, { recursive: true });
-  }
-  fs.writeFileSync(path.join(docPropsPath, "app.xml"), appXml);
-  fs.writeFileSync(path.join(docPropsPath, "core.xml"), coreXml);
-
-  const xlPath = path.resolve(workDir, "xl");
-  if (!fs.existsSync(xlPath)) {
-    fs.mkdirSync(xlPath, { recursive: true });
-  }
-  if (sharedStringsXml !== null) {
-    fs.writeFileSync(path.join(xlPath, "sharedStrings.xml"), sharedStringsXml);
-  }
-  fs.writeFileSync(path.join(xlPath, "styles.xml"), stylesXml);
-  fs.writeFileSync(path.join(xlPath, "workbook.xml"), workbookXml);
-
-  const xl_relsPath = path.resolve(xlPath, "_rels");
-  if (!fs.existsSync(xl_relsPath)) {
-    fs.mkdirSync(xl_relsPath, { recursive: true });
-  }
-  fs.writeFileSync(
-    path.join(xl_relsPath, "workbook.xml.rels"),
-    workbookXmlRels
-  );
-
-  const themePath = path.resolve(xlPath, "theme");
-  if (!fs.existsSync(themePath)) {
-    fs.mkdirSync(themePath, { recursive: true });
-  }
-  fs.writeFileSync(path.join(themePath, "theme1.xml"), themeXml);
-
-  const worksheetsPath = path.resolve(xlPath, "worksheets");
-  if (!fs.existsSync(worksheetsPath)) {
-    fs.mkdirSync(worksheetsPath, { recursive: true });
+  for (let i = 0; i < sheetXmls.length; i++) {
+    files.push({
+      filename: `xl/worksheets/sheet${i + 1}.xml`,
+      content: sheetXmls[i]!,
+    });
   }
 
-  let sheetIndex = 1;
-  for (const sheetXml of sheetXmls) {
-    fs.writeFileSync(
-      path.join(worksheetsPath, `sheet${sheetIndex}.xml`),
-      sheetXml
-    );
-    sheetIndex++;
-  }
-
-  if (styleMappers.worksheetRels.relsLength > 0) {
-    const worksheets_relsPath = path.resolve(worksheetsPath, "_rels");
-    if (!fs.existsSync(worksheets_relsPath)) {
-      fs.mkdirSync(worksheets_relsPath, { recursive: true });
-    }
+  if (styleMappers.hyperlinks.getHyperlinks().length > 0) {
     const worksheetRelsXml = styleMappers.worksheetRels.makeXML();
-    fs.writeFileSync(
-      path.join(worksheets_relsPath, "sheet1.xml.rels"),
-      worksheetRelsXml
-    );
+    files.push({
+      filename: "xl/worksheets/_rels/sheet1.xml.rels",
+      content: worksheetRelsXml,
+    });
   }
 
-  await zipToXlsx(workDir, xlsxPath);
-  fs.rmSync(workDir, { recursive: true });
+  return files;
 }
 
 export function createExcelFiles(worksheets: Worksheet[]) {
@@ -261,33 +242,6 @@ export function createExcelFiles(worksheets: Worksheet[]) {
     sheetXmls,
     styleMappers,
   };
-}
-
-export function zipToXlsx(sourceDir: string, outPath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const output = fs.createWriteStream(outPath);
-    const archive = archiver("zip", { zlib: { level: 9 } });
-
-    output.on("close", () => {
-      resolve();
-    });
-
-    archive.on("warning", (err) => {
-      if (err.code === "ENOENT") {
-        console.warn(err);
-      } else {
-        reject(err);
-      }
-    });
-
-    archive.on("error", (err) => {
-      reject(err);
-    });
-
-    archive.pipe(output);
-    archive.directory(sourceDir, false);
-    archive.finalize();
-  });
 }
 
 export function convertCombinedColToXlsxCol(

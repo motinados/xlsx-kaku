@@ -6,6 +6,7 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -43,7 +44,8 @@ describe("cols", () => {
     ws.setColWidth({ startIndex: 1, endIndex: 1, width: 25.625 });
     ws.setColWidth({ startIndex: 2, endIndex: 4, width: 6.625 });
 
-    await wb.save(actualXlsxPath);
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);
   });

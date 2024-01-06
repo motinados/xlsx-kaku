@@ -6,6 +6,7 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -36,7 +37,9 @@ describe("boolean", () => {
     ws.setCell(0, 1, { type: "boolean", value: false });
     ws.setCell(1, 0, { type: "boolean", value: false });
     ws.setCell(1, 1, { type: "boolean", value: true });
-    await wb.save(actualXlsxPath);
+
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);
   });

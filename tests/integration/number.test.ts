@@ -1,3 +1,4 @@
+import { readFileSync, rmSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
 import {
   deletePropertyFromObject,
@@ -5,9 +6,9 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src/index";
-import { readFileSync, rmSync } from "node:fs";
 
 describe("number", () => {
   const testName = "number";
@@ -36,7 +37,8 @@ describe("number", () => {
     ws.setCell(0, 1, { type: "number", value: 2 });
     ws.setCell(1, 0, { type: "number", value: 3 });
     ws.setCell(1, 1, { type: "number", value: 4 });
-    await wb.save(actualXlsxPath);
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);
   });

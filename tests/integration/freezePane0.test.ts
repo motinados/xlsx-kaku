@@ -6,6 +6,7 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -45,7 +46,8 @@ describe("freeze pane 0", () => {
 
     ws.setFreezePane({ target: "column", split: 1 });
 
-    await wb.save(actualXlsxPath);
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);
   });

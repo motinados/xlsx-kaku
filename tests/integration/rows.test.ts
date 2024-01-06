@@ -6,6 +6,7 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -43,7 +44,8 @@ describe("rows", () => {
     ws.setRowHeight({ index: 3, height: 39.75 });
     ws.setRowHeight({ index: 4, height: 39.75 });
 
-    await wb.save(actualXlsxPath);
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);
   });

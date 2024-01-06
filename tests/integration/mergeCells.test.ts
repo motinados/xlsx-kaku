@@ -6,6 +6,7 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -37,7 +38,8 @@ describe("mergeCells", () => {
     ws.setMergeCell({ ref: "A1:C1" });
     ws.setMergeCell({ ref: "A2:A4" });
 
-    await wb.save(actualXlsxPath);
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);
   });

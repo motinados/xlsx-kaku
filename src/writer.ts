@@ -1,5 +1,3 @@
-import * as fs from "node:fs";
-import path from "node:path";
 import { v4 as uuidv4 } from "uuid";
 import { Cell, CellStyle, RowData, SheetData } from "./sheetData";
 import { SharedStrings } from "./sharedStrings";
@@ -94,15 +92,10 @@ type XlsxCell =
       cellXfId: number | null;
     };
 
-export async function writeXlsx(filepath: string, worksheets: Worksheet[]) {
+export function genXlsx(worksheets: Worksheet[]) {
   const files = generateXMLFiles(worksheets);
-
-  const xlsxPath = path.resolve(filepath);
   const zipped = compressXMLs(files);
-  if (!fs.existsSync(path.dirname(xlsxPath))) {
-    fs.mkdirSync(path.dirname(xlsxPath), { recursive: true });
-  }
-  fs.writeFileSync(xlsxPath, zipped);
+  return zipped;
 }
 
 function compressXMLs(files: { filename: string; content: string }[]) {

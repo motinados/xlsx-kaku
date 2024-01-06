@@ -1,5 +1,13 @@
 import * as fflate from "fflate";
-import { readFile, mkdir, writeFileSync, readdirSync, statSync } from "node:fs";
+import {
+  readFile,
+  mkdir,
+  writeFileSync,
+  readdirSync,
+  statSync,
+  existsSync,
+  mkdirSync,
+} from "node:fs";
 import { dirname, join, normalize } from "node:path";
 import { XMLParser } from "fast-xml-parser";
 
@@ -101,4 +109,11 @@ export function deletePropertyFromObject(obj: any, propertyPath: string): void {
       delete currentObj[lastKey];
     }
   }
+}
+
+export function writeFile(filepath: string, xlsx: Uint8Array) {
+  if (!existsSync(dirname(filepath))) {
+    mkdirSync(dirname(filepath), { recursive: true });
+  }
+  writeFileSync(filepath, xlsx);
 }

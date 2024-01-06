@@ -6,6 +6,7 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -36,8 +37,8 @@ describe("hyperlink", () => {
     ws.setCell(1, 0, { type: "hyperlink", value: "https://www.google.com" });
     ws.setCell(2, 0, { type: "hyperlink", value: "https://www.github.com" });
     ws.setCell(3, 0, { type: "hyperlink", value: "https://www.github.com" });
-    await wb.save(actualXlsxPath);
-
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);
   });
 

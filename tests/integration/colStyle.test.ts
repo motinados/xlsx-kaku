@@ -6,6 +6,7 @@ import {
   parseXml,
   removeBasePath,
   unzip,
+  writeFile,
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
@@ -44,7 +45,9 @@ describe("col style", () => {
       style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
     });
 
-    await wb.save(actualXlsxPath);
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
+
     await unzip(actualXlsxPath, actualFileDir);
   });
 

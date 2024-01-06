@@ -1,5 +1,5 @@
+import { genXlsx } from "./writer";
 import { Worksheet } from "./worksheet";
-import { writeXlsx } from "./writer";
 
 export class Workbook {
   private _worksheets: Worksheet[] = [];
@@ -18,7 +18,7 @@ export class Workbook {
     return this._worksheets.find((ws) => ws.name === sheetName);
   }
 
-  async save(filepath: string) {
-    await writeXlsx(filepath, this._worksheets);
+  generateXlsx() {
+    return genXlsx(this._worksheets);
   }
 }

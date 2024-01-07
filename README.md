@@ -22,12 +22,13 @@ npm install xlsx-kaku
 
 ## Example
 
-### basic usage
+### Basic Usage on the Server-Side (React)
 
 ```ts
+import { writeFileSync } from "node:fs";
 import { Workbook } from "xlsx-kaku";
 
-async function main() {
+function main() {
   const wb = new Workbook();
 
   const ws = wb.addWorksheet("Sheet1");
@@ -42,25 +43,43 @@ async function main() {
     },
   });
 
-  await wb.save("Hello.xlsx");
+  const xlsx = wb.generateXlsx();
+  writeFileSync("sample.xlsx", xlsx);
 }
 ```
 
-### merge cells
+### Basic Usage on the Client-Side
 
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-async function main() {
-  const wb = new Workbook();
-  const ws = wb.addWorksheet("Sheet1");
+function DownloadButton() {
+  const handleDownload = () => {
+    const wb = new Workbook();
+    const ws = wb.addWorksheet("Sheet1");
+    ws.setCell(0, 0, { type: "string", value: "Hello" });
+    ws.setCell(0, 1, { type: "string", value: "World" });
 
-  ws.setCell(0, 0, { type: "number", value: 1 });
-  ws.setCell(1, 0, { type: "number", value: 2 });
-  ws.setMergeCell({ ref: "A1:C1" });
-  ws.setMergeCell({ ref: "A2:A4" });
+    const xlsx = wb.generateXlsx();
 
-  await wb.save("test.xlsx");
+    const blob = new Blob([xlsx], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "sample.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div>
+      <button onClick={handleDownload}>download xlsx</button>
+    </div>
+  );
 }
 ```
 
@@ -69,7 +88,7 @@ async function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-async function main() {
+function main() {
   const wb = new Workbook();
   const ws = wb.addWorksheet("Sheet1");
 
@@ -86,7 +105,7 @@ async function main() {
     style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
   });
 
-  await wb.save("test.xlsx");
+  const xlsx = wb.generateXlsx();
 }
 ```
 
@@ -95,7 +114,7 @@ async function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-async function main() {
+function main() {
   const wb = new Workbook();
   const ws = wb.addWorksheet("Sheet1");
 
@@ -112,7 +131,7 @@ async function main() {
   ws.setRowHeight({ index: 2, height: 39.75 });
   ws.setRowHeight({ index: 3, height: 39.75 });
 
-  await wb.save("test.xlsx");
+  const xlsx = wb.generateXlsx();
 }
 ```
 
@@ -121,7 +140,7 @@ async function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-async function main() {
+function main() {
   const wb = new Workbook();
   const ws = wb.addWorksheet("Sheet1");
 
@@ -133,7 +152,25 @@ async function main() {
     },
   });
 
-  await wb.save("test.xlsx");
+  const xlsx = wb.generateXlsx();
+}
+```
+
+### merge cells
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+function main() {
+  const wb = new Workbook();
+  const ws = wb.addWorksheet("Sheet1");
+
+  ws.setCell(0, 0, { type: "number", value: 1 });
+  ws.setCell(1, 0, { type: "number", value: 2 });
+  ws.setMergeCell({ ref: "A1:C1" });
+  ws.setMergeCell({ ref: "A2:A4" });
+
+  const xlsx = wb.generateXlsx();
 }
 ```
 
@@ -142,7 +179,7 @@ async function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-async function main() {
+function main() {
   const wb = new Workbook();
   const ws = wb.addWorksheet("Sheet1");
 
@@ -157,6 +194,6 @@ async function main() {
   // Column A will be fixed.
   // ws.setFreezePane({ target: "column", split: 1 });
 
-  await wb.save("test.xlsx");
+  const xlsx = wb.generateXlsx();
 }
 ```

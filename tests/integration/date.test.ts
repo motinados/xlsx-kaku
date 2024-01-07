@@ -7,29 +7,31 @@ import {
   listFiles,
   removeBasePath,
   unzip,
-} from "./helper/helper";
-import { Workbook } from "../src";
-
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/date/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/date/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/date/actuall";
+  writeFile,
+} from "../helper/helper";
+import { Workbook } from "../../src";
 
 const parser = new XMLParser({ ignoreAttributes: false });
 
 describe("date", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const testName = "date";
 
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
+
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
+
+  const expectedXlsxPath = resolve(xlsxDir, `${testName}.xlsx`);
+  const actualXlsxPath = resolve(outputDir, `${testName}.xlsx`);
+
+  const extension = extname(expectedXlsxPath);
+  const xlsxBaseName = basename(expectedXlsxPath, extension);
+
+  const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
+  const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "date.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(filepath, expectedFileDir);
+    await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
@@ -69,11 +71,9 @@ describe("date", () => {
         },
       },
     });
-    outputPath = resolve(OUTPUT_DIR, "date.xlsx");
-    await wb.save(outputPath);
-
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(outputPath, actualFileDir);
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
+    await unzip(actualXlsxPath, actualFileDir);
   });
 
   afterAll(() => {

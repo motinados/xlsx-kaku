@@ -22,7 +22,7 @@ npm install xlsx-kaku
 
 ## Example
 
-### Basic Usage on the Server-Side (React)
+### Basic Usage on the Server-Side
 
 ```ts
 import { writeFileSync } from "node:fs";
@@ -48,7 +48,7 @@ function main() {
 }
 ```
 
-### Basic Usage on the Client-Side
+### Basic Usage on the Client-Side (React)
 
 ```ts
 import { Workbook } from "xlsx-kaku";

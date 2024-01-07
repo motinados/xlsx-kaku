@@ -38,3 +38,37 @@ export function convNumberToColumn(num: number): string {
   }
   return str;
 }
+
+/**
+ * e.g. "A1:B2" => [[0, 0], [0, 1], [1, 0], [1, 1]]
+ * @param range e.g. "A1:B2"
+ * @returns
+ */
+export function expandRange(range: string): [number, number][] {
+  const [start, end] = range.split(":");
+  if (!start || !end) {
+    throw new Error("invalid range");
+  }
+
+  // These are not index but number. index is number - 1
+  const [startColumn, startRow] = devideAddress(start);
+  const [endColumn, endRow] = devideAddress(end);
+  const startColumnNum = convColumnToNumber(startColumn);
+  const endColumnNum = convColumnToNumber(endColumn);
+  const startRowNum = startRow;
+  const endRowNum = endRow;
+
+  const result: [number, number][] = [];
+  for (let i = startColumnNum; i <= endColumnNum; i++) {
+    for (let j = startRowNum; j <= endRowNum; j++) {
+      result.push([i, j - 1]); // return index
+    }
+  }
+
+  return result;
+}
+
+export function isInRange(column: string, min: number, max: number) {
+  const columnNumber = convColumnToNumber(column) + 1;
+  return columnNumber >= min && columnNumber <= max;
+}

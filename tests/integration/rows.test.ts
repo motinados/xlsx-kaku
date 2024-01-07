@@ -3,50 +3,57 @@ import { basename, extname, resolve } from "node:path";
 import {
   deletePropertyFromObject,
   listFiles,
+  parseXml,
   removeBasePath,
   unzip,
-} from "./helper/helper";
-import { Workbook } from "../src";
-import { XMLParser } from "fast-xml-parser";
+  writeFile,
+} from "../helper/helper";
+import { Workbook } from "../../src";
 
-const XLSX_Dir = "tests/xlsx";
-const OUTPUT_DIR = "tests/temp/string/output";
-const EXPECTED_UNZIPPED_DIR = "tests/temp/string/expected";
-const ACTUAL_UNZIPPED_DIR = "tests/temp/string/actuall";
+describe("rows", () => {
+  const testName = "rows";
+  const xlsxDir = "tests/xlsx";
+  const outputDir = `tests/temp/${testName}/output`;
 
-const parser = new XMLParser({ ignoreAttributes: false });
+  const expectedUnzippedDir = `tests/temp/${testName}/expected`;
+  const actualUnzippedDir = `tests/temp/${testName}/actual`;
 
-describe("string", () => {
-  let xlsxBaseName: string;
-  let expectedFileDir: string;
-  let actualFileDir: string;
-  let outputPath: string;
+  const expectedXlsxPath = resolve(xlsxDir, `${testName}.xlsx`);
+  const actualXlsxPath = resolve(outputDir, `${testName}.xlsx`);
+
+  const extension = extname(expectedXlsxPath);
+  const xlsxBaseName = basename(expectedXlsxPath, extension);
+
+  const expectedFileDir = resolve(expectedUnzippedDir, xlsxBaseName);
+  const actualFileDir = resolve(actualUnzippedDir, xlsxBaseName);
 
   beforeAll(async () => {
-    const filepath = resolve(XLSX_Dir, "string.xlsx");
-
-    const extension = extname(filepath);
-    xlsxBaseName = basename(filepath, extension);
-    expectedFileDir = resolve(EXPECTED_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(filepath, expectedFileDir);
+    await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
-    ws.setCell(0, 0, { type: "string", value: "Hello" });
-    ws.setCell(0, 1, { type: "string", value: "world" });
-    ws.setCell(1, 0, { type: "string", value: "Hello" });
-    ws.setCell(1, 1, { type: "string", value: "strings" });
-    outputPath = resolve(OUTPUT_DIR, "string.xlsx");
-    await wb.save(outputPath);
+    ws.setCell(0, 0, { type: "number", value: 1 });
+    ws.setCell(1, 0, { type: "number", value: 2 });
+    ws.setCell(2, 0, { type: "number", value: 3 });
+    ws.setCell(3, 0, { type: "number", value: 4 });
+    ws.setCell(4, 0, { type: "number", value: 5 });
+    ws.setCell(5, 0, { type: "number", value: 6 });
 
-    actualFileDir = resolve(ACTUAL_UNZIPPED_DIR, xlsxBaseName);
-    await unzip(outputPath, actualFileDir);
+    ws.setRowHeight({ index: 1, height: 20.25 });
+    ws.setRowHeight({ index: 2, height: 39.75 });
+    ws.setRowHeight({ index: 3, height: 39.75 });
+    ws.setRowHeight({ index: 4, height: 39.75 });
+
+    const xlsx = wb.generateXlsx();
+    writeFile(actualXlsxPath, xlsx);
+
+    await unzip(actualXlsxPath, actualFileDir);
   });
 
   afterAll(() => {
-    rmSync(OUTPUT_DIR, { recursive: true });
-    rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(outputDir, { recursive: true });
+    rmSync(expectedUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -73,8 +80,51 @@ describe("string", () => {
       "utf-8"
     );
 
-    const expectedObj = parser.parse(expected);
-    const actualObj = parser.parse(actual);
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("app.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "docProps/app.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "docProps/app.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    deletePropertyFromObject(expectedObj, "Properties.Application");
+    deletePropertyFromObject(actualObj, "Properties.Application");
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("core.xml", async () => {
+    const expected = readFileSync(
+      resolve(expectedFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+    const actual = readFileSync(
+      resolve(actualFileDir, "docProps/core.xml"),
+      "utf-8"
+    );
+
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:created");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:created");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "cp:coreProperties.dcterms:modified");
+    deletePropertyFromObject(actualObj, "cp:coreProperties.dcterms:modified");
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -89,17 +139,15 @@ describe("string", () => {
       "utf-8"
     );
 
-    const expectedObj = parser.parse(expected);
-    const actualObj = parser.parse(actual);
+    const expectedObj = parseXml(expected);
+    const actualObj = parseXml(actual);
 
-    // Differences due to the default font
+    // // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
-    // It should be a problem-free difference.
+    // // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
-    // Differences due to the default font
+    // // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
-    // It should be a problem-free difference.
-    deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -110,8 +158,8 @@ describe("string", () => {
     const actualXmlPath = resolve(actualFileDir, "xl/workbook.xml");
     const actualXml = readFileSync(actualXmlPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXml);
-    const actualObj = parser.parse(actualXml);
+    const expectedObj = parseXml(expectedXml);
+    const actualObj = parseXml(actualXml);
 
     // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "workbook.fileVersion.@_rupBuild");
@@ -123,18 +171,6 @@ describe("string", () => {
       "workbook.xr:revisionPtr.@_documentId"
     );
     deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
-
-    expect(actualObj).toEqual(expectedObj);
-  });
-
-  test("sharedStringsXml", () => {
-    const expectedXmlPath = resolve(expectedFileDir, "xl/sharedStrings.xml");
-    const expectedXml = readFileSync(expectedXmlPath, "utf8");
-    const actualXmlPath = resolve(actualFileDir, "xl/sharedStrings.xml");
-    const actualXml = readFileSync(actualXmlPath, "utf8");
-
-    const expectedObj = parser.parse(expectedXml);
-    const actualObj = parser.parse(actualXml);
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -160,8 +196,8 @@ describe("string", () => {
     const actualRelsPath = resolve(actualFileDir, "xl/_rels/workbook.xml.rels");
     const actualRels = readFileSync(actualRelsPath, "utf8");
 
-    const expectedObj = parser.parse(expectedRels);
-    const actualObj = parser.parse(actualRels);
+    const expectedObj = parseXml(expectedRels);
+    const actualObj = parseXml(actualRels);
 
     const expectedRelationships = expectedObj.Relationships.Relationship;
     expectedRelationships.sort(sortById);
@@ -181,8 +217,8 @@ describe("string", () => {
     const actualXmlPath = resolve(actualFileDir, "xl/worksheets/sheet1.xml");
     const actualXml = readFileSync(actualXmlPath, "utf8");
 
-    const expectedObj = parser.parse(expectedXml);
-    const actualObj = parser.parse(actualXml);
+    const expectedObj = parseXml(expectedXml);
+    const actualObj = parseXml(actualXml);
 
     // It should be a problem-free difference.
     deletePropertyFromObject(

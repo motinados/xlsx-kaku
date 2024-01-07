@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("hyperlink", () => {
-  const testName = "hyperlink";
+describe("string", () => {
+  const testName = "string";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -33,12 +33,13 @@ describe("hyperlink", () => {
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
-    ws.setCell(0, 0, { type: "hyperlink", value: "https://www.google.com" });
-    ws.setCell(1, 0, { type: "hyperlink", value: "https://www.google.com" });
-    ws.setCell(2, 0, { type: "hyperlink", value: "https://www.github.com" });
-    ws.setCell(3, 0, { type: "hyperlink", value: "https://www.github.com" });
+    ws.setCell(0, 0, { type: "string", value: "Hello" });
+    ws.setCell(0, 1, { type: "string", value: "world" });
+    ws.setCell(1, 0, { type: "string", value: "Hello" });
+    ws.setCell(1, 1, { type: "string", value: "strings" });
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
+
     await unzip(actualXlsxPath, actualFileDir);
   });
 
@@ -122,17 +123,6 @@ describe("hyperlink", () => {
   });
 
   test("styles.xml", async () => {
-    function sortById(a: any, b: any) {
-      const rIdA = a["@_name"];
-      const rIdB = b["@_name"];
-      if (rIdA < rIdB) {
-        return -1;
-      }
-      if (rIdA > rIdB) {
-        return 1;
-      }
-      return 0;
-    }
     const expected = readFileSync(
       resolve(expectedFileDir, "xl/styles.xml"),
       "utf-8"
@@ -151,25 +141,6 @@ describe("hyperlink", () => {
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
-
-    actualObj.styleSheet.cellStyles.cellStyle.sort(sortById);
-    expectedObj.styleSheet.cellStyles.cellStyle.sort(sortById);
-
-    // It is probably a problem-free difference.
-    // I think what's important is 'fontId="1"'. And this is set.
-    for (const obj of actualObj.styleSheet.cellStyleXfs.xf) {
-      deletePropertyFromObject(obj, "@_applyFont");
-    }
-    for (const obj of actualObj.styleSheet.cellXfs.xf) {
-      deletePropertyFromObject(obj, "@_applyFont");
-    }
-    for (const obj of expectedObj.styleSheet.cellStyleXfs.xf) {
-      deletePropertyFromObject(obj, "@_applyBorder");
-      deletePropertyFromObject(obj, "@_applyFill");
-      deletePropertyFromObject(obj, "@_applyNumberFormat");
-      deletePropertyFromObject(obj, "@_applyAlignment");
-      deletePropertyFromObject(obj, "@_applyProtection");
-    }
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -264,55 +235,6 @@ describe("hyperlink", () => {
       "worksheet.sheetViews.sheetView.selection"
     );
 
-    // It should be a problem-free difference.
-    for (const obj of expectedObj.worksheet.hyperlinks.hyperlink) {
-      deletePropertyFromObject(obj, "@_xr:uid");
-    }
-    for (const obj of actualObj.worksheet.hyperlinks.hyperlink) {
-      deletePropertyFromObject(obj, "@_xr:uid");
-    }
-
-    // It should be a problem-free difference.
-    for (const obj of expectedObj.worksheet.sheetData.row) {
-      deletePropertyFromObject(obj, "@_ht");
-    }
-
     expect(actualObj).toEqual(expectedObj);
-  });
-
-  test("wroksheetsXmlRels", () => {
-    function sortById(a: any, b: any) {
-      const rIdA = parseInt(a["@_Id"].substring(3));
-      const rIdB = parseInt(b["@_Id"].substring(3));
-      if (rIdA < rIdB) {
-        return -1;
-      }
-      if (rIdA > rIdB) {
-        return 1;
-      }
-      return 0;
-    }
-
-    const expectedRelsPath = resolve(
-      expectedFileDir,
-      "xl/worksheets/_rels/sheet1.xml.rels"
-    );
-    const expectedRels = readFileSync(expectedRelsPath, "utf8");
-    const actualRelsPath = resolve(
-      actualFileDir,
-      "xl/worksheets/_rels/sheet1.xml.rels"
-    );
-    const actualRels = readFileSync(actualRelsPath, "utf8");
-
-    const expectedObj = parseXml(expectedRels);
-    const actualObj = parseXml(actualRels);
-
-    const expectedRelationships = expectedObj.Relationships.Relationship;
-    expectedRelationships.sort(sortById);
-
-    const actualRelationships = actualObj.Relationships.Relationship;
-    actualRelationships.sort(sortById);
-
-    expect(actualRelationships).toEqual(expectedRelationships);
   });
 });

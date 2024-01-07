@@ -12,7 +12,7 @@ import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
 import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
-import { convNumberToColumn, isInRange } from "./utils";
+import { convColIndexToColName, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 import { strToU8, zipSync } from "fflate";
 
@@ -336,7 +336,9 @@ export function makeSheetViewsXml(
       let result =
         "<sheetViews>" +
         `<sheetView tabSelected="1" workbookViewId="0">` +
-        `<pane xSplit="${freezePane.split}" topLeftCell="${convNumberToColumn(
+        `<pane xSplit="${
+          freezePane.split
+        }" topLeftCell="${convColIndexToColName(
           freezePane.split
         )}1" activePane="topRight" state="frozen"/>` +
         `<selection pane="topRight" activeCell="${dimension.start}" sqref="${dimension.start}"/>` +
@@ -435,8 +437,8 @@ export function getDimension(sheetData: SheetData) {
 
   const spans = getSpansFromSheetData(sheetData);
   const { startNumber, endNumber } = spans;
-  const firstColumn = convNumberToColumn(startNumber - 1);
-  const lastColumn = convNumberToColumn(endNumber - 1);
+  const firstColumn = convColIndexToColName(startNumber - 1);
+  const lastColumn = convColIndexToColName(endNumber - 1);
 
   return {
     start: `${firstColumn}${firstRowNumber}`,
@@ -665,7 +667,7 @@ export function convertCellToXlsxCell(
   xlsxCols: XlsxCol[]
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
-  const column = convNumberToColumn(columnIndex);
+  const column = convColIndexToColName(columnIndex);
 
   switch (cell.type) {
     case "number": {

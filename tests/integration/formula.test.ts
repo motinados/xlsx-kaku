@@ -56,7 +56,6 @@ describe("formula", () => {
 
   test("compare files", async () => {
     const expectedFiles = listFiles(expectedFileDir);
-    console.log("expectedFiles", expectedFiles);
     const actualFiles = listFiles(actualFileDir);
 
     const expectedSubPaths = expectedFiles.map((it) =>

@@ -86,6 +86,13 @@ type XlsxCell =
       cellXfId: number | null;
     }
   | {
+      type: "formula";
+      column: string;
+      rowNumber: number;
+      value: string;
+      cellXfId: number | null;
+    }
+  | {
       type: "merged";
       column: string;
       rowNumber: number;
@@ -754,6 +761,16 @@ export function convertCellToXlsxCell(
         cellXfId: cellXfId,
       };
     }
+    case "formula": {
+      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      return {
+        type: "formula",
+        column: column,
+        rowNumber: rowNumber,
+        value: cell.value,
+        cellXfId: cellXfId,
+      };
+    }
     case "merged": {
       const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
       return {
@@ -793,6 +810,10 @@ export function makeCellXml(cell: XlsxCell) {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
       const v = cell.value ? 1 : 0;
       return `<c r="${cell.column}${cell.rowNumber}"${s} t="b"><v>${v}</v></c>`;
+    }
+    case "formula": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      return `<c r="${cell.column}${cell.rowNumber}"${s}><f>${cell.value}</f></c>`;
     }
     case "merged": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
@@ -923,7 +944,6 @@ function makeWorkbookXml(worksheets: Worksheet[]) {
 
   result +=
     "</sheets>" +
-    '<calcPr calcId="191028"/>' +
     "<extLst>" +
     '<ext uri="{140A7094-0E35-4892-8432-C4D2E57EDEB5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">' +
     '<x15:workbookPr chartTrackingRefBase="1"/>' +

@@ -1,7 +1,7 @@
 {
   "name": "xlsx-kaku",
   "version": "0.5.0",
-  "description": "Nodejs library for writing Excel xlsx files.",
+  "description": "Nodejs library for writing Excel xlsx files.Supports both Client-side and Server-side.",
   "repository": {
     "type": "git",
     "url": "https://github.com/motinados/xlsx-kaku.git"

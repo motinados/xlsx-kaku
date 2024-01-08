@@ -813,7 +813,7 @@ export function makeCellXml(cell: XlsxCell) {
     }
     case "formula": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
-      return `<c r="${cell.column}${cell.rowNumber}"${s} t="str"><f>${cell.value}</f></c>`;
+      return `<c r="${cell.column}${cell.rowNumber}"${s}><f>${cell.value}</f></c>`;
     }
     case "merged": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";

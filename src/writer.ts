@@ -86,6 +86,13 @@ type XlsxCell =
       cellXfId: number | null;
     }
   | {
+      type: "formula";
+      column: string;
+      rowNumber: number;
+      value: string;
+      cellXfId: number | null;
+    }
+  | {
       type: "merged";
       column: string;
       rowNumber: number;
@@ -754,6 +761,16 @@ export function convertCellToXlsxCell(
         cellXfId: cellXfId,
       };
     }
+    case "formula": {
+      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      return {
+        type: "formula",
+        column: column,
+        rowNumber: rowNumber,
+        value: cell.value,
+        cellXfId: cellXfId,
+      };
+    }
     case "merged": {
       const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
       return {
@@ -793,6 +810,10 @@ export function makeCellXml(cell: XlsxCell) {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
       const v = cell.value ? 1 : 0;
       return `<c r="${cell.column}${cell.rowNumber}"${s} t="b"><v>${v}</v></c>`;
+    }
+    case "formula": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      return `<c r="${cell.column}${cell.rowNumber}"${s} t="str"><f>${cell.value}</f></c>`;
     }
     case "merged": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";

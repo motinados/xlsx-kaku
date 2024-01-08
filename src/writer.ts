@@ -944,7 +944,6 @@ function makeWorkbookXml(worksheets: Worksheet[]) {
 
   result +=
     "</sheets>" +
-    '<calcPr calcId="191028"/>' +
     "<extLst>" +
     '<ext uri="{140A7094-0E35-4892-8432-C4D2E57EDEB5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">' +
     '<x15:workbookPr chartTrackingRefBase="1"/>' +

@@ -29,6 +29,21 @@ import { FreezePane, MergeCell } from "../src/worksheet";
 import { Col, DEFAULT_COL_WIDTH, combineColProps } from "../src/col";
 
 describe("Writer", () => {
+  function getStyleMappers() {
+    return {
+      fills: new Fills(),
+      fonts: new Fonts(),
+      borders: new Borders(),
+      numberFormats: new NumberFormats(),
+      sharedStrings: new SharedStrings(),
+      cellStyleXfs: new CellStyleXfs(),
+      cellXfs: new CellXfs(),
+      cellStyles: new CellStyles(),
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
+    };
+  }
+
   test("findFirstNonNullCell", () => {
     const row: RowData = [
       null,
@@ -113,18 +128,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for number", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "number",
       value: 15,
@@ -136,18 +140,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for string", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "string",
       value: "hello",
@@ -161,18 +154,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for date", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "date",
       value: "2020-01-01T00:00:00.000Z",
@@ -184,18 +166,7 @@ describe("Writer", () => {
   });
 
   test("cellToString for Hyperlink", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "hyperlink",
       value: "https://www.google.com",
@@ -229,18 +200,7 @@ describe("Writer", () => {
   });
 
   test("rowToString for number", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const row: RowData = [
       null,
       null,
@@ -254,18 +214,7 @@ describe("Writer", () => {
   });
 
   test("rowToString for string", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const row: RowData = [
       null,
       null,
@@ -282,18 +231,7 @@ describe("Writer", () => {
   });
 
   test("rowToString with height", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
     const result = rowToString(row, 0, 30, 1, 1, styleMappers, []);
     expect(result).toBe(
@@ -307,18 +245,7 @@ describe("Writer", () => {
       [null, null, { type: "number", value: 1 }, { type: "number", value: 2 }],
       [{ type: "number", value: 3 }, { type: "number", value: 4 }, null, null],
     ];
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers, []);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:4"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
@@ -336,18 +263,7 @@ describe("Writer", () => {
         null,
       ],
     ];
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers, []);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:3"><c r="C2" t="s"><v>0</v></c></row><row r="3" spans="1:3"><c r="A3" t="s"><v>1</v></c><c r="B3" t="s"><v>1</v></c></row></sheetData>`
@@ -355,18 +271,7 @@ describe("Writer", () => {
   });
 
   test("makeColsXml for width", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const cols: Col[] = [
       { startIndex: 0, endIndex: 0, width: 10 },
       { startIndex: 1, endIndex: 1, width: 75 },
@@ -382,18 +287,7 @@ describe("Writer", () => {
   });
 
   test("makeColsXml for default width", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const cols: Col[] = [
       { startIndex: 0, endIndex: 0, width: DEFAULT_COL_WIDTH },
     ];
@@ -407,18 +301,7 @@ describe("Writer", () => {
   });
 
   test("makeColsXml for style", () => {
-    const styleMappers = {
-      fills: new Fills(),
-      fonts: new Fonts(),
-      borders: new Borders(),
-      numberFormats: new NumberFormats(),
-      sharedStrings: new SharedStrings(),
-      cellStyleXfs: new CellStyleXfs(),
-      cellXfs: new CellXfs(),
-      cellStyles: new CellStyles(),
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-    };
+    const styleMappers = getStyleMappers();
     const cols: Col[] = [
       {
         startIndex: 0,

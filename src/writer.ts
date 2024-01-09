@@ -100,7 +100,7 @@ type XlsxCell =
     };
 
 export function genXlsx(worksheets: Worksheet[]) {
-  const files = generateXMLFiles(worksheets);
+  const files = generateXMLs(worksheets);
   const zipped = compressXMLs(files);
   return zipped;
 }
@@ -116,7 +116,7 @@ function compressXMLs(files: { filename: string; content: string }[]) {
   return zipped;
 }
 
-function generateXMLFiles(worksheets: Worksheet[]) {
+function generateXMLs(worksheets: Worksheet[]) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -166,7 +166,7 @@ function generateXMLFiles(worksheets: Worksheet[]) {
   return files;
 }
 
-export function createExcelFiles(worksheets: Worksheet[]) {
+function createExcelFiles(worksheets: Worksheet[]) {
   if (worksheets.length === 0) {
     throw new Error("worksheets is empty");
   }

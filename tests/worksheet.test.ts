@@ -65,4 +65,18 @@ describe("worksheet", () => {
       ],
     ]);
   });
+
+  test("setMergeCell", () => {
+    const ws = new Worksheet("Sheet1");
+    const mergeCell = { ref: "A1:B2" };
+    ws.setMergeCell(mergeCell);
+
+    const expectedSheetData = [
+      [{ type: "string", value: "" }, { type: "merged" }],
+      [{ type: "merged" }, { type: "merged" }],
+    ];
+
+    expect(ws.sheetData).toStrictEqual(expectedSheetData);
+    expect(ws.mergeCells).toStrictEqual([mergeCell]);
+  });
 });

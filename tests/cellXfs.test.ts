@@ -1,6 +1,12 @@
 import { CellXfs } from "../src/cellXfs";
 
 describe("Styles", () => {
+  test("getCellXfs", () => {
+    const styles = new CellXfs();
+    expect(styles.count).toBe(1);
+    expect(styles.cellXfs.size).toBe(1);
+  });
+
   test("getStyleId", () => {
     const styles = new CellXfs();
     expect(

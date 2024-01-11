@@ -102,49 +102,55 @@ export class Borders {
     let xml = `<borders count="${this.bordersSize}">`;
 
     // default border
-    xml += "<border>";
-    xml += "<left/>";
-    xml += "<right/>";
-    xml += "<top/>";
-    xml += "<bottom/>";
-    xml += "<diagonal/>";
-    xml += "</border>";
+    xml +=
+      "<border>" +
+      "<left/>" +
+      "<right/>" +
+      "<top/>" +
+      "<bottom/>" +
+      "<diagonal/>" +
+      "</border>";
 
     this.borders.forEach((_, key) => {
       const border = JSON.parse(key) as Border;
       xml += "<border>";
       if (border.left) {
-        xml += `<left style="${border.left.style}">`;
-        xml += `<color rgb="${border.left.color}"/>`;
-        xml += "</left>";
+        xml +=
+          `<left style="${border.left.style}">` +
+          `<color rgb="${border.left.color}"/>` +
+          "</left>";
       } else {
         xml += "<left/>";
       }
       if (border.right) {
-        xml += `<right style="${border.right.style}">`;
-        xml += `<color rgb="${border.right.color}"/>`;
-        xml += "</right>";
+        xml +=
+          `<right style="${border.right.style}">` +
+          `<color rgb="${border.right.color}"/>` +
+          "</right>";
       } else {
         xml += "<right/>";
       }
       if (border.top) {
-        xml += `<top style="${border.top.style}">`;
-        xml += `<color rgb="${border.top.color}"/>`;
-        xml += "</top>";
+        xml +=
+          `<top style="${border.top.style}">` +
+          `<color rgb="${border.top.color}"/>` +
+          "</top>";
       } else {
         xml += "<top/>";
       }
       if (border.bottom) {
-        xml += `<bottom style="${border.bottom.style}">`;
-        xml += `<color rgb="${border.bottom.color}"/>`;
-        xml += "</bottom>";
+        xml +=
+          `<bottom style="${border.bottom.style}">` +
+          `<color rgb="${border.bottom.color}"/>` +
+          "</bottom>";
       } else {
         xml += "<bottom/>";
       }
       if (border.diagonal) {
-        xml += `<diagonal style="${border.diagonal.style}">`;
-        xml += `<color rgb="${border.diagonal.color}"/>`;
-        xml += "</diagonal>";
+        xml +=
+          `<diagonal style="${border.diagonal.style}">` +
+          `<color rgb="${border.diagonal.color}"/>` +
+          "</diagonal>";
       } else {
         xml += "<diagonal/>";
       }

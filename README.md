@@ -8,12 +8,6 @@ It is exclusively for outputting xlsx files and cannot read them.
 It currently only supports minimal functionality.
 Please also see our [Roadmap](https://github.com/motinados/xlsx-kaku/issues/1).
 
-> [!IMPORTANT]  
-> This library is currently in the early stages of development.  
-> We are constantly working to improve and optimize our codebase, which may  
-> lead to changes that are not backward compatible.  
-> We recommend regularly checking the latest change logs and documentation.
-
 ## Installation
 
 ```
@@ -30,18 +24,10 @@ import { Workbook } from "xlsx-kaku";
 
 function main() {
   const wb = new Workbook();
-
   const ws = wb.addWorksheet("Sheet1");
 
   ws.setCell(0, 0, { type: "string", value: "Hello" });
   ws.setCell(0, 1, { type: "number", value: 123 });
-  ws.setCell(1, 0, {
-    type: "date",
-    value: new Date().toISOString(),
-    style: {
-      numberFormat: { formatCode: "yyyy-mm-dd" },
-    },
-  });
 
   const xlsx = wb.generateXlsx();
   writeFileSync("sample.xlsx", xlsx);
@@ -53,12 +39,13 @@ function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-function DownloadButton() {
+export default function DownloadButton() {
   const handleDownload = () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
+
     ws.setCell(0, 0, { type: "string", value: "Hello" });
-    ws.setCell(0, 1, { type: "string", value: "World" });
+    ws.setCell(0, 1, { type: "number", value: 123 });
 
     const xlsx = wb.generateXlsx();
 
@@ -83,7 +70,50 @@ function DownloadButton() {
 }
 ```
 
-### columns
+### Cell
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+function main() {
+  const wb = new Workbook();
+  const ws = wb.addWorksheet("Sheet1");
+
+  // string
+  ws.setCell(0, 0, { type: "string", value: "Hello" });
+  ws.setCell(0, 1, { type: "string", value: "World" });
+
+  // number
+  ws.setCell(1, 0, { type: "number", value: 1 });
+  ws.setCell(1, 1, { type: "number", value: 2 });
+
+  // date
+  ws.setCell(2, 0, {
+    type: "date",
+    value: new Date().toISOString(),
+    style: { numberFormat: { formatCode: "yyyy-mm-dd" } },
+  });
+
+  // hyperlink
+  ws.setCell(3, 0, {
+    type: "hyperlink",
+    value: "https://www.google.com",
+  });
+
+  // boolean
+  ws.setCell(4, 0, { type: "boolean", value: true });
+  ws.setCell(4, 1, { type: "boolean", value: false });
+
+  // formula
+  ws.setCell(5, 0, { type: "number", value: 1 });
+  ws.setCell(5, 1, { type: "number", value: 2 });
+  ws.setCell(5, 2, { type: "formula", value: "SUM(A6:B6)" });
+
+  const xlsx = wb.generateXlsx();
+}
+```
+
+### Column
 
 ```ts
 import { Workbook } from "xlsx-kaku";
@@ -109,7 +139,7 @@ function main() {
 }
 ```
 
-### rows
+### Row
 
 ```ts
 import { Workbook } from "xlsx-kaku";
@@ -135,7 +165,7 @@ function main() {
 }
 ```
 
-### alignment
+### Alignment
 
 ```ts
 import { Workbook } from "xlsx-kaku";
@@ -156,7 +186,7 @@ function main() {
 }
 ```
 
-### merge cells
+### Merge cells
 
 ```ts
 import { Workbook } from "xlsx-kaku";
@@ -174,7 +204,7 @@ function main() {
 }
 ```
 
-### freeze pane
+### Freeze pane
 
 ```ts
 import { Workbook } from "xlsx-kaku";

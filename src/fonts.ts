@@ -50,9 +50,10 @@ export class Fonts {
       if (font.underline) {
         xml += `<u/>`;
       }
-      xml += `<sz val="${font.size}"/>`;
-      xml += `<color rgb="${font.color}"/>`;
-      xml += `<name val="${font.name}"/>`;
+      xml +=
+        `<sz val="${font.size}"/>` +
+        `<color rgb="${font.color}"/>` +
+        `<name val="${font.name}"/>`;
       if (font.family) {
         xml += `<family val="${font.family}"/>`;
       }

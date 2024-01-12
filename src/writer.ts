@@ -15,7 +15,7 @@ import { FreezePane, MergeCell, Worksheet } from "./worksheet";
 import { convColIndexToColName, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 import { strToU8, zipSync } from "fflate";
-import { Row } from "./row";
+import { RowHeight } from "./row";
 
 type StyleMappers = {
   fills: Fills;
@@ -456,7 +456,7 @@ export function getDimension(sheetData: SheetData) {
 
 export function makeSheetDataXml(
   sheetData: SheetData,
-  rows: Row[],
+  rows: RowHeight[],
   styleMappers: StyleMappers,
   xlsxCols: XlsxCol[]
 ) {

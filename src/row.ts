@@ -1,4 +1,4 @@
-export type Row = {
+export type RowHeight = {
   index: number;
   height: number;
 };

@@ -11,10 +11,11 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
+import { FreezePane, MergeCell, Worksheet } from "./worksheet";
 import { convColIndexToColName, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 import { strToU8, zipSync } from "fflate";
+import { Row } from "./row";
 
 type StyleMappers = {
   fills: Fills;

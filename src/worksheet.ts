@@ -1,11 +1,7 @@
 import { Col, ColStyle, ColWidth } from "./col";
+import { Row } from "./row";
 import { NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
-
-export type Row = {
-  index: number;
-  height: number;
-};
 
 export type MergeCell = {
   /**

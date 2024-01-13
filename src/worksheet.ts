@@ -1,5 +1,5 @@
 import { Col, ColStyle, ColWidth } from "./col";
-import { RowHeight } from "./row";
+import { Row, RowHeight, RowStyle } from "./row";
 import { NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
 
@@ -19,7 +19,7 @@ export class Worksheet {
   private _name: string;
   private _sheetData: SheetData = [];
   private _cols: Col[] = [];
-  private _rows: RowHeight[] = [];
+  private _rows: Row[] = [];
   private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
 
@@ -95,6 +95,10 @@ export class Worksheet {
   }
 
   setRowHeight(row: RowHeight) {
+    this._rows.push(row);
+  }
+
+  setRowStyle(row: RowStyle) {
     this._rows.push(row);
   }
 

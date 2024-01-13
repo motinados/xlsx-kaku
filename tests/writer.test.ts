@@ -16,6 +16,7 @@ import {
   makeSheetViewsXml,
   rowToString,
   convRowToXlsxRow,
+  makeSheetFormatPrXml,
 } from "../src/writer";
 import { CellXfs } from "../src/cellXfs";
 import { Fonts } from "../src/fonts";
@@ -28,6 +29,7 @@ import { Hyperlinks } from "../src/hyperlinks";
 import { WorksheetRels } from "../src/worksheetRels";
 import { FreezePane, MergeCell } from "../src/worksheet";
 import { Col, DEFAULT_COL_WIDTH, combineColProps } from "../src/col";
+import { DEFAULT_ROW_HEIGHT } from "../src/row";
 
 describe("Writer", () => {
   function getStyleMappers() {
@@ -419,6 +421,20 @@ describe("Writer", () => {
     const freezePane: FreezePane = { target: "row", split: 1 };
     expect(makeSheetViewsXml(dimension, freezePane)).toBe(
       `<sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane xSplit="1" topLeftCell="B1" activePane="topRight" state="frozen"/><selection pane="topRight" activeCell="A1" sqref="A1"/></sheetView></sheetViews>`
+    );
+  });
+
+  test("makeSheetFormatPrXml", () => {
+    expect(makeSheetFormatPrXml(10, 20)).toBe(
+      `<sheetFormatPr defaultRowHeight="10" defaultColWidth="20"/>`
+    );
+
+    expect(makeSheetFormatPrXml(10, DEFAULT_COL_WIDTH)).toBe(
+      `<sheetFormatPr defaultRowHeight="10"/>`
+    );
+
+    expect(makeSheetFormatPrXml(DEFAULT_ROW_HEIGHT, DEFAULT_COL_WIDTH)).toBe(
+      `<sheetFormatPr defaultRowHeight="${DEFAULT_ROW_HEIGHT}"/>`
     );
   });
 });

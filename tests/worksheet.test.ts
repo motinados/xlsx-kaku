@@ -1,4 +1,5 @@
 import { DEFAULT_COL_WIDTH } from "../src/col";
+import { DEFAULT_ROW_HEIGHT } from "../src/row";
 import { Worksheet } from "../src/worksheet";
 
 describe("worksheet", () => {
@@ -14,10 +15,16 @@ describe("worksheet", () => {
 
   test("get props", () => {
     const ws = new Worksheet("Sheet1");
-    expect(ws.props).toStrictEqual({ defaultColWidth: DEFAULT_COL_WIDTH });
+    expect(ws.props).toStrictEqual({
+      defaultColWidth: DEFAULT_COL_WIDTH,
+      defaultRowHeight: DEFAULT_ROW_HEIGHT,
+    });
 
     const ws2 = new Worksheet("Sheet2", { defaultColWidth: 10 });
-    expect(ws2.props).toStrictEqual({ defaultColWidth: 10 });
+    expect(ws2.props).toStrictEqual({
+      defaultColWidth: 10,
+      defaultRowHeight: DEFAULT_ROW_HEIGHT,
+    });
   });
 
   test("set sheetData", () => {

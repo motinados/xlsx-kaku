@@ -1,5 +1,5 @@
 import { Col, ColStyle, ColWidth, DEFAULT_COL_WIDTH } from "./col";
-import { Row, RowHeight, RowStyle } from "./row";
+import { DEFAULT_ROW_HEIGHT, Row, RowHeight, RowStyle } from "./row";
 import { NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
 
@@ -16,24 +16,28 @@ export type FreezePane = {
 };
 
 export type WorksheetProps = {
-  defaultColWidth: number;
+  defaultColWidth?: number;
+  defaultRowHeight?: number;
 };
+
+type RequiredWorksheetProps = Required<WorksheetProps>;
 
 export class Worksheet {
   private _name: string;
-  private _props: WorksheetProps;
+  private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
   private _cols: Col[] = [];
   private _rows: Row[] = [];
   private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
 
-  constructor(
-    name: string,
-    props: WorksheetProps = { defaultColWidth: DEFAULT_COL_WIDTH }
-  ) {
+  constructor(name: string, props: WorksheetProps | undefined = {}) {
     this._name = name;
-    this._props = props;
+
+    this._props = {
+      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    };
   }
 
   get name() {

@@ -1,15 +1,15 @@
 import { genXlsx } from "./writer";
-import { Worksheet } from "./worksheet";
+import { Worksheet, WorksheetProps } from "./worksheet";
 
 export class Workbook {
   private _worksheets: Worksheet[] = [];
 
-  addWorksheet(sheetName: string) {
+  addWorksheet(sheetName: string, props?: WorksheetProps) {
     if (this._worksheets.some((ws) => ws.name === sheetName)) {
       throw new Error(`Worksheet name "${sheetName}" is already used.`);
     }
 
-    const ws = new Worksheet(sheetName);
+    const ws = new Worksheet(sheetName, props);
     this._worksheets.push(ws);
     return ws;
   }

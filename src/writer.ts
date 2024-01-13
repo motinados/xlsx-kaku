@@ -216,8 +216,8 @@ function createExcelFiles(worksheets: Worksheet[]) {
     const dimension = getDimension(sheetData);
     const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
     const shhetFormatPrXML = makeSheetFormatPrXml(
-      defaultColWidth,
-      defaultRowHeight
+      defaultRowHeight,
+      defaultColWidth
     );
     const sheetXml = makeSheetXml(
       colsXml,
@@ -402,8 +402,8 @@ export function makeSheetViewsXml(
 }
 
 export function makeSheetFormatPrXml(
-  defaultColWidth: number,
-  defaultRowHeight: number
+  defaultRowHeight: number,
+  defaultColWidth: number
 ) {
   // There should be no issue with always the defaultColWidth,
   // but due to differences in integration tests with files created in Online Excel,

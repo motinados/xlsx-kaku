@@ -336,9 +336,9 @@ describe("Writer", () => {
     ];
 
     const xlsxCols = combineColProps(cols).map((col) =>
-      convertCombinedColToXlsxCol(col, styleMappers)
+      convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
     );
-    expect(makeColsXml(xlsxCols)).toBe(
+    expect(makeColsXml(xlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
     );
   });
@@ -350,9 +350,9 @@ describe("Writer", () => {
     ];
 
     const xlsxCols = combineColProps(cols).map((col) =>
-      convertCombinedColToXlsxCol(col, styleMappers)
+      convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
     );
-    expect(makeColsXml(xlsxCols)).toBe(
+    expect(makeColsXml(xlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}"/></cols>`
     );
   });
@@ -380,9 +380,9 @@ describe("Writer", () => {
     ];
 
     const xlsxCols = combineColProps(cols).map((col) =>
-      convertCombinedColToXlsxCol(col, styleMappers)
+      convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
     );
-    expect(makeColsXml(xlsxCols)).toBe(
+    expect(makeColsXml(xlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}" style="1"/><col min="2" max="3" width="25" customWidth="1" style="2"/></cols>`
     );
   });

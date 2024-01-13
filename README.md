@@ -70,47 +70,57 @@ export default function DownloadButton() {
 }
 ```
 
+### Worksheet
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
+
+// Set default coloum width
+const ws = wb.addWorksheet("Sheet2", { defaultColWidth: 30 });
+```
+
 ### Cell
 
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-function main() {
-  const wb = new Workbook();
-  const ws = wb.addWorksheet("Sheet1");
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
 
-  // string
-  ws.setCell(0, 0, { type: "string", value: "Hello" });
-  ws.setCell(0, 1, { type: "string", value: "World" });
+// string
+ws.setCell(0, 0, { type: "string", value: "Hello" });
+ws.setCell(0, 1, { type: "string", value: "World" });
 
-  // number
-  ws.setCell(1, 0, { type: "number", value: 1 });
-  ws.setCell(1, 1, { type: "number", value: 2 });
+// number
+ws.setCell(1, 0, { type: "number", value: 1 });
+ws.setCell(1, 1, { type: "number", value: 2 });
 
-  // date
-  ws.setCell(2, 0, {
-    type: "date",
-    value: new Date().toISOString(),
-    style: { numberFormat: { formatCode: "yyyy-mm-dd" } },
-  });
+// date
+ws.setCell(2, 0, {
+  type: "date",
+  value: new Date().toISOString(),
+  style: { numberFormat: { formatCode: "yyyy-mm-dd" } },
+});
 
-  // hyperlink
-  ws.setCell(3, 0, {
-    type: "hyperlink",
-    value: "https://www.google.com",
-  });
+// hyperlink
+ws.setCell(3, 0, {
+  type: "hyperlink",
+  value: "https://www.google.com",
+});
 
-  // boolean
-  ws.setCell(4, 0, { type: "boolean", value: true });
-  ws.setCell(4, 1, { type: "boolean", value: false });
+// boolean
+ws.setCell(4, 0, { type: "boolean", value: true });
+ws.setCell(4, 1, { type: "boolean", value: false });
 
-  // formula
-  ws.setCell(5, 0, { type: "number", value: 1 });
-  ws.setCell(5, 1, { type: "number", value: 2 });
-  ws.setCell(5, 2, { type: "formula", value: "SUM(A6:B6)" });
+// formula
+ws.setCell(5, 0, { type: "number", value: 1 });
+ws.setCell(5, 1, { type: "number", value: 2 });
+ws.setCell(5, 2, { type: "formula", value: "SUM(A6:B6)" });
 
-  const xlsx = wb.generateXlsx();
-}
+const xlsx = wb.generateXlsx();
 ```
 
 ### Column
@@ -118,25 +128,23 @@ function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-function main() {
-  const wb = new Workbook();
-  const ws = wb.addWorksheet("Sheet1");
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
 
-  // The width of only column A will be changed.
-  ws.setColWidth({ startIndex: 0, endIndex: 0, width: 12 });
+// The width of only column A will be changed.
+ws.setColWidth({ startIndex: 0, endIndex: 0, width: 12 });
 
-  // The width of columns B to C will be changed.
-  ws.setColWidth({ startIndex: 1, endIndex: 2, width: 24 });
+// The width of columns B to C will be changed.
+ws.setColWidth({ startIndex: 1, endIndex: 2, width: 24 });
 
-  // The style of column D will be changed.
-  ws.setColStyle({
-    startIndex: 3,
-    endIndex: 3,
-    style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
-  });
+// The style of column D will be changed.
+ws.setColStyle({
+  startIndex: 3,
+  endIndex: 3,
+  style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+});
 
-  const xlsx = wb.generateXlsx();
-}
+const xlsx = wb.generateXlsx();
 ```
 
 ### Row
@@ -144,31 +152,29 @@ function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-function main() {
-  const wb = new Workbook();
-  const ws = wb.addWorksheet("Sheet1");
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
 
-  ws.setCell(0, 0, { type: "number", value: 1 });
-  ws.setCell(1, 0, { type: "number", value: 2 });
-  ws.setCell(2, 0, { type: "number", value: 3 });
-  ws.setCell(3, 0, { type: "number", value: 4 });
+ws.setCell(0, 0, { type: "number", value: 1 });
+ws.setCell(1, 0, { type: "number", value: 2 });
+ws.setCell(2, 0, { type: "number", value: 3 });
+ws.setCell(3, 0, { type: "number", value: 4 });
 
-  // Change the height of the first row.
-  ws.setRowHeight({ index: 0, height: 20.25 });
+// Change the height of the first row.
+ws.setRowHeight({ index: 0, height: 20.25 });
 
-  // Unlike column width, it is necessary to set each row individually.
-  ws.setRowHeight({ index: 1, height: 39.75 });
-  ws.setRowHeight({ index: 2, height: 39.75 });
-  ws.setRowHeight({ index: 3, height: 39.75 });
+// Unlike column width, it is necessary to set each row individually.
+ws.setRowHeight({ index: 1, height: 39.75 });
+ws.setRowHeight({ index: 2, height: 39.75 });
+ws.setRowHeight({ index: 3, height: 39.75 });
 
-  // Change the color of the third row.
-  ws.setRowStyle({
-    index: 2,
-    style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
-  });
+// Change the color of the third row.
+ws.setRowStyle({
+  index: 2,
+  style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+});
 
-  const xlsx = wb.generateXlsx();
-}
+const xlsx = wb.generateXlsx();
 ```
 
 ### Alignment
@@ -176,20 +182,18 @@ function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-function main() {
-  const wb = new Workbook();
-  const ws = wb.addWorksheet("Sheet1");
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
 
-  ws.setCell(0, 0, {
-    type: "number",
-    value: 12,
-    style: {
-      alignment: { horizontal: "center", vertical: "top", textRotation: 90 },
-    },
-  });
+ws.setCell(0, 0, {
+  type: "number",
+  value: 12,
+  style: {
+    alignment: { horizontal: "center", vertical: "top", textRotation: 90 },
+  },
+});
 
-  const xlsx = wb.generateXlsx();
-}
+const xlsx = wb.generateXlsx();
 ```
 
 ### Merge cells
@@ -197,17 +201,15 @@ function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-function main() {
-  const wb = new Workbook();
-  const ws = wb.addWorksheet("Sheet1");
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
 
-  ws.setCell(0, 0, { type: "number", value: 1 });
-  ws.setCell(1, 0, { type: "number", value: 2 });
-  ws.setMergeCell({ ref: "A1:C1" });
-  ws.setMergeCell({ ref: "A2:A4" });
+ws.setCell(0, 0, { type: "number", value: 1 });
+ws.setCell(1, 0, { type: "number", value: 2 });
+ws.setMergeCell({ ref: "A1:C1" });
+ws.setMergeCell({ ref: "A2:A4" });
 
-  const xlsx = wb.generateXlsx();
-}
+const xlsx = wb.generateXlsx();
 ```
 
 ### Freeze pane
@@ -215,21 +217,19 @@ function main() {
 ```ts
 import { Workbook } from "xlsx-kaku";
 
-function main() {
-  const wb = new Workbook();
-  const ws = wb.addWorksheet("Sheet1");
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
 
-  ws.setCell(0, 0, { type: "number", value: 1 });
-  ws.setCell(0, 1, { type: "number", value: 2 });
-  ws.setCell(1, 0, { type: "number", value: 3 });
-  ws.setCell(1, 1, { type: "number", value: 4 });
+ws.setCell(0, 0, { type: "number", value: 1 });
+ws.setCell(0, 1, { type: "number", value: 2 });
+ws.setCell(1, 0, { type: "number", value: 3 });
+ws.setCell(1, 1, { type: "number", value: 4 });
 
-  // the first row will be fixed.
-  ws.setFreezePane({ target: "row", split: 1 });
+// the first row will be fixed.
+ws.setFreezePane({ target: "row", split: 1 });
 
-  // Column A will be fixed.
-  // ws.setFreezePane({ target: "column", split: 1 });
+// Column A will be fixed.
+// ws.setFreezePane({ target: "column", split: 1 });
 
-  const xlsx = wb.generateXlsx();
-}
+const xlsx = wb.generateXlsx();
 ```

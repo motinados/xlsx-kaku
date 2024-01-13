@@ -63,8 +63,8 @@ describe("row style", () => {
 
   afterAll(() => {
     rmSync(outputDir, { recursive: true });
-    // rmSync(expectedUnzippedDir, { recursive: true });
-    // rmSync(actualUnzippedDir, { recursive: true });
+    rmSync(expectedUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -233,10 +233,6 @@ describe("row style", () => {
 
     const expectedObj = parseXml(expectedXml);
     const actualObj = parseXml(actualXml);
-
-    // It may be a problem-free difference.
-    deletePropertyFromObject(expectedObj, "worksheet.dimension.@_ref");
-    deletePropertyFromObject(actualObj, "worksheet.dimension.@_ref");
 
     // It should be a problem-free difference.
     deletePropertyFromObject(

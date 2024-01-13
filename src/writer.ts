@@ -40,6 +40,11 @@ type XlsxCol = {
   cellXfId: number | null;
 };
 
+type XlsxRow = {
+  index: number;
+  height: number | null;
+};
+
 type XlsxCellStyle = {
   fontId: number;
   fillId: number;
@@ -192,13 +197,14 @@ function createExcelFiles(worksheets: Worksheet[]) {
     const xlsxCols = combineColProps(worksheet.cols).map((col) =>
       convertCombinedColToXlsxCol(col, styleMappers)
     );
+    const xlsxRows = worksheet.rows.map((row) => convRowToXlsxRow(row));
     const colsXml = makeColsXml(xlsxCols);
     const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
       sheetData,
-      worksheet.rows,
       styleMappers,
-      xlsxCols
+      xlsxCols,
+      xlsxRows
     );
     const dimension = getDimension(sheetData);
     const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
@@ -264,6 +270,13 @@ export function convertCombinedColToXlsxCol(
     width: col.width ?? DEFAULT_COL_WIDTH,
     customWidth: col.width !== undefined && col.width !== DEFAULT_COL_WIDTH,
     cellXfId: cellXfId,
+  };
+}
+
+export function convRowToXlsxRow(row: RowHeight): XlsxRow {
+  return {
+    index: row.index,
+    height: row.height,
   };
 }
 
@@ -456,16 +469,18 @@ export function getDimension(sheetData: SheetData) {
 
 export function makeSheetDataXml(
   sheetData: SheetData,
-  rows: RowHeight[],
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
 
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
-    const rowHeight = rows.find((it) => it.index === rowIndex)?.height ?? null;
+    const rowHeight =
+      xlsxRows.find((it) => it.index === rowIndex)?.height ?? null;
+
     const str = rowToString(
       row,
       rowIndex,

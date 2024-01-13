@@ -246,7 +246,7 @@ describe("Writer", () => {
       [{ type: "number", value: 3 }, { type: "number", value: 4 }, null, null],
     ];
     const styleMappers = getStyleMappers();
-    const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers, []);
+    const sheetDataXml = makeSheetDataXml(sheetData, styleMappers, [], []);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:4"><c r="C2"><v>1</v></c><c r="D2"><v>2</v></c></row><row r="3" spans="1:4"><c r="A3"><v>3</v></c><c r="B3"><v>4</v></c></row></sheetData>`
     );
@@ -264,7 +264,7 @@ describe("Writer", () => {
       ],
     ];
     const styleMappers = getStyleMappers();
-    const sheetDataXml = makeSheetDataXml(sheetData, [], styleMappers, []);
+    const sheetDataXml = makeSheetDataXml(sheetData, styleMappers, [], []);
     expect(sheetDataXml).toBe(
       `<sheetData><row r="2" spans="1:3"><c r="C2" t="s"><v>0</v></c></row><row r="3" spans="1:3"><c r="A3" t="s"><v>1</v></c><c r="B3" t="s"><v>1</v></c></row></sheetData>`
     );

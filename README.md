@@ -161,6 +161,12 @@ function main() {
   ws.setRowHeight({ index: 2, height: 39.75 });
   ws.setRowHeight({ index: 3, height: 39.75 });
 
+  // Change the color of the third row.
+  ws.setRowStyle({
+    index: 2,
+    style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+  });
+
   const xlsx = wb.generateXlsx();
 }
 ```

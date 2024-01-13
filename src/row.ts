@@ -18,6 +18,8 @@ export type CombinedRow = {
   style?: CellStyle;
 };
 
+export const DEFAULT_ROW_HEIGHT = 13.5;
+
 export function combineRowProps(rows: Row[]): CombinedRow[] {
   const combinedRows: CombinedRow[] = [];
   for (const row of rows) {

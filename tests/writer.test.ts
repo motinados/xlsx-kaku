@@ -15,6 +15,7 @@ import {
   makeSheetDataXml,
   makeSheetViewsXml,
   rowToString,
+  convRowToXlsxRow,
 } from "../src/writer";
 import { CellXfs } from "../src/cellXfs";
 import { Fonts } from "../src/fonts";
@@ -207,7 +208,7 @@ describe("Writer", () => {
       { type: "number", value: 15 },
       { type: "number", value: 23 },
     ];
-    const result = rowToString(row, 0, null, 3, 4, styleMappers, []);
+    const result = rowToString(row, 0, 3, 4, styleMappers, [], []);
     expect(result).toBe(
       `<row r="1" spans="3:4"><c r="C1"><v>15</v></c><c r="D1"><v>23</v></c></row>`
     );
@@ -222,7 +223,7 @@ describe("Writer", () => {
       { type: "string", value: "world" },
       { type: "string", value: "hello" },
     ];
-    const result = rowToString(row, 0, null, 3, 5, styleMappers, []);
+    const result = rowToString(row, 0, 3, 5, styleMappers, [], []);
     expect(result).toBe(
       `<row r="1" spans="3:5"><c r="C1" t="s"><v>0</v></c><c r="D1" t="s"><v>1</v></c><c r="E1" t="s"><v>0</v></c></row>`
     );
@@ -233,9 +234,65 @@ describe("Writer", () => {
   test("rowToString with height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
-    const result = rowToString(row, 0, 30, 1, 1, styleMappers, []);
+    const result = rowToString(
+      row,
+      0,
+      1,
+      1,
+      styleMappers,
+      [],
+      [convRowToXlsxRow({ index: 0, height: 30 }, styleMappers)]
+    );
     expect(result).toBe(
       `<row r="1" spans="1:1" ht="30" customHeight="1"><c r="A1"><v>10</v></c></row>`
+    );
+  });
+
+  test("rowToString with style", () => {
+    const styleMappers = getStyleMappers();
+    const row: RowData = [{ type: "number", value: 10 }];
+    const result = rowToString(
+      row,
+      0,
+      1,
+      1,
+      styleMappers,
+      [],
+      [
+        convRowToXlsxRow(
+          { index: 0, style: { alignment: { horizontal: "center" } } },
+          styleMappers
+        ),
+      ]
+    );
+    expect(result).toBe(
+      `<row r="1" spans="1:1" s="1" customFormat="1"><c r="A1"><v>10</v></c></row>`
+    );
+  });
+
+  test("rowToString with style and height", () => {
+    const styleMappers = getStyleMappers();
+    const row: RowData = [{ type: "number", value: 10 }];
+    const result = rowToString(
+      row,
+      0,
+      1,
+      1,
+      styleMappers,
+      [],
+      [
+        convRowToXlsxRow(
+          {
+            index: 0,
+            height: 30,
+            style: { alignment: { horizontal: "center" } },
+          },
+          styleMappers
+        ),
+      ]
+    );
+    expect(result).toBe(
+      `<row r="1" spans="1:1" s="1" customFormat="1" ht="30" customHeight="1"><c r="A1"><v>10</v></c></row>`
     );
   });
 

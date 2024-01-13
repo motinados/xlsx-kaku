@@ -15,7 +15,7 @@ import { FreezePane, MergeCell, Worksheet } from "./worksheet";
 import { convColIndexToColName, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 import { strToU8, zipSync } from "fflate";
-import { RowHeight } from "./row";
+import { CombinedRow, DEFAULT_ROW_HEIGHT, combineRowProps } from "./row";
 
 type StyleMappers = {
   fills: Fills;
@@ -41,8 +41,11 @@ type XlsxCol = {
 };
 
 type XlsxRow = {
+  /** e.g. rows[0] is 0 */
   index: number;
-  height: number | null;
+  height: number;
+  customHeight: boolean;
+  cellXfId: number | null;
 };
 
 type XlsxCellStyle = {
@@ -197,7 +200,9 @@ function createExcelFiles(worksheets: Worksheet[]) {
     const xlsxCols = combineColProps(worksheet.cols).map((col) =>
       convertCombinedColToXlsxCol(col, styleMappers)
     );
-    const xlsxRows = worksheet.rows.map((row) => convRowToXlsxRow(row));
+    const xlsxRows = combineRowProps(worksheet.rows).map((row) =>
+      convRowToXlsxRow(row, styleMappers)
+    );
     const colsXml = makeColsXml(xlsxCols);
     const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
@@ -273,10 +278,24 @@ export function convertCombinedColToXlsxCol(
   };
 }
 
-export function convRowToXlsxRow(row: RowHeight): XlsxRow {
+export function convRowToXlsxRow(
+  row: CombinedRow,
+  styleMappers: StyleMappers
+): XlsxRow {
+  let cellXfId: number | null = null;
+  if (row.style) {
+    const style = composeXlsxCellStyle(row.style, styleMappers);
+    if (style === null) {
+      throw new Error("style is null");
+    }
+    cellXfId = styleMappers.cellXfs.getCellXfId(style);
+  }
+
   return {
     index: row.index,
-    height: row.height,
+    height: row.height ?? DEFAULT_ROW_HEIGHT,
+    customHeight: row.height !== undefined && row.height !== DEFAULT_ROW_HEIGHT,
+    cellXfId: cellXfId,
   };
 }
 
@@ -478,17 +497,14 @@ export function makeSheetDataXml(
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
-    const rowHeight =
-      xlsxRows.find((it) => it.index === rowIndex)?.height ?? null;
-
     const str = rowToString(
       row,
       rowIndex,
-      rowHeight,
       startNumber,
       endNumber,
       styleMappers,
-      xlsxCols
+      xlsxCols,
+      xlsxRows
     );
     if (str !== null) {
       result += str;
@@ -505,11 +521,11 @@ export function makeSheetDataXml(
 export function rowToString(
   row: RowData,
   rowIndex: number,
-  rowHeight: number | null,
   startNumber: number,
   endNumber: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -517,9 +533,19 @@ export function rowToString(
 
   const rowNumber = rowIndex + 1;
 
-  let result = rowHeight
-    ? `<row r="${rowNumber}" spans="${startNumber}:${endNumber}" ht="${rowHeight}" customHeight="1">`
-    : `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
+  let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}"`;
+
+  const xlsxRow = xlsxRows.find((it) => it.index === rowIndex);
+  if (xlsxRow) {
+    if (xlsxRow.cellXfId) {
+      result += ` s="${xlsxRow.cellXfId}" customFormat="1"`;
+    }
+
+    if (xlsxRow.height && xlsxRow.customHeight) {
+      result += ` ht="${xlsxRow.height}" customHeight="1"`;
+    }
+  }
+  result += ">";
 
   let columnIndex = 0;
   for (const cell of row) {

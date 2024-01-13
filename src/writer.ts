@@ -197,6 +197,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
   const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
     const defaultColWidth = worksheet.props.defaultColWidth;
+    const defaultRowHeight = worksheet.props.defaultRowHeight;
     const sheetData = worksheet.sheetData;
     const xlsxCols = combineColProps(worksheet.cols).map((col) =>
       convertCombinedColToXlsxCol(col, styleMappers, defaultColWidth)
@@ -221,6 +222,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
       mergeCellsXml,
       dimension,
       defaultColWidth,
+      defaultRowHeight,
       styleMappers.hyperlinks
     );
     sheetXmls.push(sheetXml);
@@ -403,6 +405,7 @@ export function makeSheetXml(
   mergeCellsXml: string,
   dimension: { start: string; end: string },
   defaultColWidth: number,
+  defaultRowHeight: number,
   hyperlinks: Hyperlinks
 ) {
   // There should be no issue with always the defaultColWidth,
@@ -410,8 +413,8 @@ export function makeSheetXml(
   // we deliberately avoid adding it when it's the same value as DEFAULT_COL_WIDTH.
   const shhetFormatPrXML =
     defaultColWidth === DEFAULT_COL_WIDTH
-      ? `<sheetFormatPr defaultRowHeight="13.5"/>`
-      : `<sheetFormatPr defaultRowHeight="13.5" defaultColWidth="${defaultColWidth}"/>`;
+      ? `<sheetFormatPr defaultRowHeight="${defaultRowHeight}"/>`
+      : `<sheetFormatPr defaultRowHeight="${defaultRowHeight}" defaultColWidth="${defaultColWidth}"/>`;
 
   let result =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +

@@ -196,14 +196,15 @@ function createExcelFiles(worksheets: Worksheet[]) {
   const sheetXmls: string[] = [];
   const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
+    const defaultColWidth = worksheet.props.defaultColWidth;
     const sheetData = worksheet.sheetData;
     const xlsxCols = combineColProps(worksheet.cols).map((col) =>
-      convertCombinedColToXlsxCol(col, styleMappers)
+      convertCombinedColToXlsxCol(col, styleMappers, defaultColWidth)
     );
     const xlsxRows = combineRowProps(worksheet.rows).map((row) =>
       convRowToXlsxRow(row, styleMappers)
     );
-    const colsXml = makeColsXml(xlsxCols);
+    const colsXml = makeColsXml(xlsxCols, defaultColWidth);
     const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
       sheetData,
@@ -219,6 +220,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
       sheetDataXml,
       mergeCellsXml,
       dimension,
+      defaultColWidth,
       styleMappers.hyperlinks
     );
     sheetXmls.push(sheetXml);
@@ -258,7 +260,8 @@ function createExcelFiles(worksheets: Worksheet[]) {
 
 export function convertCombinedColToXlsxCol(
   col: CombinedCol,
-  mappers: StyleMappers
+  mappers: StyleMappers,
+  defaultWidth: number
 ): XlsxCol {
   let cellXfId: number | null = null;
   if (col.style) {
@@ -272,8 +275,8 @@ export function convertCombinedColToXlsxCol(
   return {
     min: col.startIndex + 1,
     max: col.endIndex + 1,
-    width: col.width ?? DEFAULT_COL_WIDTH,
-    customWidth: col.width !== undefined && col.width !== DEFAULT_COL_WIDTH,
+    width: col.width ?? defaultWidth,
+    customWidth: col.width !== undefined && col.width !== defaultWidth,
     cellXfId: cellXfId,
   };
 }
@@ -299,7 +302,7 @@ export function convRowToXlsxRow(
   };
 }
 
-export function makeColsXml(cols: XlsxCol[]): string {
+export function makeColsXml(cols: XlsxCol[], defaultColWidth: number): string {
   if (cols.length === 0) {
     return "";
   }
@@ -311,7 +314,7 @@ export function makeColsXml(cols: XlsxCol[]): string {
     if (col.customWidth) {
       result += ` width="${col.width}" customWidth="1"`;
     } else {
-      result += ` width="${DEFAULT_COL_WIDTH}"`;
+      result += ` width="${defaultColWidth}"`;
     }
 
     if (col.cellXfId) {
@@ -399,14 +402,23 @@ export function makeSheetXml(
   sheetDataString: string,
   mergeCellsXml: string,
   dimension: { start: string; end: string },
+  defaultColWidth: number,
   hyperlinks: Hyperlinks
 ) {
+  // There should be no issue with always the defaultColWidth,
+  // but due to differences in integration tests with files created in Online Excel,
+  // we deliberately avoid adding it when it's the same value as DEFAULT_COL_WIDTH.
+  const shhetFormatPrXML =
+    defaultColWidth === DEFAULT_COL_WIDTH
+      ? `<sheetFormatPr defaultRowHeight="13.5"/>`
+      : `<sheetFormatPr defaultRowHeight="13.5" defaultColWidth="${defaultColWidth}"/>`;
+
   let result =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">' +
     `<dimension ref="${dimension.start}:${dimension.end}"/>` +
     sheetViewsXml +
-    '<sheetFormatPr defaultRowHeight="13.5"/>' +
+    shhetFormatPrXML +
     colsXml +
     sheetDataString;
 

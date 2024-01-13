@@ -556,7 +556,8 @@ export function rowToString(
           columnIndex,
           rowIndex,
           styleMappers,
-          xlsxCols
+          xlsxCols,
+          xlsxRows
         )
       );
     }
@@ -692,8 +693,10 @@ export function composeXlsxCellStyle(
 function getCellXfId(
   cell: Cell,
   column: string,
+  rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ) {
   const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
   if (composedStyle) {
@@ -705,6 +708,11 @@ function getCellXfId(
     return foundCol.cellXfId;
   }
 
+  const foundRow = xlsxRows.find((it) => it.index === rowIndex);
+  if (foundRow) {
+    return foundRow.cellXfId;
+  }
+
   return null;
 }
 
@@ -713,14 +721,22 @@ export function convertCellToXlsxCell(
   columnIndex: number,
   rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
   const column = convColIndexToColName(columnIndex);
 
   switch (cell.type) {
     case "number": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "number",
         column: column,
@@ -730,7 +746,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "string": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
       return {
         type: "string",
@@ -743,7 +766,14 @@ export function convertCellToXlsxCell(
     }
     case "date": {
       assignDateStyleIfUndefined(cell);
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "date",
         column: column,
@@ -794,7 +824,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "boolean": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "boolean",
         column: column,
@@ -804,7 +841,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "formula": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "formula",
         column: column,
@@ -814,7 +858,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "merged": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "merged",
         column: column,

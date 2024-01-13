@@ -135,7 +135,7 @@ describe("Writer", () => {
       value: 15,
     };
     const result = makeCellXml(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [], [])
     );
     expect(result).toBe(`<c r="C1"><v>15</v></c>`);
   });
@@ -147,7 +147,7 @@ describe("Writer", () => {
       value: "hello",
     };
     const result = makeCellXml(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [], [])
     );
     expect(result).toBe(`<c r="C1" t="s"><v>0</v></c>`);
     expect(styleMappers.sharedStrings.count).toBe(1);
@@ -161,7 +161,7 @@ describe("Writer", () => {
       value: "2020-01-01T00:00:00.000Z",
     };
     const result = makeCellXml(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [], [])
     );
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
@@ -173,7 +173,7 @@ describe("Writer", () => {
       value: "https://www.google.com",
     };
     const result = makeCellXml(
-      convertCellToXlsxCell(cell, 2, 0, styleMappers, [])
+      convertCellToXlsxCell(cell, 2, 0, styleMappers, [], [])
     );
     expect(result).toBe(`<c r="C1" s="1" t="s"><v>0</v></c>`);
 
@@ -266,7 +266,7 @@ describe("Writer", () => {
       ]
     );
     expect(result).toBe(
-      `<row r="1" spans="1:1" s="1" customFormat="1"><c r="A1"><v>10</v></c></row>`
+      `<row r="1" spans="1:1" s="1" customFormat="1"><c r="A1" s="1"><v>10</v></c></row>`
     );
   });
 
@@ -292,7 +292,7 @@ describe("Writer", () => {
       ]
     );
     expect(result).toBe(
-      `<row r="1" spans="1:1" s="1" customFormat="1" ht="30" customHeight="1"><c r="A1"><v>10</v></c></row>`
+      `<row r="1" spans="1:1" s="1" customFormat="1" ht="30" customHeight="1"><c r="A1" s="1"><v>10</v></c></row>`
     );
   });
 

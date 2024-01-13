@@ -215,14 +215,17 @@ function createExcelFiles(worksheets: Worksheet[]) {
     );
     const dimension = getDimension(sheetData);
     const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
+    const shhetFormatPrXML = makeSheetFormatPrXml(
+      defaultColWidth,
+      defaultRowHeight
+    );
     const sheetXml = makeSheetXml(
       colsXml,
       sheetViewsXml,
+      shhetFormatPrXML,
       sheetDataXml,
       mergeCellsXml,
       dimension,
-      defaultColWidth,
-      defaultRowHeight,
       styleMappers.hyperlinks
     );
     sheetXmls.push(sheetXml);
@@ -398,15 +401,9 @@ export function makeSheetViewsXml(
   }
 }
 
-export function makeSheetXml(
-  colsXml: string,
-  sheetViewsXml: string,
-  sheetDataString: string,
-  mergeCellsXml: string,
-  dimension: { start: string; end: string },
+export function makeSheetFormatPrXml(
   defaultColWidth: number,
-  defaultRowHeight: number,
-  hyperlinks: Hyperlinks
+  defaultRowHeight: number
 ) {
   // There should be no issue with always the defaultColWidth,
   // but due to differences in integration tests with files created in Online Excel,
@@ -416,12 +413,24 @@ export function makeSheetXml(
       ? `<sheetFormatPr defaultRowHeight="${defaultRowHeight}"/>`
       : `<sheetFormatPr defaultRowHeight="${defaultRowHeight}" defaultColWidth="${defaultColWidth}"/>`;
 
+  return shhetFormatPrXML;
+}
+
+export function makeSheetXml(
+  colsXml: string,
+  sheetViewsXml: string,
+  sheetFormatPrXml: string,
+  sheetDataString: string,
+  mergeCellsXml: string,
+  dimension: { start: string; end: string },
+  hyperlinks: Hyperlinks
+) {
   let result =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">' +
     `<dimension ref="${dimension.start}:${dimension.end}"/>` +
     sheetViewsXml +
-    shhetFormatPrXML +
+    sheetFormatPrXml +
     colsXml +
     sheetDataString;
 

@@ -572,11 +572,7 @@ export function rowToString(
 export function getSpansFromSheetData(sheetData: SheetData) {
   const all = sheetData
     .map((row) => {
-      const spans = getSpans(row);
-      if (spans === null) {
-        return null;
-      }
-      return spans;
+      return getSpans(row);
     })
     .filter((row) => row !== null) as {
     startNumber: number;

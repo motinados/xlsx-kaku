@@ -74,7 +74,14 @@ export function expandRange(range: string): [number, number][] {
   return result;
 }
 
-export function isInRange(column: string, min: number, max: number) {
-  const columnNumber = convColNameToColIndex(column) + 1;
+/**
+ * column name is in range
+ * @param colName target column name. e.g. "A"
+ * @param min min column number. It is 1 in the case of "A:C".
+ * @param max max column number. It is 3 in the case of "A:C".
+ * @returns
+ */
+export function isInRange(colName: string, min: number, max: number) {
+  const columnNumber = convColNameToColIndex(colName) + 1;
   return columnNumber >= min && columnNumber <= max;
 }

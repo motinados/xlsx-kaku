@@ -1,11 +1,7 @@
 import { Col, ColStyle, ColWidth } from "./col";
+import { Row, RowHeight, RowStyle } from "./row";
 import { NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
-
-export type Row = {
-  index: number;
-  height: number;
-};
 
 export type MergeCell = {
   /**
@@ -98,7 +94,11 @@ export class Worksheet {
     this._cols.push(colStyle);
   }
 
-  setRowHeight(row: Row) {
+  setRowHeight(row: RowHeight) {
+    this._rows.push(row);
+  }
+
+  setRowStyle(row: RowStyle) {
     this._rows.push(row);
   }
 

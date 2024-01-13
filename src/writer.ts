@@ -11,10 +11,11 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
+import { FreezePane, MergeCell, Worksheet } from "./worksheet";
 import { convColIndexToColName, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 import { strToU8, zipSync } from "fflate";
+import { CombinedRow, DEFAULT_ROW_HEIGHT, combineRowProps } from "./row";
 
 type StyleMappers = {
   fills: Fills;
@@ -36,6 +37,14 @@ type XlsxCol = {
   max: number;
   width: number;
   customWidth: boolean;
+  cellXfId: number | null;
+};
+
+type XlsxRow = {
+  /** e.g. rows[0] is 0 */
+  index: number;
+  height: number;
+  customHeight: boolean;
   cellXfId: number | null;
 };
 
@@ -191,13 +200,16 @@ function createExcelFiles(worksheets: Worksheet[]) {
     const xlsxCols = combineColProps(worksheet.cols).map((col) =>
       convertCombinedColToXlsxCol(col, styleMappers)
     );
+    const xlsxRows = combineRowProps(worksheet.rows).map((row) =>
+      convRowToXlsxRow(row, styleMappers)
+    );
     const colsXml = makeColsXml(xlsxCols);
     const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
       sheetData,
-      worksheet.rows,
       styleMappers,
-      xlsxCols
+      xlsxCols,
+      xlsxRows
     );
     const dimension = getDimension(sheetData);
     const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
@@ -262,6 +274,27 @@ export function convertCombinedColToXlsxCol(
     max: col.endIndex + 1,
     width: col.width ?? DEFAULT_COL_WIDTH,
     customWidth: col.width !== undefined && col.width !== DEFAULT_COL_WIDTH,
+    cellXfId: cellXfId,
+  };
+}
+
+export function convRowToXlsxRow(
+  row: CombinedRow,
+  styleMappers: StyleMappers
+): XlsxRow {
+  let cellXfId: number | null = null;
+  if (row.style) {
+    const style = composeXlsxCellStyle(row.style, styleMappers);
+    if (style === null) {
+      throw new Error("style is null");
+    }
+    cellXfId = styleMappers.cellXfs.getCellXfId(style);
+  }
+
+  return {
+    index: row.index,
+    height: row.height ?? DEFAULT_ROW_HEIGHT,
+    customHeight: row.height !== undefined && row.height !== DEFAULT_ROW_HEIGHT,
     cellXfId: cellXfId,
   };
 }
@@ -455,24 +488,23 @@ export function getDimension(sheetData: SheetData) {
 
 export function makeSheetDataXml(
   sheetData: SheetData,
-  rows: Row[],
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
 
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
-    const rowHeight = rows.find((it) => it.index === rowIndex)?.height ?? null;
     const str = rowToString(
       row,
       rowIndex,
-      rowHeight,
       startNumber,
       endNumber,
       styleMappers,
-      xlsxCols
+      xlsxCols,
+      xlsxRows
     );
     if (str !== null) {
       result += str;
@@ -489,11 +521,11 @@ export function makeSheetDataXml(
 export function rowToString(
   row: RowData,
   rowIndex: number,
-  rowHeight: number | null,
   startNumber: number,
   endNumber: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -501,9 +533,19 @@ export function rowToString(
 
   const rowNumber = rowIndex + 1;
 
-  let result = rowHeight
-    ? `<row r="${rowNumber}" spans="${startNumber}:${endNumber}" ht="${rowHeight}" customHeight="1">`
-    : `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
+  let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}"`;
+
+  const xlsxRow = xlsxRows.find((it) => it.index === rowIndex);
+  if (xlsxRow) {
+    if (xlsxRow.cellXfId) {
+      result += ` s="${xlsxRow.cellXfId}" customFormat="1"`;
+    }
+
+    if (xlsxRow.height && xlsxRow.customHeight) {
+      result += ` ht="${xlsxRow.height}" customHeight="1"`;
+    }
+  }
+  result += ">";
 
   let columnIndex = 0;
   for (const cell of row) {
@@ -514,7 +556,8 @@ export function rowToString(
           columnIndex,
           rowIndex,
           styleMappers,
-          xlsxCols
+          xlsxCols,
+          xlsxRows
         )
       );
     }
@@ -650,8 +693,10 @@ export function composeXlsxCellStyle(
 function getCellXfId(
   cell: Cell,
   column: string,
+  rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ) {
   const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
   if (composedStyle) {
@@ -663,6 +708,11 @@ function getCellXfId(
     return foundCol.cellXfId;
   }
 
+  const foundRow = xlsxRows.find((it) => it.index === rowIndex);
+  if (foundRow) {
+    return foundRow.cellXfId;
+  }
+
   return null;
 }
 
@@ -671,14 +721,22 @@ export function convertCellToXlsxCell(
   columnIndex: number,
   rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
   const column = convColIndexToColName(columnIndex);
 
   switch (cell.type) {
     case "number": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "number",
         column: column,
@@ -688,7 +746,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "string": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
       return {
         type: "string",
@@ -701,7 +766,14 @@ export function convertCellToXlsxCell(
     }
     case "date": {
       assignDateStyleIfUndefined(cell);
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "date",
         column: column,
@@ -752,7 +824,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "boolean": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "boolean",
         column: column,
@@ -762,7 +841,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "formula": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "formula",
         column: column,
@@ -772,7 +858,14 @@ export function convertCellToXlsxCell(
       };
     }
     case "merged": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        column,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "merged",
         column: column,

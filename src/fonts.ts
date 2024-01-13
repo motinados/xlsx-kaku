@@ -7,7 +7,10 @@ export type Font = {
   color: string;
   family?: number;
   scheme?: string;
-  underline?: boolean;
+  /**
+   * "single": single underline, "double": double underline
+   */
+  underline?: "single" | "double";
 };
 
 export class Fonts {
@@ -48,7 +51,11 @@ export class Fonts {
       const font = JSON.parse(key) as Font;
       xml += "<font>";
       if (font.underline) {
-        xml += `<u/>`;
+        if (font.underline == "double") {
+          xml += `<u val="double"/>`;
+        } else {
+          xml += `<u/>`;
+        }
       }
       xml +=
         `<sz val="${font.size}"/>` +

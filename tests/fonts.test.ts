@@ -51,13 +51,6 @@ describe("Fonts", () => {
       name: "Calibri",
       color: "000000",
       size: 11,
-    });
-
-    fonts.getFontId({
-      name: "Calibri",
-      color: "000000",
-
-      size: 11,
       underline: "single",
     });
     fonts.getFontId({

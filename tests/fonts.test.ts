@@ -115,4 +115,23 @@ describe("Fonts", () => {
         "</fonts>"
     );
   });
+
+  test("makeXml with bold, italic, strike, underline", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      bold: true,
+      italic: true,
+      strike: true,
+      underline: "double",
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="2">' +
+        '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><b/><i/><strike/><u val="double"/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        "</fonts>"
+    );
+  });
 });

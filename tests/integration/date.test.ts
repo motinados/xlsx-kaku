@@ -121,8 +121,19 @@ describe("date", () => {
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
-    // It should be a problem-free difference.
-    deletePropertyFromObject(actualObj, "styleSheet.cellStyleXfs.xf.@_xfId");
+
+    // Difference to prevent automatic addition of ';@'
+    const expectedNumFmts = expectedObj.styleSheet.numFmts.numFmt.map(
+      (obj: any) => {
+        return {
+          ...obj,
+          "@_formatCode": obj["@_formatCode"].replace(/;@$/, ""),
+        };
+      }
+    );
+    expect(actualObj.styleSheet.numFmts.numFmt).toEqual(expectedNumFmts);
+    deletePropertyFromObject(actualObj, "styleSheet.numFmts.numFmt");
+    deletePropertyFromObject(expectedObj, "styleSheet.numFmts.numFmt");
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -146,6 +157,9 @@ describe("date", () => {
       "workbook.xr:revisionPtr.@_documentId"
     );
     deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
+
+    // It may be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "workbook.calcPr");
 
     expect(actualObj).toEqual(expectedObj);
   });

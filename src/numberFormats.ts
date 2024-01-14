@@ -15,7 +15,7 @@ export class NumberFormats {
     ["0.00E+00", 11],
     ["# ?/?", 12],
     ["# ??/??", 13],
-    ["mm-dd-yy", 14],
+    // ["mm-dd-yy", 14],
     ["d-mmm-yy", 15],
     ["d-mmm", 16],
     ["mmm-yy", 17],

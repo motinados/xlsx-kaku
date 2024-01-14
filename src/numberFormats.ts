@@ -65,7 +65,7 @@ export class NumberFormats {
 
   // numFmt smaller than 163 is provided by default, so threre is no need to make it xml.
   // <numFmts count="1">
-  //   <numFmt numFmtId="164" formatCode="yyyy/m/d\ h:mm;@"/>
+  //   <numFmt numFmtId="164" formatCode="yyyy/m/d\ h:mm"/>
   // </numFmts>
   makeXml(): string {
     function escapeString(input: string): string {
@@ -88,7 +88,7 @@ export class NumberFormats {
     let xml = `<numFmts count="${items.size}">`;
     items.forEach((numFmtId, formatCode) => {
       const code = escapeString(formatCode);
-      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${code};@"/>`;
+      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${code}"/>`;
     });
     xml += "</numFmts>";
     return xml;

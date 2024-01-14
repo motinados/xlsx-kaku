@@ -42,6 +42,11 @@ export type Cell =
       style?: CellStyle;
     }
   | {
+      type: "formula";
+      value: string;
+      style?: CellStyle;
+    }
+  | {
       type: "merged";
       style?: CellStyle;
     };

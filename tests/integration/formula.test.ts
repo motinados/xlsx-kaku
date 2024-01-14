@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("mergeCells", () => {
-  const testName = "mergeCells";
+describe("formula", () => {
+  const testName = "formula";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -33,10 +33,14 @@ describe("mergeCells", () => {
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
+
     ws.setCell(0, 0, { type: "number", value: 1 });
-    ws.setCell(1, 0, { type: "number", value: 2 });
-    ws.setMergeCell({ ref: "A1:C1" });
-    ws.setMergeCell({ ref: "A2:A4" });
+    ws.setCell(0, 1, { type: "number", value: 2 });
+    ws.setCell(0, 2, { type: "formula", value: "SUM(A1:B1)" });
+
+    ws.setCell(1, 0, { type: "number", value: 10 });
+    ws.setCell(1, 1, { type: "number", value: 11 });
+    ws.setCell(1, 2, { type: "formula", value: "MIN(A2,B2)" });
 
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
@@ -61,6 +65,13 @@ describe("mergeCells", () => {
       removeBasePath(it, actualFileDir)
     );
 
+    // It may be a problem-free difference.
+    // Not supported calcChain.xml
+    const index = expectedSubPaths.findIndex((it) =>
+      it.includes("calcChain.xml")
+    );
+    expectedSubPaths.splice(index, 1);
+
     expect(actualSubPaths).toEqual(expectedSubPaths);
   });
 
@@ -76,6 +87,13 @@ describe("mergeCells", () => {
 
     const expectedObj = parseXml(expected);
     const actualObj = parseXml(actual);
+
+    // It may be a problem-free difference.
+    // Not supported calcChain.xml
+    const index = expectedObj.Types.Override.findIndex(
+      (it: any) => it["@_PartName"] === "/xl/calcChain.xml"
+    );
+    expectedObj.Types.Override.splice(index, 1);
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -136,17 +154,12 @@ describe("mergeCells", () => {
     const expectedObj = parseXml(expected);
     const actualObj = parseXml(actual);
 
-    // // Differences due to the default font
+    // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
-    // // It should be a problem-free difference.
+    // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
-    // // Differences due to the default font
+    // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
-
-    // In online Excel, when merging cells, styles are automatically added.
-    // This is the difference caused by those styles.
-    deletePropertyFromObject(expectedObj, "styleSheet.cellXfs");
-    deletePropertyFromObject(actualObj, "styleSheet.cellXfs");
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -160,6 +173,9 @@ describe("mergeCells", () => {
     const expectedObj = parseXml(expectedXml);
     const actualObj = parseXml(actualXml);
 
+    // It may be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "workbook.calcPr");
+
     // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "workbook.fileVersion.@_rupBuild");
     deletePropertyFromObject(actualObj, "workbook.fileVersion.@_rupBuild");
@@ -171,13 +187,10 @@ describe("mergeCells", () => {
     );
     deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
 
-    // It may be a problem-free difference.
-    deletePropertyFromObject(expectedObj, "workbook.calcPr");
-
     expect(actualObj).toEqual(expectedObj);
   });
 
-  test("workbookXmlRels", () => {
+  test("WorkbookXmlRels", () => {
     function sortById(a: any, b: any) {
       const rIdA = parseInt(a["@_Id"].substring(3));
       const rIdB = parseInt(b["@_Id"].substring(3));
@@ -207,6 +220,10 @@ describe("mergeCells", () => {
     const actualRelationships = actualObj.Relationships.Relationship;
     actualRelationships.sort(sortById);
 
+    // It may be a problem-free difference.
+    // Not supported calcChain.xml
+    delete expectedRelationships[3];
+
     expect(actualRelationships).toEqual(expectedRelationships);
   });
 
@@ -232,19 +249,11 @@ describe("mergeCells", () => {
       "worksheet.sheetViews.sheetView.selection"
     );
 
-    // In online Excel, when merging cells, styles are automatically added.
-    // This is the difference caused by those styles.
-    for (const obj of expectedObj.worksheet.sheetData.row) {
-      deletePropertyFromObject(obj, "@_ht");
-      deletePropertyFromObject(obj, "@_customHeight");
-
-      if (!Array.isArray(obj.c)) {
-        deletePropertyFromObject(obj.c, "@_s");
-      } else {
-        for (const c of obj.c) {
-          deletePropertyFromObject(c, "@_s");
-        }
-      }
+    // It should be a problem-free difference.
+    // Not supported v inside the formula cell
+    for (const row of expectedObj.worksheet.sheetData.row) {
+      const formulaCell = row.c[2];
+      delete formulaCell["v"];
     }
 
     expect(actualObj).toEqual(expectedObj);

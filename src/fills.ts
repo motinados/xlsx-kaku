@@ -63,10 +63,11 @@ export class Fills {
       if (fill.patternType === "none" || fill.patternType === "gray125") {
         xml += `<patternFill patternType="${fill.patternType}"/>`;
       } else {
-        xml += `<patternFill patternType="${fill.patternType}">`;
-        xml += `<fgColor rgb="${fill.fgColor}"/>`;
-        xml += '<bgColor indexed="64"/>';
-        xml += "</patternFill>";
+        xml +=
+          `<patternFill patternType="${fill.patternType}">` +
+          `<fgColor rgb="${fill.fgColor}"/>` +
+          '<bgColor indexed="64"/>' +
+          "</patternFill>";
       }
       xml += "</fill>";
     });

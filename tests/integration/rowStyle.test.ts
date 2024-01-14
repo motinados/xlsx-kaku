@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("mergeCells", () => {
-  const testName = "mergeCells";
+describe("row style", () => {
+  const testName = "rowStyle";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -33,10 +33,27 @@ describe("mergeCells", () => {
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
+
     ws.setCell(0, 0, { type: "number", value: 1 });
     ws.setCell(1, 0, { type: "number", value: 2 });
-    ws.setMergeCell({ ref: "A1:C1" });
-    ws.setMergeCell({ ref: "A2:A4" });
+    ws.setCell(2, 0, { type: "number", value: 3 });
+    ws.setCell(3, 0, { type: "number", value: 4 });
+    ws.setCell(4, 0, { type: "number", value: 5 });
+
+    ws.setRowStyle({
+      index: 1,
+      style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
+    });
+
+    ws.setRowStyle({
+      index: 2,
+      style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+    });
+    ws.setRowStyle({
+      index: 3,
+      style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
+    });
+    ws.setRowHeight({ index: 3, height: 20.25 });
 
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
@@ -136,17 +153,12 @@ describe("mergeCells", () => {
     const expectedObj = parseXml(expected);
     const actualObj = parseXml(actual);
 
-    // // Differences due to the default font
+    // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
-    // // It should be a problem-free difference.
+    // It should be a problem-free difference.
     deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
-    // // Differences due to the default font
+    // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
-
-    // In online Excel, when merging cells, styles are automatically added.
-    // This is the difference caused by those styles.
-    deletePropertyFromObject(expectedObj, "styleSheet.cellXfs");
-    deletePropertyFromObject(actualObj, "styleSheet.cellXfs");
 
     expect(actualObj).toEqual(expectedObj);
   });
@@ -177,7 +189,7 @@ describe("mergeCells", () => {
     expect(actualObj).toEqual(expectedObj);
   });
 
-  test("workbookXmlRels", () => {
+  test("WorkbookXmlRels", () => {
     function sortById(a: any, b: any) {
       const rIdA = parseInt(a["@_Id"].substring(3));
       const rIdB = parseInt(b["@_Id"].substring(3));
@@ -231,21 +243,6 @@ describe("mergeCells", () => {
       actualObj,
       "worksheet.sheetViews.sheetView.selection"
     );
-
-    // In online Excel, when merging cells, styles are automatically added.
-    // This is the difference caused by those styles.
-    for (const obj of expectedObj.worksheet.sheetData.row) {
-      deletePropertyFromObject(obj, "@_ht");
-      deletePropertyFromObject(obj, "@_customHeight");
-
-      if (!Array.isArray(obj.c)) {
-        deletePropertyFromObject(obj.c, "@_s");
-      } else {
-        for (const c of obj.c) {
-          deletePropertyFromObject(c, "@_s");
-        }
-      }
-    }
 
     expect(actualObj).toEqual(expectedObj);
   });

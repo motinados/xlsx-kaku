@@ -11,10 +11,11 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { FreezePane, MergeCell, Row, Worksheet } from "./worksheet";
-import { convNumberToColumn, isInRange } from "./utils";
+import { FreezePane, MergeCell, Worksheet } from "./worksheet";
+import { convColIndexToColName, isInRange } from "./utils";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "./col";
 import { strToU8, zipSync } from "fflate";
+import { CombinedRow, DEFAULT_ROW_HEIGHT, combineRowProps } from "./row";
 
 type StyleMappers = {
   fills: Fills;
@@ -39,6 +40,14 @@ type XlsxCol = {
   cellXfId: number | null;
 };
 
+type XlsxRow = {
+  /** e.g. rows[0] is 0 */
+  index: number;
+  height: number;
+  customHeight: boolean;
+  cellXfId: number | null;
+};
+
 type XlsxCellStyle = {
   fontId: number;
   fillId: number;
@@ -50,14 +59,14 @@ type XlsxCellStyle = {
 type XlsxCell =
   | {
       type: "number";
-      column: string;
+      colName: string;
       rowNumber: number;
       value: number;
       cellXfId: number | null;
     }
   | {
       type: "string";
-      column: string;
+      colName: string;
       rowNumber: number;
       value: string;
       sharedStringId: number;
@@ -65,14 +74,14 @@ type XlsxCell =
     }
   | {
       type: "date";
-      column: string;
+      colName: string;
       rowNumber: number;
       value: string;
       cellXfId: number | null;
     }
   | {
       type: "hyperlink";
-      column: string;
+      colName: string;
       rowNumber: number;
       value: string;
       sharedStringId: number;
@@ -80,20 +89,27 @@ type XlsxCell =
     }
   | {
       type: "boolean";
-      column: string;
+      colName: string;
       rowNumber: number;
       value: boolean;
       cellXfId: number | null;
     }
   | {
+      type: "formula";
+      colName: string;
+      rowNumber: number;
+      value: string;
+      cellXfId: number | null;
+    }
+  | {
       type: "merged";
-      column: string;
+      colName: string;
       rowNumber: number;
       cellXfId: number | null;
     };
 
 export function genXlsx(worksheets: Worksheet[]) {
-  const files = generateXMLFiles(worksheets);
+  const files = generateXMLs(worksheets);
   const zipped = compressXMLs(files);
   return zipped;
 }
@@ -109,7 +125,7 @@ function compressXMLs(files: { filename: string; content: string }[]) {
   return zipped;
 }
 
-function generateXMLFiles(worksheets: Worksheet[]) {
+function generateXMLs(worksheets: Worksheet[]) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -159,7 +175,7 @@ function generateXMLFiles(worksheets: Worksheet[]) {
   return files;
 }
 
-export function createExcelFiles(worksheets: Worksheet[]) {
+function createExcelFiles(worksheets: Worksheet[]) {
   if (worksheets.length === 0) {
     throw new Error("worksheets is empty");
   }
@@ -180,23 +196,33 @@ export function createExcelFiles(worksheets: Worksheet[]) {
   const sheetXmls: string[] = [];
   const worksheetsLength = worksheets.length;
   for (const worksheet of worksheets) {
+    const defaultColWidth = worksheet.props.defaultColWidth;
+    const defaultRowHeight = worksheet.props.defaultRowHeight;
     const sheetData = worksheet.sheetData;
     const xlsxCols = combineColProps(worksheet.cols).map((col) =>
-      convertCombinedColToXlsxCol(col, styleMappers)
+      convertCombinedColToXlsxCol(col, styleMappers, defaultColWidth)
     );
-    const colsXml = makeColsXml(xlsxCols);
+    const xlsxRows = combineRowProps(worksheet.rows).map((row) =>
+      convRowToXlsxRow(row, styleMappers)
+    );
+    const colsXml = makeColsXml(xlsxCols, defaultColWidth);
     const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
     const sheetDataXml = makeSheetDataXml(
       sheetData,
-      worksheet.rows,
       styleMappers,
-      xlsxCols
+      xlsxCols,
+      xlsxRows
     );
     const dimension = getDimension(sheetData);
     const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
+    const shhetFormatPrXML = makeSheetFormatPrXml(
+      defaultRowHeight,
+      defaultColWidth
+    );
     const sheetXml = makeSheetXml(
       colsXml,
       sheetViewsXml,
+      shhetFormatPrXML,
       sheetDataXml,
       mergeCellsXml,
       dimension,
@@ -239,7 +265,8 @@ export function createExcelFiles(worksheets: Worksheet[]) {
 
 export function convertCombinedColToXlsxCol(
   col: CombinedCol,
-  mappers: StyleMappers
+  mappers: StyleMappers,
+  defaultWidth: number
 ): XlsxCol {
   let cellXfId: number | null = null;
   if (col.style) {
@@ -253,13 +280,34 @@ export function convertCombinedColToXlsxCol(
   return {
     min: col.startIndex + 1,
     max: col.endIndex + 1,
-    width: col.width ?? DEFAULT_COL_WIDTH,
-    customWidth: col.width !== undefined && col.width !== DEFAULT_COL_WIDTH,
+    width: col.width ?? defaultWidth,
+    customWidth: col.width !== undefined && col.width !== defaultWidth,
     cellXfId: cellXfId,
   };
 }
 
-export function makeColsXml(cols: XlsxCol[]): string {
+export function convRowToXlsxRow(
+  row: CombinedRow,
+  styleMappers: StyleMappers
+): XlsxRow {
+  let cellXfId: number | null = null;
+  if (row.style) {
+    const style = composeXlsxCellStyle(row.style, styleMappers);
+    if (style === null) {
+      throw new Error("style is null");
+    }
+    cellXfId = styleMappers.cellXfs.getCellXfId(style);
+  }
+
+  return {
+    index: row.index,
+    height: row.height ?? DEFAULT_ROW_HEIGHT,
+    customHeight: row.height !== undefined && row.height !== DEFAULT_ROW_HEIGHT,
+    cellXfId: cellXfId,
+  };
+}
+
+export function makeColsXml(cols: XlsxCol[], defaultColWidth: number): string {
   if (cols.length === 0) {
     return "";
   }
@@ -271,7 +319,7 @@ export function makeColsXml(cols: XlsxCol[]): string {
     if (col.customWidth) {
       result += ` width="${col.width}" customWidth="1"`;
     } else {
-      result += ` width="${DEFAULT_COL_WIDTH}"`;
+      result += ` width="${defaultColWidth}"`;
     }
 
     if (col.cellXfId) {
@@ -336,7 +384,9 @@ export function makeSheetViewsXml(
       let result =
         "<sheetViews>" +
         `<sheetView tabSelected="1" workbookViewId="0">` +
-        `<pane xSplit="${freezePane.split}" topLeftCell="${convNumberToColumn(
+        `<pane xSplit="${
+          freezePane.split
+        }" topLeftCell="${convColIndexToColName(
           freezePane.split
         )}1" activePane="topRight" state="frozen"/>` +
         `<selection pane="topRight" activeCell="${dimension.start}" sqref="${dimension.start}"/>` +
@@ -351,9 +401,25 @@ export function makeSheetViewsXml(
   }
 }
 
+export function makeSheetFormatPrXml(
+  defaultRowHeight: number,
+  defaultColWidth: number
+) {
+  // There should be no issue with always the defaultColWidth,
+  // but due to differences in integration tests with files created in Online Excel,
+  // we deliberately avoid adding it when it's the same value as DEFAULT_COL_WIDTH.
+  const shhetFormatPrXML =
+    defaultColWidth === DEFAULT_COL_WIDTH
+      ? `<sheetFormatPr defaultRowHeight="${defaultRowHeight}"/>`
+      : `<sheetFormatPr defaultRowHeight="${defaultRowHeight}" defaultColWidth="${defaultColWidth}"/>`;
+
+  return shhetFormatPrXML;
+}
+
 export function makeSheetXml(
   colsXml: string,
   sheetViewsXml: string,
+  sheetFormatPrXml: string,
   sheetDataString: string,
   mergeCellsXml: string,
   dimension: { start: string; end: string },
@@ -364,7 +430,7 @@ export function makeSheetXml(
     '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">' +
     `<dimension ref="${dimension.start}:${dimension.end}"/>` +
     sheetViewsXml +
-    '<sheetFormatPr defaultRowHeight="13.5"/>' +
+    sheetFormatPrXml +
     colsXml +
     sheetDataString;
 
@@ -435,8 +501,8 @@ export function getDimension(sheetData: SheetData) {
 
   const spans = getSpansFromSheetData(sheetData);
   const { startNumber, endNumber } = spans;
-  const firstColumn = convNumberToColumn(startNumber - 1);
-  const lastColumn = convNumberToColumn(endNumber - 1);
+  const firstColumn = convColIndexToColName(startNumber - 1);
+  const lastColumn = convColIndexToColName(endNumber - 1);
 
   return {
     start: `${firstColumn}${firstRowNumber}`,
@@ -446,24 +512,23 @@ export function getDimension(sheetData: SheetData) {
 
 export function makeSheetDataXml(
   sheetData: SheetData,
-  rows: Row[],
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
 
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
-    const rowHeight = rows.find((it) => it.index === rowIndex)?.height ?? null;
     const str = rowToString(
       row,
       rowIndex,
-      rowHeight,
       startNumber,
       endNumber,
       styleMappers,
-      xlsxCols
+      xlsxCols,
+      xlsxRows
     );
     if (str !== null) {
       result += str;
@@ -480,11 +545,11 @@ export function makeSheetDataXml(
 export function rowToString(
   row: RowData,
   rowIndex: number,
-  rowHeight: number | null,
   startNumber: number,
   endNumber: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -492,9 +557,19 @@ export function rowToString(
 
   const rowNumber = rowIndex + 1;
 
-  let result = rowHeight
-    ? `<row r="${rowNumber}" spans="${startNumber}:${endNumber}" ht="${rowHeight}" customHeight="1">`
-    : `<row r="${rowNumber}" spans="${startNumber}:${endNumber}">`;
+  let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}"`;
+
+  const xlsxRow = xlsxRows.find((it) => it.index === rowIndex);
+  if (xlsxRow) {
+    if (xlsxRow.cellXfId) {
+      result += ` s="${xlsxRow.cellXfId}" customFormat="1"`;
+    }
+
+    if (xlsxRow.height && xlsxRow.customHeight) {
+      result += ` ht="${xlsxRow.height}" customHeight="1"`;
+    }
+  }
+  result += ">";
 
   let columnIndex = 0;
   for (const cell of row) {
@@ -505,7 +580,8 @@ export function rowToString(
           columnIndex,
           rowIndex,
           styleMappers,
-          xlsxCols
+          xlsxCols,
+          xlsxRows
         )
       );
     }
@@ -520,11 +596,7 @@ export function rowToString(
 export function getSpansFromSheetData(sheetData: SheetData) {
   const all = sheetData
     .map((row) => {
-      const spans = getSpans(row);
-      if (spans === null) {
-        return null;
-      }
-      return spans;
+      return getSpans(row);
     })
     .filter((row) => row !== null) as {
     startNumber: number;
@@ -608,7 +680,7 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
         name: "Calibri",
         size: 11,
         color: "0563c1",
-        underline: true,
+        underline: "single",
       },
     };
   }
@@ -640,18 +712,25 @@ export function composeXlsxCellStyle(
 
 function getCellXfId(
   cell: Cell,
-  column: string,
+  colName: string,
+  rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ) {
   const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
   if (composedStyle) {
     return styleMappers.cellXfs.getCellXfId(composedStyle);
   }
 
-  const foundCol = xlsxCols.find((it) => isInRange(column, it.min, it.max));
+  const foundCol = xlsxCols.find((it) => isInRange(colName, it.min, it.max));
   if (foundCol) {
     return foundCol.cellXfId;
+  }
+
+  const foundRow = xlsxRows.find((it) => it.index === rowIndex);
+  if (foundRow) {
+    return foundRow.cellXfId;
   }
 
   return null;
@@ -662,28 +741,43 @@ export function convertCellToXlsxCell(
   columnIndex: number,
   rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[]
+  xlsxCols: XlsxCol[],
+  xlsxRows: XlsxRow[]
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
-  const column = convNumberToColumn(columnIndex);
+  const colName = convColIndexToColName(columnIndex);
 
   switch (cell.type) {
     case "number": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        colName,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "number",
-        column: column,
+        colName: colName,
         rowNumber: rowNumber,
         value: cell.value,
         cellXfId: cellXfId,
       };
     }
     case "string": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        colName,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
       return {
         type: "string",
-        column: column,
+        colName: colName,
         rowNumber: rowNumber,
         value: cell.value,
         sharedStringId: sharedStringId,
@@ -692,10 +786,17 @@ export function convertCellToXlsxCell(
     }
     case "date": {
       assignDateStyleIfUndefined(cell);
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        colName,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "date",
-        column: column,
+        colName: colName,
         rowNumber: rowNumber,
         value: cell.value,
         cellXfId: cellXfId,
@@ -728,14 +829,14 @@ export function convertCellToXlsxCell(
       const rid = styleMappers.worksheetRels.addWorksheetRel(cell.value);
 
       styleMappers.hyperlinks.addHyperlink({
-        ref: `${column}${rowNumber}`,
+        ref: `${colName}${rowNumber}`,
         rid: rid,
         uuid: uuidv4(),
       });
 
       return {
         type: "hyperlink",
-        column: column,
+        colName: colName,
         rowNumber: rowNumber,
         value: cell.value,
         sharedStringId: sharedStringId,
@@ -743,20 +844,51 @@ export function convertCellToXlsxCell(
       };
     }
     case "boolean": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        colName,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "boolean",
-        column: column,
+        colName: colName,
+        rowNumber: rowNumber,
+        value: cell.value,
+        cellXfId: cellXfId,
+      };
+    }
+    case "formula": {
+      const cellXfId = getCellXfId(
+        cell,
+        colName,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
+      return {
+        type: "formula",
+        colName: colName,
         rowNumber: rowNumber,
         value: cell.value,
         cellXfId: cellXfId,
       };
     }
     case "merged": {
-      const cellXfId = getCellXfId(cell, column, styleMappers, xlsxCols);
+      const cellXfId = getCellXfId(
+        cell,
+        colName,
+        rowIndex,
+        styleMappers,
+        xlsxCols,
+        xlsxRows
+      );
       return {
         type: "merged",
-        column: column,
+        colName: colName,
         rowNumber: rowNumber,
         cellXfId: cellXfId,
       };
@@ -772,29 +904,33 @@ export function makeCellXml(cell: XlsxCell) {
   switch (cell.type) {
     case "number": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
-      return `<c r="${cell.column}${cell.rowNumber}"${s}><v>${cell.value}</v></c>`;
+      return `<c r="${cell.colName}${cell.rowNumber}"${s}><v>${cell.value}</v></c>`;
     }
     case "string": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
-      return `<c r="${cell.column}${cell.rowNumber}"${s} t="s"><v>${cell.sharedStringId}</v></c>`;
+      return `<c r="${cell.colName}${cell.rowNumber}"${s} t="s"><v>${cell.sharedStringId}</v></c>`;
     }
     case "date": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
       const serialValue = convertIsoStringToSerialValue(cell.value);
-      return `<c r="${cell.column}${cell.rowNumber}"${s}><v>${serialValue}</v></c>`;
+      return `<c r="${cell.colName}${cell.rowNumber}"${s}><v>${serialValue}</v></c>`;
     }
     case "hyperlink": {
       const s = ` s="${cell.cellXfId}"`;
-      return `<c r="${cell.column}${cell.rowNumber}"${s} t="s"><v>${cell.sharedStringId}</v></c>`;
+      return `<c r="${cell.colName}${cell.rowNumber}"${s} t="s"><v>${cell.sharedStringId}</v></c>`;
     }
     case "boolean": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
       const v = cell.value ? 1 : 0;
-      return `<c r="${cell.column}${cell.rowNumber}"${s} t="b"><v>${v}</v></c>`;
+      return `<c r="${cell.colName}${cell.rowNumber}"${s} t="b"><v>${v}</v></c>`;
+    }
+    case "formula": {
+      const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
+      return `<c r="${cell.colName}${cell.rowNumber}"${s}><f>${cell.value}</f></c>`;
     }
     case "merged": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
-      return `<c r="${cell.column}${cell.rowNumber}"${s}/>`;
+      return `<c r="${cell.colName}${cell.rowNumber}"${s}/>`;
     }
     default: {
       const _exhaustiveCheck: never = cell;
@@ -921,7 +1057,6 @@ function makeWorkbookXml(worksheets: Worksheet[]) {
 
   result +=
     "</sheets>" +
-    '<calcPr calcId="191028"/>' +
     "<extLst>" +
     '<ext uri="{140A7094-0E35-4892-8432-C4D2E57EDEB5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">' +
     '<x15:workbookPr chartTrackingRefBase="1"/>' +

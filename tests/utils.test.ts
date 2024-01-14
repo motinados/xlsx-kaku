@@ -1,6 +1,6 @@
 import {
-  convColumnToNumber,
-  convNumberToColumn,
+  convColNameToColIndex,
+  convColIndexToColName,
   devideAddress,
   expandRange,
   isInRange,
@@ -8,19 +8,19 @@ import {
 
 describe("utils", () => {
   test("convColumnToNumber", () => {
-    expect(convColumnToNumber("A")).toBe(0);
-    expect(convColumnToNumber("B")).toBe(1);
-    expect(convColumnToNumber("Z")).toBe(25);
-    expect(convColumnToNumber("AA")).toBe(26);
-    expect(convColumnToNumber("BC")).toBe(54);
+    expect(convColNameToColIndex("A")).toBe(0);
+    expect(convColNameToColIndex("B")).toBe(1);
+    expect(convColNameToColIndex("Z")).toBe(25);
+    expect(convColNameToColIndex("AA")).toBe(26);
+    expect(convColNameToColIndex("BC")).toBe(54);
   });
 
   test("convNumberToColumn", () => {
-    expect(convNumberToColumn(0)).toBe("A");
-    expect(convNumberToColumn(1)).toBe("B");
-    expect(convNumberToColumn(25)).toBe("Z");
-    expect(convNumberToColumn(26)).toBe("AA");
-    expect(convNumberToColumn(54)).toBe("BC");
+    expect(convColIndexToColName(0)).toBe("A");
+    expect(convColIndexToColName(1)).toBe("B");
+    expect(convColIndexToColName(25)).toBe("Z");
+    expect(convColIndexToColName(26)).toBe("AA");
+    expect(convColIndexToColName(54)).toBe("BC");
   });
 
   test("devideAddress", () => {

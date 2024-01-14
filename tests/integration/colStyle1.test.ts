@@ -186,6 +186,9 @@ describe("col style with cell value", () => {
     );
     deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
 
+    // It may be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "workbook.calcPr");
+
     expect(actualObj).toEqual(expectedObj);
   });
 

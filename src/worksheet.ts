@@ -1,11 +1,7 @@
-import { Col, ColStyle, ColWidth } from "./col";
+import { Col, ColStyle, ColWidth, DEFAULT_COL_WIDTH } from "./col";
+import { DEFAULT_ROW_HEIGHT, Row, RowHeight, RowStyle } from "./row";
 import { NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
-
-export type Row = {
-  index: number;
-  height: number;
-};
 
 export type MergeCell = {
   /**
@@ -19,20 +15,37 @@ export type FreezePane = {
   split: number;
 };
 
+export type WorksheetProps = {
+  defaultColWidth?: number;
+  defaultRowHeight?: number;
+};
+
+type RequiredWorksheetProps = Required<WorksheetProps>;
+
 export class Worksheet {
   private _name: string;
+  private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
   private _cols: Col[] = [];
   private _rows: Row[] = [];
   private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
 
-  constructor(name: string) {
+  constructor(name: string, props: WorksheetProps | undefined = {}) {
     this._name = name;
+
+    this._props = {
+      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    };
   }
 
   get name() {
     return this._name;
+  }
+
+  get props() {
+    return this._props;
   }
 
   set sheetData(sheetData: SheetData) {
@@ -98,7 +111,11 @@ export class Worksheet {
     this._cols.push(colStyle);
   }
 
-  setRowHeight(row: Row) {
+  setRowHeight(row: RowHeight) {
+    this._rows.push(row);
+  }
+
+  setRowStyle(row: RowStyle) {
     this._rows.push(row);
   }
 

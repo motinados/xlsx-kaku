@@ -28,9 +28,8 @@ export class WorksheetRels {
   //     <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="http://www.google.com" TargetMode="External"/>
   // </Relationships>
   makeXML(): string {
-    let xml = "";
-    xml += '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-    xml +=
+    let xml =
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
     for (const worksheetRel of this.rels) {
       xml +=

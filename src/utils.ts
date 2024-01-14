@@ -21,20 +21,26 @@ export function devideAddress(address: string): [string, number] {
   return [column, parseInt(row, 10)];
 }
 
-export function convColumnToNumber(column: string): number {
+/**
+ * e.g. "A" => 0
+ */
+export function convColNameToColIndex(colName: string): number {
   let sum = 0;
-  for (let i = 0; i < column.length; i++) {
+  for (let i = 0; i < colName.length; i++) {
     sum *= 26;
-    sum += column.charCodeAt(i) - "A".charCodeAt(0) + 1;
+    sum += colName.charCodeAt(i) - "A".charCodeAt(0) + 1;
   }
   return sum - 1;
 }
 
-export function convNumberToColumn(num: number): string {
+/**
+ * e.g. 0 => "A"
+ */
+export function convColIndexToColName(colIndex: number): string {
   let str = "";
-  while (num >= 0) {
-    str = String.fromCharCode((num % 26) + "A".charCodeAt(0)) + str;
-    num = Math.floor(num / 26) - 1;
+  while (colIndex >= 0) {
+    str = String.fromCharCode((colIndex % 26) + "A".charCodeAt(0)) + str;
+    colIndex = Math.floor(colIndex / 26) - 1;
   }
   return str;
 }
@@ -53,8 +59,8 @@ export function expandRange(range: string): [number, number][] {
   // These are not index but number. index is number - 1
   const [startColumn, startRow] = devideAddress(start);
   const [endColumn, endRow] = devideAddress(end);
-  const startColumnNum = convColumnToNumber(startColumn);
-  const endColumnNum = convColumnToNumber(endColumn);
+  const startColumnNum = convColNameToColIndex(startColumn);
+  const endColumnNum = convColNameToColIndex(endColumn);
   const startRowNum = startRow;
   const endRowNum = endRow;
 
@@ -68,7 +74,14 @@ export function expandRange(range: string): [number, number][] {
   return result;
 }
 
-export function isInRange(column: string, min: number, max: number) {
-  const columnNumber = convColumnToNumber(column) + 1;
+/**
+ * column name is in range
+ * @param colName target column name. e.g. "A"
+ * @param min min column number. It is 1 in the case of "A:C".
+ * @param max max column number. It is 3 in the case of "A:C".
+ * @returns
+ */
+export function isInRange(colName: string, min: number, max: number) {
+  const columnNumber = convColNameToColIndex(colName) + 1;
   return columnNumber >= min && columnNumber <= max;
 }

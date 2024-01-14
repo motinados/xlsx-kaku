@@ -45,6 +45,22 @@ describe("Fonts", () => {
     );
   });
 
+  test("makeXml with bold", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      bold: true,
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="2">' +
+        '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><b/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        "</fonts>"
+    );
+  });
+
   test("makeXml with underline", () => {
     const fonts = new Fonts();
     fonts.getFontId({

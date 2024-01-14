@@ -9,6 +9,7 @@ export type Font = {
   scheme?: string;
   bold?: boolean;
   italic?: boolean;
+  strike?: boolean;
   /**
    * "single": single underline, "double": double underline
    */
@@ -59,6 +60,10 @@ export class Fonts {
 
       if (font.italic) {
         xml += `<i/>`;
+      }
+
+      if (font.strike) {
+        xml += `<strike/>`;
       }
 
       if (font.underline) {

@@ -195,6 +195,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
 
   const sheetXmls: string[] = [];
   const worksheetsLength = worksheets.length;
+  let count = 0;
   for (const worksheet of worksheets) {
     const defaultColWidth = worksheet.props.defaultColWidth;
     const defaultRowHeight = worksheet.props.defaultRowHeight;
@@ -214,7 +215,12 @@ function createExcelFiles(worksheets: Worksheet[]) {
       xlsxRows
     );
     const dimension = getDimension(sheetData);
-    const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
+    const tabSelected = count === 0;
+    const sheetViewsXml = makeSheetViewsXml(
+      tabSelected,
+      dimension,
+      worksheet.freezePane
+    );
     const shhetFormatPrXML = makeSheetFormatPrXml(
       defaultRowHeight,
       defaultColWidth
@@ -229,6 +235,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
       styleMappers.hyperlinks
     );
     sheetXmls.push(sheetXml);
+    count++;
   }
 
   const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
@@ -354,13 +361,18 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
 // </sheetView>
 // </sheetViews>
 export function makeSheetViewsXml(
+  tabSelected: boolean,
   dimension: { start: string; end: string },
   freezePane: FreezePane | null
 ) {
+  const openingTabSelectedTag = tabSelected
+    ? `<sheetView tabSelected="1" workbookViewId="0">`
+    : `<sheetView workbookViewId="0">`;
+
   if (freezePane === null) {
     let result =
       "<sheetViews>" +
-      `<sheetView tabSelected="1" workbookViewId="0">` +
+      openingTabSelectedTag +
       `<selection activeCell="${dimension.start}" sqref="${dimension.start}"/>` +
       "</sheetView>" +
       "</sheetViews>";
@@ -371,7 +383,7 @@ export function makeSheetViewsXml(
     case "column": {
       let result =
         "<sheetViews>" +
-        `<sheetView tabSelected="1" workbookViewId="0">` +
+        openingTabSelectedTag +
         `<pane ySplit="${freezePane.split}" topLeftCell="A${
           freezePane.split + 1
         }" activePane="bottomLeft" state="frozen"/>` +
@@ -383,7 +395,7 @@ export function makeSheetViewsXml(
     case "row": {
       let result =
         "<sheetViews>" +
-        `<sheetView tabSelected="1" workbookViewId="0">` +
+        openingTabSelectedTag +
         `<pane xSplit="${
           freezePane.split
         }" topLeftCell="${convColIndexToColName(

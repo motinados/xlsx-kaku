@@ -8,6 +8,7 @@ export type Font = {
   family?: number;
   scheme?: string;
   bold?: boolean;
+  italic?: boolean;
   /**
    * "single": single underline, "double": double underline
    */
@@ -51,8 +52,13 @@ export class Fonts {
     this.fonts.forEach((_, key) => {
       const font = JSON.parse(key) as Font;
       xml += "<font>";
+
       if (font.bold) {
         xml += `<b/>`;
+      }
+
+      if (font.italic) {
+        xml += `<i/>`;
       }
 
       if (font.underline) {

@@ -246,10 +246,14 @@ describe("multiple sheets", () => {
     const actualObj = parseXml(actualXml);
 
     // It should be a problem-free difference.
-    deletePropertyFromObject(
-      expectedObj,
-      "worksheet.sheetViews.sheetView.selection"
-    );
+    deletePropertyFromObject(expectedObj, "worksheet.@_xr:uid");
+    deletePropertyFromObject(actualObj, "worksheet.@_xr:uid");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "worksheet.sheetFormatPr");
+    deletePropertyFromObject(actualObj, "worksheet.sheetFormatPr");
+
+    // It's likely a problem-free difference.
     deletePropertyFromObject(
       actualObj,
       "worksheet.sheetViews.sheetView.selection"

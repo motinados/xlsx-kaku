@@ -3,7 +3,7 @@ export type NumberFormat = {
 };
 
 export class NumberFormats {
-  // custom numFmtId starts from 176
+  // custom numFmtId starts from 164
   private lastCustomNumFmtId = -1;
   private numFmts = new Map([
     ["0", 1],
@@ -15,7 +15,7 @@ export class NumberFormats {
     ["0.00E+00", 11],
     ["# ?/?", 12],
     ["# ??/??", 13],
-    ["mm-dd-yy", 14],
+    // ["mm-dd-yy", 14],
     ["d-mmm-yy", 15],
     ["d-mmm", 16],
     ["mmm-yy", 17],
@@ -41,9 +41,9 @@ export class NumberFormats {
       return id;
     }
 
-    // custom numFmtId starts from 176
+    // custom numFmtId starts from 164
     if (this.lastCustomNumFmtId === -1) {
-      this.lastCustomNumFmtId = 176;
+      this.lastCustomNumFmtId = 164;
     }
     const numFmtId = this.lastCustomNumFmtId;
     this.numFmts.set(formatCode, numFmtId);
@@ -51,11 +51,11 @@ export class NumberFormats {
     return numFmtId;
   }
 
-  // items 176 and above are custom numFmts
+  // items 164 and above are custom numFmts
   private extractItemsWithIdAbove176(): Map<string, number> {
     const items = new Map<string, number>();
     this.numFmts.forEach((numFmtId, formatCode) => {
-      if (numFmtId <= 175) {
+      if (numFmtId <= 163) {
         return;
       }
       items.set(formatCode, numFmtId);
@@ -63,9 +63,9 @@ export class NumberFormats {
     return items;
   }
 
-  // numFmt smaller than 175 is provided by default, so threre is no need to make it xml.
+  // numFmt smaller than 163 is provided by default, so threre is no need to make it xml.
   // <numFmts count="1">
-  //   <numFmt numFmtId="176" formatCode="yyyy/m/d\ h:mm;@"/>
+  //   <numFmt numFmtId="164" formatCode="yyyy/m/d\ h:mm"/>
   // </numFmts>
   makeXml(): string {
     function escapeString(input: string): string {
@@ -88,7 +88,7 @@ export class NumberFormats {
     let xml = `<numFmts count="${items.size}">`;
     items.forEach((numFmtId, formatCode) => {
       const code = escapeString(formatCode);
-      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${code};@"/>`;
+      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${code}"/>`;
     });
     xml += "</numFmts>";
     return xml;

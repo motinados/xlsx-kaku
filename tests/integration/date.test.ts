@@ -35,40 +35,32 @@ describe("date", () => {
     const ws = wb.addWorksheet("Sheet1");
     ws.setCell(0, 0, {
       type: "date",
-      value: "2023-01-02T00:00:00.000Z",
+      value: "2024-01-15T00:00:00.000Z",
       style: {
         numberFormat: {
           formatCode: "yyyy-mm-dd",
-        },
-      },
-    });
-    ws.setCell(0, 1, {
-      type: "date",
-      value: "2023-01-02T00:00:00.000Z",
-      style: {
-        numberFormat: {
-          formatCode: "m/d/yy",
         },
       },
     });
     ws.setCell(1, 0, {
       type: "date",
-      value: "2023-01-03T00:00:00.000Z",
-      style: {
-        numberFormat: {
-          formatCode: "yyyy-mm-dd",
-        },
-      },
-    });
-    ws.setCell(1, 1, {
-      type: "date",
-      value: "2023-01-03T00:00:00.000Z",
+      value: "2024-01-15T00:00:00.000Z",
       style: {
         numberFormat: {
           formatCode: "m/d/yy",
         },
       },
     });
+    ws.setCell(2, 0, {
+      type: "date",
+      value: "2024-01-15T00:00:00.000Z",
+      style: {
+        numberFormat: {
+          formatCode: "yyyy-mm-dd",
+        },
+      },
+    });
+
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);

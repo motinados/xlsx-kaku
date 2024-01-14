@@ -67,7 +67,7 @@ describe("Fonts", () => {
       underline: "double",
     });
     expect(fonts.makeXml()).toBe(
-      '<fonts count="5">' +
+      '<fonts count="3">' +
         '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
         '<font><u/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
         '<font><u val="double"/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +

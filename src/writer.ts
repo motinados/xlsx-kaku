@@ -195,6 +195,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
 
   const sheetXmls: string[] = [];
   const worksheetsLength = worksheets.length;
+  let count = 0;
   for (const worksheet of worksheets) {
     const defaultColWidth = worksheet.props.defaultColWidth;
     const defaultRowHeight = worksheet.props.defaultRowHeight;
@@ -214,12 +215,23 @@ function createExcelFiles(worksheets: Worksheet[]) {
       xlsxRows
     );
     const dimension = getDimension(sheetData);
-    const sheetViewsXml = makeSheetViewsXml(dimension, worksheet.freezePane);
+    const tabSelected = count === 0;
+    const sheetViewsXml = makeSheetViewsXml(
+      tabSelected,
+      dimension,
+      worksheet.freezePane
+    );
     const shhetFormatPrXML = makeSheetFormatPrXml(
       defaultRowHeight,
       defaultColWidth
     );
+
+    // Perhaps passing a UUID to every sheet won't cause any issues,
+    // but for the sake of integration testing, only the first sheet is given specific UUID.
+    const uuid =
+      count === 0 ? "00000000-0001-0000-0000-000000000000" : uuidv4();
     const sheetXml = makeSheetXml(
+      uuid,
       colsXml,
       sheetViewsXml,
       shhetFormatPrXML,
@@ -229,6 +241,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
       styleMappers.hyperlinks
     );
     sheetXmls.push(sheetXml);
+    count++;
   }
 
   const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
@@ -354,13 +367,18 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
 // </sheetView>
 // </sheetViews>
 export function makeSheetViewsXml(
+  tabSelected: boolean,
   dimension: { start: string; end: string },
   freezePane: FreezePane | null
 ) {
+  const openingTabSelectedTag = tabSelected
+    ? `<sheetView tabSelected="1" workbookViewId="0">`
+    : `<sheetView workbookViewId="0">`;
+
   if (freezePane === null) {
     let result =
       "<sheetViews>" +
-      `<sheetView tabSelected="1" workbookViewId="0">` +
+      openingTabSelectedTag +
       `<selection activeCell="${dimension.start}" sqref="${dimension.start}"/>` +
       "</sheetView>" +
       "</sheetViews>";
@@ -371,7 +389,7 @@ export function makeSheetViewsXml(
     case "column": {
       let result =
         "<sheetViews>" +
-        `<sheetView tabSelected="1" workbookViewId="0">` +
+        openingTabSelectedTag +
         `<pane ySplit="${freezePane.split}" topLeftCell="A${
           freezePane.split + 1
         }" activePane="bottomLeft" state="frozen"/>` +
@@ -383,7 +401,7 @@ export function makeSheetViewsXml(
     case "row": {
       let result =
         "<sheetViews>" +
-        `<sheetView tabSelected="1" workbookViewId="0">` +
+        openingTabSelectedTag +
         `<pane xSplit="${
           freezePane.split
         }" topLeftCell="${convColIndexToColName(
@@ -417,6 +435,7 @@ export function makeSheetFormatPrXml(
 }
 
 export function makeSheetXml(
+  uuid: string,
   colsXml: string,
   sheetViewsXml: string,
   sheetFormatPrXml: string,
@@ -427,7 +446,7 @@ export function makeSheetXml(
 ) {
   let result =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
-    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{00000000-0001-0000-0000-000000000000}">' +
+    `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{${uuid}}">` +
     `<dimension ref="${dimension.start}:${dimension.end}"/>` +
     sheetViewsXml +
     sheetFormatPrXml +

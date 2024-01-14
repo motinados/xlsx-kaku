@@ -1,4 +1,4 @@
-// import { rmSync } from "node:fs";
+import { rmSync } from "node:fs";
 import { readFileSync } from "node:fs";
 import { basename, extname, resolve } from "node:path";
 import {
@@ -67,9 +67,9 @@ describe("date", () => {
   });
 
   afterAll(() => {
-    // rmSync(OUTPUT_DIR, { recursive: true });
-    // rmSync(EXPECTED_UNZIPPED_DIR, { recursive: true });
-    // rmSync(ACTUAL_UNZIPPED_DIR, { recursive: true });
+    rmSync(outputDir, { recursive: true });
+    rmSync(expectedUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {

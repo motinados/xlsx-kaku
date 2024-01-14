@@ -27,4 +27,111 @@ describe("Fonts", () => {
       })
     ).toBe(1);
   });
+
+  test("makeXml", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+    });
+    fonts.getFontId({
+      name: "Arial",
+      color: "FF0000",
+      size: 12,
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="2"><font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font><font><sz val="12"/><color rgb="FF0000"/><name val="Arial"/></font></fonts>'
+    );
+  });
+
+  test("makeXml with bold", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      bold: true,
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="2">' +
+        '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><b/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        "</fonts>"
+    );
+  });
+
+  test("makeXml with italic", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      italic: true,
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="2">' +
+        '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><i/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        "</fonts>"
+    );
+  });
+
+  test("makeXml with strike", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      strike: true,
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="2">' +
+        '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><strike/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        "</fonts>"
+    );
+  });
+
+  test("makeXml with underline", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      underline: "single",
+    });
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      underline: "double",
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="3">' +
+        '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><u/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><u val="double"/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        "</fonts>"
+    );
+  });
+
+  test("makeXml with bold, italic, strike, underline", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({
+      name: "Calibri",
+      color: "000000",
+      size: 11,
+      bold: true,
+      italic: true,
+      strike: true,
+      underline: "double",
+    });
+    expect(fonts.makeXml()).toBe(
+      '<fonts count="2">' +
+        '<font><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        '<font><b/><i/><strike/><u val="double"/><sz val="11"/><color rgb="000000"/><name val="Calibri"/></font>' +
+        "</fonts>"
+    );
+  });
 });

@@ -7,7 +7,13 @@ export type Font = {
   color: string;
   family?: number;
   scheme?: string;
-  underline?: boolean;
+  bold?: boolean;
+  italic?: boolean;
+  strike?: boolean;
+  /**
+   * "single": single underline, "double": double underline
+   */
+  underline?: "single" | "double";
 };
 
 export class Fonts {
@@ -47,8 +53,25 @@ export class Fonts {
     this.fonts.forEach((_, key) => {
       const font = JSON.parse(key) as Font;
       xml += "<font>";
+
+      if (font.bold) {
+        xml += `<b/>`;
+      }
+
+      if (font.italic) {
+        xml += `<i/>`;
+      }
+
+      if (font.strike) {
+        xml += `<strike/>`;
+      }
+
       if (font.underline) {
-        xml += `<u/>`;
+        if (font.underline == "double") {
+          xml += `<u val="double"/>`;
+        } else {
+          xml += `<u/>`;
+        }
       }
       xml +=
         `<sz val="${font.size}"/>` +

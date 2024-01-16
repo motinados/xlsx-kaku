@@ -33,8 +33,16 @@ describe("hyperlink 2", () => {
 
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
-    ws.setCell(0, 0, { type: "hyperlink", value: "https://www.google.com/" });
-    ws.setCell(0, 1, { type: "hyperlink", value: "https://github.com/" });
+    ws.setCell(0, 0, {
+      type: "hyperlink",
+      text: "google",
+      value: "https://www.google.com/",
+    });
+    ws.setCell(0, 1, {
+      type: "hyperlink",
+      text: "github",
+      value: "https://github.com/",
+    });
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);

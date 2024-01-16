@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("hyperlink", () => {
-  const testName = "hyperlink";
+describe("hyperlink 2", () => {
+  const testName = "hyperlink2";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -35,23 +35,13 @@ describe("hyperlink", () => {
     const ws = wb.addWorksheet("Sheet1");
     ws.setCell(0, 0, {
       type: "hyperlink",
-      text: "https://www.google.com",
-      value: "https://www.google.com",
+      text: "google",
+      value: "https://www.google.com/",
     });
-    ws.setCell(1, 0, {
+    ws.setCell(0, 1, {
       type: "hyperlink",
-      text: "https://www.google.com",
-      value: "https://www.google.com",
-    });
-    ws.setCell(2, 0, {
-      type: "hyperlink",
-      text: "https://www.github.com",
-      value: "https://www.github.com",
-    });
-    ws.setCell(3, 0, {
-      type: "hyperlink",
-      text: "https://www.github.com",
-      value: "https://www.github.com",
+      text: "github",
+      value: "https://github.com/",
     });
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
@@ -292,9 +282,7 @@ describe("hyperlink", () => {
     }
 
     // It should be a problem-free difference.
-    for (const obj of expectedObj.worksheet.sheetData.row) {
-      deletePropertyFromObject(obj, "@_ht");
-    }
+    deletePropertyFromObject(expectedObj.worksheet.sheetData.row, "@_ht");
 
     expect(actualObj).toEqual(expectedObj);
   });

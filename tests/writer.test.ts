@@ -172,6 +172,7 @@ describe("Writer", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "hyperlink",
+      text: "https://www.google.com",
       value: "https://www.google.com",
     };
     const result = makeCellXml(

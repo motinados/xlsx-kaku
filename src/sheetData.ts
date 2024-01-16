@@ -33,6 +33,7 @@ export type Cell =
     }
   | {
       type: "hyperlink";
+      text: string;
       value: string;
       style?: CellStyle;
     }

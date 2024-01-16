@@ -837,7 +837,7 @@ export function convertCellToXlsxCell(
         ...composedStyle,
       };
       const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
-      const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
+      const sharedStringId = styleMappers.sharedStrings.getIndex(cell.text);
 
       styleMappers.cellStyles.getCellStyleId({
         name: "Hyperlink",

@@ -174,6 +174,7 @@ describe("Writer", () => {
       type: "hyperlink",
       text: "https://www.google.com",
       value: "https://www.google.com",
+      linkType: "external",
     };
     const result = makeCellXml(
       convertCellToXlsxCell(cell, 2, 0, styleMappers, [], [])

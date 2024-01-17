@@ -8,6 +8,10 @@ It is exclusively for outputting xlsx files and cannot read them.
 It currently only supports minimal functionality.
 Please also see our [Roadmap](https://github.com/motinados/xlsx-kaku/issues/1).
 
+> This library is currently in the early stages of development.
+> We are constantly working to improve and optimize our codebase, which may lead to some breaking changes.
+> We recommend regularly checking the latest release logs and documentation.
+
 ## Installation
 
 ```

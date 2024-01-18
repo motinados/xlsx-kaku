@@ -112,7 +112,21 @@ ws.setCell(2, 0, {
 // hyperlink
 ws.setCell(3, 0, {
   type: "hyperlink",
-  value: "https://www.google.com",
+  linkType: "external",
+  text: "google",
+  value: "https://www.google.com/",
+});
+ws.setCell(3, 1, {
+  type: "hyperlink",
+  linkType: "internal",
+  text: "to A1",
+  value: "Sheet1!A1",
+});
+ws.setCell(3, 2, {
+  type: "hyperlink",
+  linkType: "email",
+  text: "sample",
+  value: "sample@example.com",
 });
 
 // boolean

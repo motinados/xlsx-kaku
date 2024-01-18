@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("hyperlink 2", () => {
-  const testName = "hyperlink2";
+describe("internal hyperlink", () => {
+  const testName = "hyperlink3";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -32,19 +32,25 @@ describe("hyperlink 2", () => {
     await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
-    const ws = wb.addWorksheet("Sheet1");
-    ws.setCell(0, 0, {
+    const ws1 = wb.addWorksheet("Sheet1");
+    const ws2 = wb.addWorksheet("Sheet2");
+
+    ws1.setCell(0, 0, {
       type: "hyperlink",
-      text: "google",
-      value: "https://www.google.com/",
-      linkType: "external",
+      text: "hello",
+      value: "Sheet1!B1",
+      linkType: "internal",
     });
-    ws.setCell(0, 1, {
+    ws1.setCell(0, 1, { type: "string", value: "world" });
+    ws1.setCell(1, 0, {
       type: "hyperlink",
-      text: "github",
-      value: "https://github.com/",
-      linkType: "external",
+      text: "hello",
+      value: "Sheet2!A1",
+      linkType: "internal",
     });
+
+    ws2.setCell(0, 0, { type: "string", value: "sheet2" });
+
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);
@@ -284,44 +290,10 @@ describe("hyperlink 2", () => {
     }
 
     // It should be a problem-free difference.
-    deletePropertyFromObject(expectedObj.worksheet.sheetData.row, "@_ht");
-
-    expect(actualObj).toEqual(expectedObj);
-  });
-
-  test("wroksheetsXmlRels", () => {
-    function sortById(a: any, b: any) {
-      const rIdA = parseInt(a["@_Id"].substring(3));
-      const rIdB = parseInt(b["@_Id"].substring(3));
-      if (rIdA < rIdB) {
-        return -1;
-      }
-      if (rIdA > rIdB) {
-        return 1;
-      }
-      return 0;
+    for (const r of expectedObj.worksheet.sheetData.row) {
+      deletePropertyFromObject(r, "@_ht");
     }
 
-    const expectedRelsPath = resolve(
-      expectedFileDir,
-      "xl/worksheets/_rels/sheet1.xml.rels"
-    );
-    const expectedRels = readFileSync(expectedRelsPath, "utf8");
-    const actualRelsPath = resolve(
-      actualFileDir,
-      "xl/worksheets/_rels/sheet1.xml.rels"
-    );
-    const actualRels = readFileSync(actualRelsPath, "utf8");
-
-    const expectedObj = parseXml(expectedRels);
-    const actualObj = parseXml(actualRels);
-
-    const expectedRelationships = expectedObj.Relationships.Relationship;
-    expectedRelationships.sort(sortById);
-
-    const actualRelationships = actualObj.Relationships.Relationship;
-    actualRelationships.sort(sortById);
-
-    expect(actualRelationships).toEqual(expectedRelationships);
+    expect(actualObj).toEqual(expectedObj);
   });
 });

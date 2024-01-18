@@ -85,3 +85,12 @@ export function isInRange(colName: string, min: number, max: number) {
   const columnNumber = convColNameToColIndex(colName) + 1;
   return columnNumber >= min && columnNumber <= max;
 }
+
+/**
+ * if address contains "!", it means that the address has sheet name.
+ * @param address e.g. "Sheet1!A1"
+ * @returns
+ */
+export function hasSheetName(address: string): boolean {
+  return address.indexOf("!") !== -1;
+}

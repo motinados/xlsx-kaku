@@ -1,8 +1,19 @@
-type Hyperlink = {
-  ref: string;
-  rid: string;
-  uuid: string;
-};
+import { hasSheetName } from "./utils";
+
+type Hyperlink =
+  | {
+      linkType: "external";
+      ref: string;
+      rid: string;
+      uuid: string;
+    }
+  | {
+      linkType: "internal";
+      ref: string;
+      location: string;
+      display: string;
+      uuid: string;
+    };
 
 export class Hyperlinks {
   private hyperlinks: Hyperlink[] = [];
@@ -22,14 +33,35 @@ export class Hyperlinks {
     let xml = "";
     xml += "<hyperlinks>";
     for (const hyperlink of this.hyperlinks) {
-      xml +=
-        '<hyperlink ref="' +
-        hyperlink.ref +
-        '" r:id="' +
-        hyperlink.rid +
-        '" xr:uid="{' +
-        hyperlink.uuid +
-        '}"/>';
+      if (hyperlink.linkType === "external") {
+        xml +=
+          '<hyperlink ref="' +
+          hyperlink.ref +
+          '" r:id="' +
+          hyperlink.rid +
+          '" xr:uid="{' +
+          hyperlink.uuid +
+          '}"/>';
+      } else if (hyperlink.linkType === "internal") {
+        let location;
+        if (hasSheetName(hyperlink.location)) {
+          const [sheetName, cellAddress] = hyperlink.location.split("!");
+          location = `'${sheetName}'!${cellAddress}`;
+        } else {
+          location = hyperlink.location;
+        }
+
+        xml +=
+          '<hyperlink ref="' +
+          hyperlink.ref +
+          '" location="' +
+          location +
+          '" display="' +
+          hyperlink.display +
+          '" xr:uid="{' +
+          hyperlink.uuid +
+          '}"/>';
+      }
     }
     xml += "</hyperlinks>";
     return xml;

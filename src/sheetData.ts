@@ -35,6 +35,7 @@ export type Cell =
       type: "hyperlink";
       text: string;
       value: string;
+      linkType: "external" | "internal";
       style?: CellStyle;
     }
   | {

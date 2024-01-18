@@ -37,21 +37,25 @@ describe("hyperlink", () => {
       type: "hyperlink",
       text: "https://www.google.com",
       value: "https://www.google.com",
+      linkType: "external",
     });
     ws.setCell(1, 0, {
       type: "hyperlink",
       text: "https://www.google.com",
       value: "https://www.google.com",
+      linkType: "external",
     });
     ws.setCell(2, 0, {
       type: "hyperlink",
       text: "https://www.github.com",
       value: "https://www.github.com",
+      linkType: "external",
     });
     ws.setCell(3, 0, {
       type: "hyperlink",
       text: "https://www.github.com",
       value: "https://www.github.com",
+      linkType: "external",
     });
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);

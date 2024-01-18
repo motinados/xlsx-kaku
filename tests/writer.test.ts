@@ -174,6 +174,7 @@ describe("Writer", () => {
       type: "hyperlink",
       text: "https://www.google.com",
       value: "https://www.google.com",
+      linkType: "external",
     };
     const result = makeCellXml(
       convertCellToXlsxCell(cell, 2, 0, styleMappers, [], [])
@@ -196,6 +197,9 @@ describe("Writer", () => {
     const hyperlink = hyperlinks[0];
     if (hyperlink === undefined) {
       throw new Error("hyperlink is undefined");
+    }
+    if (hyperlink.linkType !== "external") {
+      throw new Error("hyperlink.linkType is not external");
     }
 
     expect(hyperlink).not.toBeUndefined();

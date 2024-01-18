@@ -164,7 +164,7 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
-  if (styleMappers.hyperlinks.getHyperlinks().length > 0) {
+  if (styleMappers.worksheetRels.relsLength > 0) {
     const worksheetRelsXml = styleMappers.worksheetRels.makeXML();
     files.push({
       filename: "xl/worksheets/_rels/sheet1.xml.rels",
@@ -845,13 +845,23 @@ export function convertCellToXlsxCell(
         uid: "{00000000-000B-0000-0000-000008000000}",
       });
 
-      const rid = styleMappers.worksheetRels.addWorksheetRel(cell.value);
-
-      styleMappers.hyperlinks.addHyperlink({
-        ref: `${colName}${rowNumber}`,
-        rid: rid,
-        uuid: uuidv4(),
-      });
+      if (cell.linkType === "external") {
+        const rid = styleMappers.worksheetRels.addWorksheetRel(cell.value);
+        styleMappers.hyperlinks.addHyperlink({
+          linkType: "external",
+          ref: `${colName}${rowNumber}`,
+          rid: rid,
+          uuid: uuidv4(),
+        });
+      } else if (cell.linkType === "internal") {
+        styleMappers.hyperlinks.addHyperlink({
+          linkType: "internal",
+          ref: `${colName}${rowNumber}`,
+          location: cell.value,
+          display: cell.text,
+          uuid: uuidv4(),
+        });
+      }
 
       return {
         type: "hyperlink",

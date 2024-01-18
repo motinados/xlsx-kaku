@@ -861,6 +861,16 @@ export function convertCellToXlsxCell(
           display: cell.text,
           uuid: uuidv4(),
         });
+      } else if (cell.linkType === "email") {
+        const rid = styleMappers.worksheetRels.addWorksheetRel(
+          `mailto:${cell.value}`
+        );
+        styleMappers.hyperlinks.addHyperlink({
+          linkType: "email",
+          ref: `${colName}${rowNumber}`,
+          rid: rid,
+          uuid: uuidv4(),
+        });
       }
 
       return {

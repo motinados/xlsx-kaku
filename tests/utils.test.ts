@@ -4,6 +4,7 @@ import {
   devideAddress,
   expandRange,
   isInRange,
+  hasSheetName,
 } from "../src/utils";
 
 describe("utils", () => {
@@ -65,5 +66,10 @@ describe("utils", () => {
     expect(isInRange("C", 1, 2)).toBe(false);
     expect(isInRange("C", 3, 3)).toBe(true);
     expect(isInRange("C", 3, 4)).toBe(true);
+  });
+
+  test("hasSheetName", () => {
+    expect(hasSheetName("Sheet1!A1")).toBe(true);
+    expect(hasSheetName("A1")).toBe(false);
   });
 });

@@ -198,6 +198,9 @@ describe("Writer", () => {
     if (hyperlink === undefined) {
       throw new Error("hyperlink is undefined");
     }
+    if (hyperlink.linkType !== "external") {
+      throw new Error("hyperlink.linkType is not external");
+    }
 
     expect(hyperlink).not.toBeUndefined();
     expect(hyperlink.ref).toBe("C1");

@@ -164,7 +164,7 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
-  if (styleMappers.hyperlinks.getHyperlinks().length > 0) {
+  if (styleMappers.worksheetRels.relsLength > 0) {
     const worksheetRelsXml = styleMappers.worksheetRels.makeXML();
     files.push({
       filename: "xl/worksheets/_rels/sheet1.xml.rels",

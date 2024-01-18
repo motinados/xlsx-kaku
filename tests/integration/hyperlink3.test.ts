@@ -38,7 +38,7 @@ describe("internal hyperlink", () => {
     ws1.setCell(0, 0, {
       type: "hyperlink",
       text: "hello",
-      value: "B1",
+      value: "Sheet1!B1",
       linkType: "internal",
     });
     ws1.setCell(0, 1, { type: "string", value: "world" });
@@ -49,7 +49,7 @@ describe("internal hyperlink", () => {
       linkType: "internal",
     });
 
-    ws2.setCell(0, 0, { type: "string", value: "world" });
+    ws2.setCell(0, 0, { type: "string", value: "sheet2" });
 
     const xlsx = wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);

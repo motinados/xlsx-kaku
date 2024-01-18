@@ -2,7 +2,7 @@ import { hasSheetName } from "./utils";
 
 type Hyperlink =
   | {
-      linkType: "external";
+      linkType: "external" | "email";
       ref: string;
       rid: string;
       uuid: string;
@@ -33,7 +33,7 @@ export class Hyperlinks {
     let xml = "";
     xml += "<hyperlinks>";
     for (const hyperlink of this.hyperlinks) {
-      if (hyperlink.linkType === "external") {
+      if (hyperlink.linkType === "external" || hyperlink.linkType === "email") {
         xml +=
           '<hyperlink ref="' +
           hyperlink.ref +

@@ -1,5 +1,5 @@
 import { SharedStrings } from "./sharedStrings";
-import { makeThemeXml } from "./theme";
+import { makeThemeXml } from "./themeXml";
 import { Fills } from "./fills";
 import { CellXfs } from "./cellXfs";
 import { Fonts } from "./fonts";

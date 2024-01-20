@@ -4,6 +4,7 @@ export type Alignment = {
   horizontal?: "left" | "center" | "right";
   vertical?: "top" | "center" | "bottom";
   textRotation?: number;
+  wordwrap?: boolean;
 };
 
 export type CellXf = {
@@ -87,6 +88,9 @@ export class CellXfs {
         }
         if (cellXf.alignment.textRotation) {
           xml += ` textRotation="${cellXf.alignment.textRotation}"`;
+        }
+        if (cellXf.alignment.wordwrap) {
+          xml += ` wrapText="1"`;
         }
         xml += "/>";
         xml += "</xf>";

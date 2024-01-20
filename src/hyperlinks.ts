@@ -66,4 +66,8 @@ export class Hyperlinks {
     xml += "</hyperlinks>";
     return xml;
   }
+
+  reset(): void {
+    this.hyperlinks = [];
+  }
 }

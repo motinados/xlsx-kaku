@@ -137,7 +137,7 @@ function generateXMLs(worksheets: Worksheet[]) {
     appXml,
     coreXml,
     sheetXmls,
-    styleMappers,
+    worksheetRelsList,
   } = createExcelFiles(worksheets);
 
   const files: { filename: string; content: string }[] = [];
@@ -164,11 +164,10 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
-  if (styleMappers.worksheetRels.relsLength > 0) {
-    const worksheetRelsXml = styleMappers.worksheetRels.makeXML();
+  for (let i = 0; i < worksheetRelsList.length; i++) {
     files.push({
-      filename: "xl/worksheets/_rels/sheet1.xml.rels",
-      content: worksheetRelsXml,
+      filename: `xl/worksheets/_rels/sheet${i + 1}.xml.rels`,
+      content: worksheetRelsList[i]!,
     });
   }
 
@@ -194,9 +193,13 @@ function createExcelFiles(worksheets: Worksheet[]) {
   };
 
   const sheetXmls: string[] = [];
+  const worksheetRelsList: string[] = [];
   const worksheetsLength = worksheets.length;
   let count = 0;
   for (const worksheet of worksheets) {
+    styleMappers.hyperlinks.reset();
+    styleMappers.worksheetRels.reset();
+
     const defaultColWidth = worksheet.props.defaultColWidth;
     const defaultRowHeight = worksheet.props.defaultRowHeight;
     const sheetData = worksheet.sheetData;
@@ -241,6 +244,11 @@ function createExcelFiles(worksheets: Worksheet[]) {
       styleMappers.hyperlinks
     );
     sheetXmls.push(sheetXml);
+
+    if (styleMappers.worksheetRels.relsLength > 0) {
+      worksheetRelsList.push(styleMappers.worksheetRels.makeXML());
+    }
+
     count++;
   }
 
@@ -272,7 +280,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
     appXml,
     coreXml,
     sheetXmls,
-    styleMappers,
+    worksheetRelsList,
   };
 }
 

@@ -45,4 +45,8 @@ export class WorksheetRels {
     xml += "</Relationships>";
     return xml;
   }
+
+  reset(): void {
+    this.rels = [];
+  }
 }

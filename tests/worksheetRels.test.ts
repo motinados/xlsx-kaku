@@ -52,4 +52,20 @@ describe("WorksheetRels", () => {
 
     expect(xml).toBe(expectedXML);
   });
+
+  test("reset", () => {
+    const worksheetRels = new WorksheetRels();
+
+    const target1 = "http://www.google.com";
+    const target2 = "http://www.github.com";
+
+    worksheetRels.addWorksheetRel(target1);
+    worksheetRels.addWorksheetRel(target2);
+
+    worksheetRels.reset();
+
+    const rels = worksheetRels.getWorksheetRels();
+
+    expect(rels).toEqual([]);
+  });
 });

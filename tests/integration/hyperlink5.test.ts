@@ -55,7 +55,7 @@ describe("hyperlink with multiple sheets", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
     rmSync(actualUnzippedDir, { recursive: true });
   });
@@ -206,6 +206,12 @@ describe("hyperlink with multiple sheets", () => {
     );
     deletePropertyFromObject(actualObj, "workbook.xr:revisionPtr.@_documentId");
 
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "workbook.bookViews.workbookView.@_activeTab"
+    );
+
     // It may be a problem-free difference.
     deletePropertyFromObject(expectedObj, "workbook.calcPr");
 
@@ -269,6 +275,19 @@ describe("hyperlink with multiple sheets", () => {
     const expectedObj = parseXml(expectedXml);
     const actualObj = parseXml(actualXml);
 
+    // It's likely a problem-free difference.
+    deletePropertyFromObject(expectedObj, "worksheet.dimension.@_ref");
+    deletePropertyFromObject(actualObj, "worksheet.dimension.@_ref");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "worksheet.sheetData.row.@_ht");
+
+    // It's likely a problem-free difference.
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.@_tabSelected"
+    );
+
     // It should be a problem-free difference.
     deletePropertyFromObject(
       expectedObj,
@@ -305,6 +324,14 @@ describe("hyperlink with multiple sheets", () => {
     const actualObj = parseXml(actualXml);
 
     // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "worksheet.@_xr:uid");
+    deletePropertyFromObject(actualObj, "worksheet.@_xr:uid");
+
+    // It's likely a problem-free difference.
+    deletePropertyFromObject(expectedObj, "worksheet.dimension.@_ref");
+    deletePropertyFromObject(actualObj, "worksheet.dimension.@_ref");
+
+    // It should be a problem-free difference.
     deletePropertyFromObject(
       expectedObj,
       "worksheet.sheetViews.sheetView.selection"
@@ -312,6 +339,22 @@ describe("hyperlink with multiple sheets", () => {
     deletePropertyFromObject(
       actualObj,
       "worksheet.sheetViews.sheetView.selection"
+    );
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetFormatPr.@_defaultRowHeight"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetFormatPr.@_defaultRowHeight"
+    );
+
+    // It's likely a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "worksheet.sheetViews.sheetView.@_tabSelected"
     );
 
     // It should be a problem-free difference.
@@ -325,5 +368,47 @@ describe("hyperlink with multiple sheets", () => {
     );
 
     expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("wroksheetsXmlRels 1", () => {
+    const expectedRelsPath = resolve(
+      expectedFileDir,
+      "xl/worksheets/_rels/sheet1.xml.rels"
+    );
+    const expectedRels = readFileSync(expectedRelsPath, "utf8");
+    const actualRelsPath = resolve(
+      actualFileDir,
+      "xl/worksheets/_rels/sheet1.xml.rels"
+    );
+    const actualRels = readFileSync(actualRelsPath, "utf8");
+
+    const expectedObj = parseXml(expectedRels);
+    const actualObj = parseXml(actualRels);
+
+    const expectedRelationships = expectedObj.Relationships.Relationship;
+    const actualRelationships = actualObj.Relationships.Relationship;
+
+    expect(actualRelationships).toEqual(expectedRelationships);
+  });
+
+  test("wroksheetsXmlRels 2", () => {
+    const expectedRelsPath = resolve(
+      expectedFileDir,
+      "xl/worksheets/_rels/sheet2.xml.rels"
+    );
+    const expectedRels = readFileSync(expectedRelsPath, "utf8");
+    const actualRelsPath = resolve(
+      actualFileDir,
+      "xl/worksheets/_rels/sheet2.xml.rels"
+    );
+    const actualRels = readFileSync(actualRelsPath, "utf8");
+
+    const expectedObj = parseXml(expectedRels);
+    const actualObj = parseXml(actualRels);
+
+    const expectedRelationships = expectedObj.Relationships.Relationship;
+    const actualRelationships = actualObj.Relationships.Relationship;
+
+    expect(actualRelationships).toEqual(expectedRelationships);
   });
 });

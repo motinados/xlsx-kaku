@@ -62,7 +62,7 @@ function generateXMLs(worksheets: Worksheet[]) {
     themeXml,
     appXml,
     coreXml,
-    sheetXmls,
+    sheetXmlList,
     worksheetRelsList,
   } = createExcelFiles(worksheets);
 
@@ -83,10 +83,10 @@ function generateXMLs(worksheets: Worksheet[]) {
   });
   files.push({ filename: "xl/theme/theme1.xml", content: themeXml });
 
-  for (let i = 0; i < sheetXmls.length; i++) {
+  for (let i = 0; i < sheetXmlList.length; i++) {
     files.push({
       filename: `xl/worksheets/sheet${i + 1}.xml`,
-      content: sheetXmls[i]!,
+      content: sheetXmlList[i]!,
     });
   }
 
@@ -118,7 +118,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
     worksheetRels: new WorksheetRels(),
   };
 
-  const sheetXmls: string[] = [];
+  const sheetXmlList: string[] = [];
   const worksheetRelsList: string[] = [];
   const worksheetsLength = worksheets.length;
 
@@ -130,7 +130,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
       count
     );
 
-    sheetXmls.push(sheetXml);
+    sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {
       worksheetRelsList.push(worksheetRels);
     }
@@ -165,7 +165,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
     themeXml,
     appXml,
     coreXml,
-    sheetXmls,
+    sheetXmlList,
     worksheetRelsList,
   };
 }

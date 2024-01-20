@@ -118,7 +118,7 @@ export function makeWorksheetXml(
     dimension,
     worksheet.freezePane
   );
-  const shhetFormatPrXML = makeSheetFormatPrXml(
+  const sheetFormatPrXML = makeSheetFormatPrXml(
     defaultRowHeight,
     defaultColWidth
   );
@@ -131,7 +131,7 @@ export function makeWorksheetXml(
     uuid,
     colsXml,
     sheetViewsXml,
-    shhetFormatPrXML,
+    sheetFormatPrXML,
     sheetDataXml,
     mergeCellsXml,
     dimension,

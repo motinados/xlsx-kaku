@@ -18,7 +18,7 @@ import { makeWorkbookXmlRels } from "./xml/workbookXmlRels";
 import { makeCoreXml } from "./xml/coreXml";
 import { makeStylesXml } from "./xml/stylesXml";
 import { makeWorkbookXml } from "./xml/workbookXml";
-import { makeRelsFile } from "./xml/relsFile";
+import { makeRelsFile } from "./xml/rels";
 import { makeContentTypesXml } from "./xml/contentTypesXml";
 
 export type StyleMappers = {

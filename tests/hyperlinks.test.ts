@@ -135,4 +135,24 @@ describe("hyperlinks", () => {
       '<hyperlinks><hyperlink ref="A1" r:id="rId1" xr:uid="{00000000-0000-0000-0000-000000000000}"/><hyperlink ref="A2" r:id="rId2" xr:uid="{00000000-0000-0000-0000-000000000001}"/></hyperlinks>'
     );
   });
+
+  test("reset", () => {
+    const hyperlinks = new Hyperlinks();
+    hyperlinks.addHyperlink({
+      linkType: "external",
+      ref: "A1",
+      rid: "rId1",
+      uuid: "00000000-0000-0000-0000-000000000000",
+    });
+    hyperlinks.addHyperlink({
+      linkType: "external",
+      ref: "A2",
+      rid: "rId2",
+      uuid: "00000000-0000-0000-0000-000000000001",
+    });
+
+    hyperlinks.reset();
+
+    expect(hyperlinks.getHyperlinks()).toEqual([]);
+  });
 });

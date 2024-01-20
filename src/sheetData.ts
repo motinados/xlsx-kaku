@@ -12,6 +12,7 @@ export type CellStyle = {
     horizontal?: "left" | "center" | "right";
     vertical?: "top" | "center" | "bottom";
     textRotation?: number;
+    wordwrap?: boolean;
   };
 };
 

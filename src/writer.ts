@@ -197,6 +197,9 @@ function createExcelFiles(worksheets: Worksheet[]) {
   const worksheetsLength = worksheets.length;
   let count = 0;
   for (const worksheet of worksheets) {
+    styleMappers.hyperlinks.reset();
+    styleMappers.worksheetRels.reset();
+
     const defaultColWidth = worksheet.props.defaultColWidth;
     const defaultRowHeight = worksheet.props.defaultRowHeight;
     const sheetData = worksheet.sheetData;

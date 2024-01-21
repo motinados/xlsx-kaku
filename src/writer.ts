@@ -10,7 +10,7 @@ import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
 import { Worksheet } from "./worksheet";
-import { strToU8, zipSync } from "fflate";
+import { strToU8, zip, zipSync } from "fflate";
 import { makeWorksheetXml } from "./xml/worksheetXml";
 import { makeAppXml } from "./xml/appXml";
 import { makeSharedStringsXml } from "./xml/sharedStringsXml";
@@ -36,19 +36,41 @@ export type StyleMappers = {
 
 export function genXlsx(worksheets: Worksheet[]) {
   const files = generateXMLs(worksheets);
-  const zipped = compressXMLs(files);
-  return zipped;
+  return compressXMLs(files);
+}
+
+export function genXlsxSync(worksheets: Worksheet[]) {
+  const files = generateXMLs(worksheets);
+  return compressXMLsSync(files);
 }
 
 function compressXMLs(files: { filename: string; content: string }[]) {
+  return new Promise<Uint8Array>((resolve, reject) => {
+    const data: { [key: string]: Uint8Array } = {};
+
+    for (const file of files) {
+      data[file.filename] = strToU8(file.content);
+    }
+
+    zip(data, (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      resolve(data);
+    });
+  });
+}
+
+function compressXMLsSync(files: { filename: string; content: string }[]) {
   const data: { [key: string]: Uint8Array } = {};
 
   for (const file of files) {
     data[file.filename] = strToU8(file.content);
   }
 
-  const zipped = zipSync(data);
-  return zipped;
+  return zipSync(data);
 }
 
 function generateXMLs(worksheets: Worksheet[]) {

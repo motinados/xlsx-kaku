@@ -82,8 +82,11 @@ import { Workbook } from "xlsx-kaku";
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
-// Set default coloum width
-const ws = wb.addWorksheet("Sheet2", { defaultColWidth: 30 });
+// Set default coloum width and default row height
+const ws = wb.addWorksheet("Sheet2", {
+  defaultColWidth: 30,
+  defaultRowHeight: 16,
+});
 ```
 
 ### Cell
@@ -207,7 +210,12 @@ ws.setCell(0, 0, {
   type: "number",
   value: 12,
   style: {
-    alignment: { horizontal: "center", vertical: "top", textRotation: 90 },
+    alignment: {
+      horizontal: "center",
+      vertical: "top",
+      textRotation: 90,
+      wordwrap: true,
+    },
   },
 });
 

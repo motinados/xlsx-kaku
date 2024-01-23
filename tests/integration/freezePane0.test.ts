@@ -46,7 +46,7 @@ describe("freeze pane 0", () => {
 
     ws.setFreezePane({ target: "column", split: 1 });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

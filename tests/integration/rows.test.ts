@@ -44,7 +44,7 @@ describe("rows", () => {
     ws.setRowHeight({ index: 3, height: 39.75 });
     ws.setRowHeight({ index: 4, height: 39.75 });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

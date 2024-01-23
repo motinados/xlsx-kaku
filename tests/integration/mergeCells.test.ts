@@ -38,7 +38,7 @@ describe("mergeCells", () => {
     ws.setMergeCell({ ref: "A1:C1" });
     ws.setMergeCell({ ref: "A2:A4" });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

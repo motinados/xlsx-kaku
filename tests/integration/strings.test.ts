@@ -37,7 +37,7 @@ describe("string", () => {
     ws.setCell(0, 1, { type: "string", value: "world" });
     ws.setCell(1, 0, { type: "string", value: "Hello" });
     ws.setCell(1, 1, { type: "string", value: "strings" });
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

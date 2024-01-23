@@ -38,7 +38,7 @@ describe("boolean", () => {
     ws.setCell(1, 0, { type: "boolean", value: false });
     ws.setCell(1, 1, { type: "boolean", value: true });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

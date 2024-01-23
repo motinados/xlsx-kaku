@@ -26,10 +26,17 @@ describe("workbook", () => {
     expect(result).toBeUndefined();
   });
 
-  test("generateXlsx should return Uint8Array", () => {
+  test("generateXlsx should return Uint8Array", async () => {
     const wb = new Workbook();
     wb.addWorksheet("Sheet1");
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
+    expect(xlsx).toBeInstanceOf(Uint8Array);
+  });
+
+  test("generateXlsxSync should return Uint8Array", () => {
+    const wb = new Workbook();
+    wb.addWorksheet("Sheet1");
+    const xlsx = wb.generateXlsxSync();
     expect(xlsx).toBeInstanceOf(Uint8Array);
   });
 });

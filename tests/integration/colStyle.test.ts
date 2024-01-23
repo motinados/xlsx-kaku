@@ -45,7 +45,7 @@ describe("col style", () => {
       style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
     });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

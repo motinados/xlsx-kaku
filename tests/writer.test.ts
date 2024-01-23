@@ -1,11 +1,18 @@
 import { Worksheet } from "../src";
-import { genXlsx } from "../src/writer";
+import { genXlsx, genXlsxSync } from "../src/writer";
 
 describe("writer", () => {
-  test("genXlsx", () => {
+  test("genXlsx", async () => {
     const ws = new Worksheet("Sheet1");
     ws.setCell(1, 1, { type: "string", value: "Hello" });
-    const xlsx = genXlsx([ws]);
+    const xlsx = await genXlsx([ws]);
+    expect(xlsx).toBeInstanceOf(Uint8Array);
+  });
+
+  test("genXlsxSync", () => {
+    const ws = new Worksheet("Sheet1");
+    ws.setCell(1, 1, { type: "string", value: "Hello" });
+    const xlsx = genXlsxSync([ws]);
     expect(xlsx).toBeInstanceOf(Uint8Array);
   });
 });

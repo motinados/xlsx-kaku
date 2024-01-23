@@ -45,7 +45,7 @@ describe("email hyperlink", () => {
       value: "sample2@example.com",
       linkType: "email",
     });
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);
   });

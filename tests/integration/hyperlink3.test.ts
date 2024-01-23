@@ -51,7 +51,7 @@ describe("internal hyperlink", () => {
 
     ws2.setCell(0, 0, { type: "string", value: "sheet2" });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);
   });

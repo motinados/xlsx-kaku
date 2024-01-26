@@ -1,47 +1,14 @@
+import { Worksheet } from ".";
 import { Col, ColStyle, ColWidth, DEFAULT_COL_WIDTH } from "./col";
-import { MergeCellModule, mergeCellModule } from "./mergeCellModule";
 import { DEFAULT_ROW_HEIGHT, Row, RowHeight, RowStyle } from "./row";
 import { NullableCell, SheetData } from "./sheetData";
+import {
+  FreezePane,
+  RequiredWorksheetProps,
+  WorksheetProps,
+} from "./worksheet";
 
-export type MergeCell = {
-  /**
-   * e.g. "A2:B4"
-   */
-  ref: string;
-};
-
-export type FreezePane = {
-  target: "column" | "row";
-  split: number;
-};
-
-export type WorksheetProps = {
-  defaultColWidth?: number;
-  defaultRowHeight?: number;
-};
-
-export type RequiredWorksheetProps = Required<WorksheetProps>;
-
-export interface Worksheet {
-  name: string;
-  props: RequiredWorksheetProps;
-  sheetData: SheetData;
-  cols: Col[];
-  rows: Row[];
-  mergeCells: MergeCell[];
-  freezePane: FreezePane | null;
-  mergeCellModule: MergeCellModule | null;
-  getCell(rowIndex: number, colIndex: number): NullableCell;
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
-  setColWidth(col: ColWidth): void;
-  setColStyle(colStyle: ColStyle): void;
-  setRowHeight(row: RowHeight): void;
-  setRowStyle(row: RowStyle): void;
-  // setMergeCell(mergeCell: MergeCell): void;
-  setFreezePane(freezePane: FreezePane): void;
-}
-
-export class BasicWorksheet implements Worksheet {
+export class SmallWorksheet implements Worksheet {
   private _name: string;
   private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
@@ -49,7 +16,7 @@ export class BasicWorksheet implements Worksheet {
   private _rows: Row[] = [];
   // private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
-  private _mergeCellModule = mergeCellModule();
+  private _mergeCellModule = null;
 
   constructor(name: string, props: WorksheetProps | undefined = {}) {
     this._name = name;
@@ -85,7 +52,7 @@ export class BasicWorksheet implements Worksheet {
   }
 
   get mergeCells() {
-    return this.mergeCellModule.getMergeCells();
+    return [];
   }
 
   get freezePane() {
@@ -104,8 +71,6 @@ export class BasicWorksheet implements Worksheet {
 
     return rows[colIndex] || null;
   }
-
-  // TODO: Cells that have been merged cannot be set.
   setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
     if (!this._sheetData[rowIndex]) {
       const diff = rowIndex - this._sheetData.length + 1;
@@ -141,10 +106,6 @@ export class BasicWorksheet implements Worksheet {
 
   setRowStyle(row: RowStyle) {
     this._rows.push(row);
-  }
-
-  setMergeCell(mergeCell: MergeCell) {
-    this._mergeCellModule.add(this, mergeCell);
   }
 
   setFreezePane(freezePane: FreezePane) {

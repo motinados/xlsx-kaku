@@ -4,15 +4,11 @@ import { Font } from "./fonts";
 import { NumberFormat } from "./numberFormats";
 import { Cell, NullableCell, RowData, SheetData } from "./sheetData";
 import { Workbook } from "./workbook";
-import {
-  Worksheet,
-  MergeCell,
-  FreezePane,
-  BasicWorksheet,
-  SmallWorksheet,
-} from "./worksheet";
+import { Worksheet, MergeCell, FreezePane, BasicWorksheet } from "./worksheet";
+import { SmallWorksheet } from "./smallworksheet";
 import { ColWidth, ColStyle } from "./col";
 import { RowHeight, RowStyle } from "./row";
+import { genXlsx } from "./writer";
 
 export { Border };
 export { Fill };
@@ -20,6 +16,8 @@ export { Font };
 export { NumberFormat };
 export { Cell, NullableCell, RowData, SheetData };
 export { Workbook };
-export { Worksheet, MergeCell, FreezePane, BasicWorksheet, SmallWorksheet };
+export { Worksheet, MergeCell, FreezePane, BasicWorksheet };
+export { SmallWorksheet };
 export { ColWidth, ColStyle };
 export { RowHeight, RowStyle };
+export { genXlsx };

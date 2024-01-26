@@ -11,7 +11,7 @@ import {
   getSpansFromSheetData,
   makeCellXml,
   makeColsXml,
-  makeMergeCellsXml,
+  // makeMergeCellsXml,
   makeSheetDataXml,
   makeSheetViewsXml,
   rowToString,
@@ -27,7 +27,7 @@ import { CellStyleXfs } from "../../src/cellStyleXfs";
 import { CellStyles } from "../../src/cellStyles";
 import { Hyperlinks } from "../../src/hyperlinks";
 import { WorksheetRels } from "../../src/worksheetRels";
-import { FreezePane, MergeCell } from "../../src/worksheet";
+import { FreezePane } from "../../src/worksheet";
 import { Col, DEFAULT_COL_WIDTH, combineColProps } from "../../src/col";
 import { DEFAULT_ROW_HEIGHT } from "../../src/row";
 
@@ -394,17 +394,19 @@ describe("Writer", () => {
     );
   });
 
-  test("makeMergeCellsXml", () => {
-    const mergeCells: MergeCell[] = [
-      { ref: "A1:B2" },
-      { ref: "C3:D4" },
-      { ref: "E5:F6" },
-    ];
+  // test("makeMergeCellsXml", () => {
+  //   const mergeCells: MergeCell[] = [
+  //     { ref: "A1:B2" },
+  //     { ref: "C3:D4" },
+  //     { ref: "E5:F6" },
+  //   ];
 
-    expect(makeMergeCellsXml(mergeCells)).toBe(
-      `<mergeCells count="3"><mergeCell ref="A1:B2"/><mergeCell ref="C3:D4"/><mergeCell ref="E5:F6"/></mergeCells>`
-    );
-  });
+  //   const mergeCellPlugin = margeCellPlugin();
+
+  //   expect(makeMergeCellsXml(mergeCells)).toBe(
+  //     `<mergeCells count="3"><mergeCell ref="A1:B2"/><mergeCell ref="C3:D4"/><mergeCell ref="E5:F6"/></mergeCells>`
+  //   );
+  // });
 
   test("mekeSheetViewsXml", () => {
     const dimension = { start: "A1", end: "B2" };

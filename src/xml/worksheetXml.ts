@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { FreezePane, MergeCell, Worksheet } from "..";
+import { FreezePane, Worksheet } from "..";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "../col";
 import { CombinedRow, DEFAULT_ROW_HEIGHT, combineRowProps } from "../row";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
@@ -7,6 +7,7 @@ import { StyleMappers } from "../writer";
 import { convColIndexToColName, isInRange } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
+import { MergeCellModule } from "../mergeCellModule";
 
 type XlsxCol = {
   /** e.g. column A is 1 */
@@ -104,7 +105,7 @@ export function makeWorksheetXml(
     convRowToXlsxRow(row, styleMappers)
   );
   const colsXml = makeColsXml(xlsxCols, defaultColWidth);
-  const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
+  const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCellModule);
   const sheetDataXml = makeSheetDataXml(
     sheetData,
     styleMappers,
@@ -245,18 +246,26 @@ export function makeColsXml(cols: XlsxCol[], defaultColWidth: number): string {
   return result;
 }
 
-export function makeMergeCellsXml(mergeCells: MergeCell[]) {
-  if (mergeCells.length === 0) {
+export function makeMergeCellsXml(
+  // mergeCells: MergeCell[],
+  mergeCellPlugin: MergeCellModule | null
+) {
+  if (mergeCellPlugin === null) {
     return "";
   }
 
-  let result = `<mergeCells count="${mergeCells.length}">`;
-  for (const mergeCell of mergeCells) {
-    result += `<mergeCell ref="${mergeCell.ref}"/>`;
-  }
-  result += "</mergeCells>";
+  return mergeCellPlugin.makeXml();
+  // if (mergeCells.length === 0) {
+  //   return "";
+  // }
 
-  return result;
+  // let result = `<mergeCells count="${mergeCells.length}">`;
+  // for (const mergeCell of mergeCells) {
+  //   result += `<mergeCell ref="${mergeCell.ref}"/>`;
+  // }
+  // result += "</mergeCells>";
+
+  // return result;
 }
 
 export function makeSheetDataXml(

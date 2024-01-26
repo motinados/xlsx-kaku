@@ -4,7 +4,13 @@ import { Font } from "./fonts";
 import { NumberFormat } from "./numberFormats";
 import { Cell, NullableCell, RowData, SheetData } from "./sheetData";
 import { Workbook } from "./workbook";
-import { Worksheet, MergeCell, FreezePane } from "./worksheet";
+import {
+  Worksheet,
+  MergeCell,
+  FreezePane,
+  BasicWorksheet,
+  SmallWorksheet,
+} from "./worksheet";
 import { ColWidth, ColStyle } from "./col";
 import { RowHeight, RowStyle } from "./row";
 
@@ -14,6 +20,6 @@ export { Font };
 export { NumberFormat };
 export { Cell, NullableCell, RowData, SheetData };
 export { Workbook };
-export { Worksheet, MergeCell, FreezePane };
+export { Worksheet, MergeCell, FreezePane, BasicWorksheet, SmallWorksheet };
 export { ColWidth, ColStyle };
 export { RowHeight, RowStyle };

@@ -1,0 +1,57 @@
+import { MergeCell, Worksheet } from ".";
+import { expandRange } from "./utils";
+
+export type MergeCellModule = {
+  name: string;
+  getMergeCells(): MergeCell[];
+  add(worksheet: Worksheet, mergeCell: MergeCell): void;
+  makeXml(): string;
+};
+
+export function mergeCellModule(): MergeCellModule {
+  const mergeCells: MergeCell[] = [];
+  return {
+    name: "marge-cell",
+    getMergeCells() {
+      return mergeCells;
+    },
+    add(worksheet: Worksheet, mergeCell: MergeCell) {
+      // Within the range to be merged, cells are set with the type of "merged".
+      const addresses = expandRange(mergeCell.ref);
+      for (let i = 0; i < addresses.length; i++) {
+        const address = addresses[i];
+        if (address) {
+          const [colIndex, rowIndex] = address;
+
+          if (i === 0) {
+            // If the cell is not set, set it as empty string.
+            const cell = worksheet.getCell(rowIndex, colIndex);
+            if (!cell) {
+              worksheet.setCell(rowIndex, colIndex, {
+                type: "string",
+                value: "",
+              });
+            }
+          } else {
+            worksheet.setCell(rowIndex, colIndex, { type: "merged" });
+          }
+        }
+      }
+
+      mergeCells.push(mergeCell);
+    },
+    makeXml() {
+      if (mergeCells.length === 0) {
+        return "";
+      }
+
+      let result = `<mergeCells count="${mergeCells.length}">`;
+      for (const mergeCell of mergeCells) {
+        result += `<mergeCell ref="${mergeCell.ref}"/>`;
+      }
+      result += "</mergeCells>";
+
+      return result;
+    },
+  };
+}

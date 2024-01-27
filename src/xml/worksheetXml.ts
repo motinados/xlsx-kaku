@@ -395,7 +395,7 @@ export function rowToString(
           rowIndex,
           styleMappers,
           xlsxCols,
-          xlsxRows
+          xlsxRow
         )
       );
     }
@@ -466,7 +466,7 @@ export function convertCellToXlsxCell(
   rowIndex: number,
   styleMappers: StyleMappers,
   xlsxCols: XlsxCol[],
-  xlsxRows: Map<number, XlsxRow>
+  xlsxRow: XlsxRow | undefined
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
   const colName = convColIndexToColName(columnIndex);
@@ -476,10 +476,9 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        rowIndex,
         styleMappers,
         xlsxCols,
-        xlsxRows
+        xlsxRow
       );
       return {
         type: "number",
@@ -493,10 +492,9 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        rowIndex,
         styleMappers,
         xlsxCols,
-        xlsxRows
+        xlsxRow
       );
       const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
       return {
@@ -513,10 +511,9 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        rowIndex,
         styleMappers,
         xlsxCols,
-        xlsxRows
+        xlsxRow
       );
       return {
         type: "date",
@@ -591,10 +588,9 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        rowIndex,
         styleMappers,
         xlsxCols,
-        xlsxRows
+        xlsxRow
       );
       return {
         type: "boolean",
@@ -608,10 +604,9 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        rowIndex,
         styleMappers,
         xlsxCols,
-        xlsxRows
+        xlsxRow
       );
       return {
         type: "formula",
@@ -625,10 +620,9 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        rowIndex,
         styleMappers,
         xlsxCols,
-        xlsxRows
+        xlsxRow
       );
       return {
         type: "merged",
@@ -647,10 +641,9 @@ export function convertCellToXlsxCell(
 function getCellXfId(
   cell: Cell,
   colName: string,
-  rowIndex: number,
   styleMappers: StyleMappers,
   xlsxCols: XlsxCol[],
-  xlsxRows: Map<number, XlsxRow>
+  foundRow: XlsxRow | undefined
 ) {
   const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
   if (composedStyle) {
@@ -662,7 +655,6 @@ function getCellXfId(
     return foundCol.cellXfId;
   }
 
-  const foundRow = xlsxRows.get(rowIndex);
   if (foundRow) {
     return foundRow.cellXfId;
   }

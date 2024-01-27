@@ -10,18 +10,26 @@ describe("row", () => {
       { index: 2, height: 30 },
     ];
     const combinedRows = combineRowProps(rows);
-    expect(combinedRows).toEqual([
-      {
-        index: 0,
-        height: 10,
-        style: { alignment: { horizontal: "center" } },
-      },
-      {
-        index: 1,
-        height: 20,
-        style: { alignment: { vertical: "top" } },
-      },
-      { index: 2, height: 30 },
-    ]);
+    expect(combinedRows).toStrictEqual(
+      new Map([
+        [
+          0,
+          {
+            index: 0,
+            height: 10,
+            style: { alignment: { horizontal: "center" } },
+          },
+        ],
+        [
+          1,
+          {
+            index: 1,
+            height: 20,
+            style: { alignment: { vertical: "top" } },
+          },
+        ],
+        [2, { index: 2, height: 30 }],
+      ])
+    );
   });
 });

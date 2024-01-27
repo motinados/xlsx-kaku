@@ -100,9 +100,14 @@ export function makeWorksheetXml(
   const xlsxCols = combineColProps(worksheet.cols).map((col) =>
     convertCombinedColToXlsxCol(col, styleMappers, defaultColWidth)
   );
-  const xlsxRows = combineRowProps(worksheet.rows).map((row) =>
-    convRowToXlsxRow(row, styleMappers)
-  );
+  const rows = combineRowProps(worksheet.rows);
+
+  const xlsxRows = new Map<number, XlsxRow>();
+  for (const row of rows.values()) {
+    const xlsxRow = convRowToXlsxRow(row, styleMappers);
+    xlsxRows.set(xlsxRow.index, xlsxRow);
+  }
+
   const colsXml = makeColsXml(xlsxCols, defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
   const sheetDataXml = makeSheetDataXml(
@@ -263,7 +268,7 @@ export function makeSheetDataXml(
   sheetData: SheetData,
   styleMappers: StyleMappers,
   xlsxCols: XlsxCol[],
-  xlsxRows: XlsxRow[]
+  xlsxRows: Map<number, XlsxRow>
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
 
@@ -358,7 +363,7 @@ export function rowToString(
   endNumber: number,
   styleMappers: StyleMappers,
   xlsxCols: XlsxCol[],
-  xlsxRows: XlsxRow[]
+  xlsxRows: Map<number, XlsxRow>
 ): string | null {
   if (row.length === 0) {
     return null;
@@ -368,7 +373,7 @@ export function rowToString(
 
   let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}"`;
 
-  const xlsxRow = xlsxRows.find((it) => it.index === rowIndex);
+  const xlsxRow = xlsxRows.get(rowIndex);
   if (xlsxRow) {
     if (xlsxRow.cellXfId) {
       result += ` s="${xlsxRow.cellXfId}" customFormat="1"`;
@@ -461,7 +466,7 @@ export function convertCellToXlsxCell(
   rowIndex: number,
   styleMappers: StyleMappers,
   xlsxCols: XlsxCol[],
-  xlsxRows: XlsxRow[]
+  xlsxRows: Map<number, XlsxRow>
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
   const colName = convColIndexToColName(columnIndex);
@@ -645,7 +650,7 @@ function getCellXfId(
   rowIndex: number,
   styleMappers: StyleMappers,
   xlsxCols: XlsxCol[],
-  xlsxRows: XlsxRow[]
+  xlsxRows: Map<number, XlsxRow>
 ) {
   const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
   if (composedStyle) {
@@ -657,7 +662,7 @@ function getCellXfId(
     return foundCol.cellXfId;
   }
 
-  const foundRow = xlsxRows.find((it) => it.index === rowIndex);
+  const foundRow = xlsxRows.get(rowIndex);
   if (foundRow) {
     return foundRow.cellXfId;
   }

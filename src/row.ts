@@ -20,10 +20,10 @@ export type CombinedRow = {
 
 export const DEFAULT_ROW_HEIGHT = 13.5;
 
-export function combineRowProps(rows: Row[]): CombinedRow[] {
-  const combinedRows: CombinedRow[] = [];
+export function combineRowProps(rows: Row[]) {
+  const combinedRows = new Map<number, CombinedRow>();
   for (const row of rows) {
-    const found = combinedRows.find((r) => r.index === row.index);
+    const found = combinedRows.get(row.index);
     if (found) {
       if ("height" in row) {
         found.height = row.height;
@@ -42,7 +42,7 @@ export function combineRowProps(rows: Row[]): CombinedRow[] {
     if ("style" in row) {
       newCombinedRow.style = row.style;
     }
-    combinedRows.push(newCombinedRow);
+    combinedRows.set(newCombinedRow.index, newCombinedRow);
   }
 
   return combinedRows;

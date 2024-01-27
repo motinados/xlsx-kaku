@@ -33,7 +33,7 @@ function main() {
   ws.setCell(0, 0, { type: "string", value: "Hello" });
   ws.setCell(0, 1, { type: "number", value: 123 });
 
-  const xlsx = wb.generateXlsx();
+  const xlsx = await wb.generateXlsxSync();
   writeFileSync("sample.xlsx", xlsx);
 }
 ```
@@ -51,7 +51,7 @@ export default function DownloadButton() {
     ws.setCell(0, 0, { type: "string", value: "Hello" });
     ws.setCell(0, 1, { type: "number", value: 123 });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = wb.generateXlsxSync();
 
     const blob = new Blob([xlsx], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -141,7 +141,7 @@ ws.setCell(5, 0, { type: "number", value: 1 });
 ws.setCell(5, 1, { type: "number", value: 2 });
 ws.setCell(5, 2, { type: "formula", value: "SUM(A6:B6)" });
 
-const xlsx = wb.generateXlsx();
+const xlsx = wb.generateXlsxSync();
 ```
 
 ### Column
@@ -165,7 +165,7 @@ ws.setColStyle({
   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
 });
 
-const xlsx = wb.generateXlsx();
+const xlsx = wb.generateXlsxSync();
 ```
 
 ### Row
@@ -195,7 +195,7 @@ ws.setRowStyle({
   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
 });
 
-const xlsx = wb.generateXlsx();
+const xlsx = wb.generateXlsxSync();
 ```
 
 ### Alignment
@@ -219,7 +219,7 @@ ws.setCell(0, 0, {
   },
 });
 
-const xlsx = wb.generateXlsx();
+const xlsx = wb.generateXlsxSync();
 ```
 
 ### Merge cells
@@ -235,7 +235,7 @@ ws.setCell(1, 0, { type: "number", value: 2 });
 ws.setMergeCell({ ref: "A1:C1" });
 ws.setMergeCell({ ref: "A2:A4" });
 
-const xlsx = wb.generateXlsx();
+const xlsx = wb.generateXlsxSync();
 ```
 
 ### Freeze pane
@@ -257,5 +257,5 @@ ws.setFreezePane({ target: "row", split: 1 });
 // Column A will be fixed.
 // ws.setFreezePane({ target: "column", split: 1 });
 
-const xlsx = wb.generateXlsx();
+const xlsx = wb.generateXlsxSync();
 ```

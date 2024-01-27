@@ -7,6 +7,7 @@ import { Workbook } from "./workbook";
 import { Worksheet, MergeCell, FreezePane } from "./worksheet";
 import { ColWidth, ColStyle } from "./col";
 import { RowHeight, RowStyle } from "./row";
+import { genXlsx, genXlsxSync } from "./writer";
 
 export { Border };
 export { Fill };
@@ -17,3 +18,4 @@ export { Workbook };
 export { Worksheet, MergeCell, FreezePane };
 export { ColWidth, ColStyle };
 export { RowHeight, RowStyle };
+export { genXlsx, genXlsxSync };

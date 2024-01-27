@@ -42,7 +42,7 @@ describe("formula", () => {
     ws.setCell(1, 1, { type: "number", value: 11 });
     ws.setCell(1, 2, { type: "formula", value: "MIN(A2,B2)" });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

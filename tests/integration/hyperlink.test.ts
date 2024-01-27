@@ -57,7 +57,7 @@ describe("hyperlink", () => {
       value: "https://www.github.com",
       linkType: "external",
     });
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);
   });

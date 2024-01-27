@@ -59,7 +59,7 @@ describe("col style with cell value", () => {
     ws.setCell(2, 1, { type: "number", value: 8 });
     ws.setCell(2, 2, { type: "number", value: 9 });
 
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
     await unzip(actualXlsxPath, actualFileDir);
   });

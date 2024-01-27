@@ -37,7 +37,7 @@ describe("number", () => {
     ws.setCell(0, 1, { type: "number", value: 2 });
     ws.setCell(1, 0, { type: "number", value: 3 });
     ws.setCell(1, 1, { type: "number", value: 4 });
-    const xlsx = wb.generateXlsx();
+    const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
     await unzip(actualXlsxPath, actualFileDir);

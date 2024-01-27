@@ -1,4 +1,4 @@
-import { genXlsx } from "./writer";
+import { genXlsx, genXlsxSync } from "./writer";
 import { Worksheet, WorksheetProps } from "./worksheet";
 
 export class Workbook {
@@ -16,6 +16,10 @@ export class Workbook {
 
   getWorksheet(sheetName: string) {
     return this._worksheets.find((ws) => ws.name === sheetName);
+  }
+
+  generateXlsxSync() {
+    return genXlsxSync(this._worksheets);
   }
 
   generateXlsx() {

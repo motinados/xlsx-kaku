@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { FreezePane, MergeCell, Worksheet } from "..";
 import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "../col";
-import { CombinedRow, DEFAULT_ROW_HEIGHT, combineRowProps } from "../row";
+import { RowProps, DEFAULT_ROW_HEIGHT } from "../row";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
 import { convColIndexToColName, isInRange } from "../utils";
@@ -100,10 +100,9 @@ export function makeWorksheetXml(
   const xlsxCols = combineColProps(worksheet.cols).map((col) =>
     convertCombinedColToXlsxCol(col, styleMappers, defaultColWidth)
   );
-  const rows = combineRowProps(worksheet.rows);
 
   const xlsxRows = new Map<number, XlsxRow>();
-  for (const row of rows.values()) {
+  for (const row of worksheet.rows.values()) {
     const xlsxRow = convRowToXlsxRow(row, styleMappers);
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
@@ -204,7 +203,7 @@ export function composeXlsxCellStyle(
 }
 
 export function convRowToXlsxRow(
-  row: CombinedRow,
+  row: RowProps,
   styleMappers: StyleMappers
 ): XlsxRow {
   let cellXfId: number | null = null;

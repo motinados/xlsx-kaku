@@ -8,11 +8,9 @@ import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
 
-type XlsxCol = {
-  /** e.g. column A is 1 */
-  min: number;
-  /** e.g. column A is 1 */
-  max: number;
+export type XlsxCol = {
+  /** e.g. column A is 0 */
+  index: number;
   width: number;
   customWidth: boolean;
   cellXfId: number | null;
@@ -86,6 +84,14 @@ type XlsxCell =
       cellXfId: number | null;
     };
 
+export type GroupedXlsxCol = {
+  startIndex: number;
+  endIndex: number;
+  width: number;
+  customWidth: boolean;
+  cellXfId: number | null;
+};
+
 export function makeWorksheetXml(
   worksheet: Worksheet,
   styleMappers: StyleMappers,
@@ -112,7 +118,7 @@ export function makeWorksheetXml(
   const xlsxRows = combineRowProps(worksheet.rows).map((row) =>
     convRowToXlsxRow(row, styleMappers)
   );
-  const colsXml = makeColsXml(xlsxCols, defaultColWidth);
+  const colsXml = makeColsXml(groupXlsxCol(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
   const sheetDataXml = makeSheetDataXml(
     sheetData,
@@ -175,8 +181,7 @@ export function convertCombinedColToXlsxCol(
   }
 
   return {
-    min: col.index + 1,
-    max: col.index + 1,
+    index: col.index,
     width: col.width ?? defaultWidth,
     customWidth: col.width !== undefined && col.width !== defaultWidth,
     cellXfId: cellXfId,
@@ -228,17 +233,70 @@ export function convRowToXlsxRow(
   };
 }
 
+export function isEqualsXlsxCol(a: XlsxCol, b: XlsxCol) {
+  return (
+    // index must not be compared.
+    a.width === b.width &&
+    a.customWidth === b.customWidth &&
+    a.cellXfId === b.cellXfId
+  );
+}
+
+export function groupXlsxCol(cols: Map<number, XlsxCol>) {
+  const result: GroupedXlsxCol[] = [];
+  let startCol: XlsxCol;
+  let endCol: XlsxCol;
+
+  let i = 0;
+  for (const col of cols.values()) {
+    if (i === 0) {
+      // the first
+      startCol = col;
+      endCol = col;
+    } else {
+      if (isEqualsXlsxCol(startCol!, col)) {
+        endCol = col;
+      } else {
+        result.push({
+          startIndex: startCol!.index,
+          endIndex: endCol!.index,
+          width: startCol!.width,
+          customWidth: startCol!.customWidth,
+          cellXfId: startCol!.cellXfId,
+        });
+        startCol = col;
+        endCol = col;
+      }
+    }
+
+    if (i == cols.size - 1) {
+      // the last
+      result.push({
+        startIndex: startCol!.index,
+        endIndex: endCol!.index,
+        width: startCol!.width,
+        customWidth: startCol!.customWidth,
+        cellXfId: startCol!.cellXfId,
+      });
+    }
+
+    i++;
+  }
+
+  return result;
+}
+
 export function makeColsXml(
-  cols: Map<number, XlsxCol>,
+  cols: GroupedXlsxCol[],
   defaultColWidth: number
 ): string {
-  if (cols.size === 0) {
+  if (cols.length === 0) {
     return "";
   }
 
   let result = "<cols>";
-  for (const col of cols.values()) {
-    result += `<col min="${col.min}" max="${col.max}"`;
+  for (const col of cols) {
+    result += `<col min="${col.startIndex + 1}" max="${col.endIndex + 1}"`;
 
     if (col.customWidth) {
       result += ` width="${col.width}" customWidth="1"`;

@@ -34,15 +34,29 @@ describe("col style", () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
 
-    ws.setColStyle({
-      startIndex: 0,
-      endIndex: 0,
-      style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+    ws.setColProps({
+      index: 0,
+      style: {
+        fill: { patternType: "solid", fgColor: "FFFFFF00" },
+      },
     });
-    ws.setColStyle({
-      startIndex: 2,
-      endIndex: 4,
-      style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
+    ws.setColProps({
+      index: 2,
+      style: {
+        fill: { patternType: "solid", fgColor: "FFFF0000" },
+      },
+    });
+    ws.setColProps({
+      index: 3,
+      style: {
+        fill: { patternType: "solid", fgColor: "FFFF0000" },
+      },
+    });
+    ws.setColProps({
+      index: 4,
+      style: {
+        fill: { patternType: "solid", fgColor: "FFFF0000" },
+      },
     });
 
     const xlsx = await wb.generateXlsx();

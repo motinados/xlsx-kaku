@@ -1,18 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 import { FreezePane, MergeCell, Worksheet } from "..";
-import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "../col";
+import { ColProps, DEFAULT_COL_WIDTH } from "../col";
 import { CombinedRow, DEFAULT_ROW_HEIGHT, combineRowProps } from "../row";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
-import { convColIndexToColName, isInRange } from "../utils";
+import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
 
-type XlsxCol = {
-  /** e.g. column A is 1 */
-  min: number;
-  /** e.g. column A is 1 */
-  max: number;
+export type XlsxCol = {
+  /** e.g. column A is 0 */
+  index: number;
   width: number;
   customWidth: boolean;
   cellXfId: number | null;
@@ -86,6 +84,14 @@ type XlsxCell =
       cellXfId: number | null;
     };
 
+export type GroupedXlsxCol = {
+  startIndex: number;
+  endIndex: number;
+  width: number;
+  customWidth: boolean;
+  cellXfId: number | null;
+};
+
 export function makeWorksheetXml(
   worksheet: Worksheet,
   styleMappers: StyleMappers,
@@ -97,13 +103,22 @@ export function makeWorksheetXml(
   const defaultColWidth = worksheet.props.defaultColWidth;
   const defaultRowHeight = worksheet.props.defaultRowHeight;
   const sheetData = worksheet.sheetData;
-  const xlsxCols = combineColProps(worksheet.cols).map((col) =>
-    convertCombinedColToXlsxCol(col, styleMappers, defaultColWidth)
-  );
+
+  const xlsxCols = new Map<number, XlsxCol>();
+  for (const col of worksheet.cols.values()) {
+    const i = col.index;
+    const xlsxCol = convertCombinedColToXlsxCol(
+      col,
+      styleMappers,
+      defaultColWidth
+    );
+    xlsxCols.set(i, xlsxCol);
+  }
+
   const xlsxRows = combineRowProps(worksheet.rows).map((row) =>
     convRowToXlsxRow(row, styleMappers)
   );
-  const colsXml = makeColsXml(xlsxCols, defaultColWidth);
+  const colsXml = makeColsXml(groupXlsxCol(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
   const sheetDataXml = makeSheetDataXml(
     sheetData,
@@ -152,7 +167,7 @@ export function makeWorksheetXml(
 }
 
 export function convertCombinedColToXlsxCol(
-  col: CombinedCol,
+  col: ColProps,
   mappers: StyleMappers,
   defaultWidth: number
 ): XlsxCol {
@@ -166,8 +181,7 @@ export function convertCombinedColToXlsxCol(
   }
 
   return {
-    min: col.startIndex + 1,
-    max: col.endIndex + 1,
+    index: col.index,
     width: col.width ?? defaultWidth,
     customWidth: col.width !== undefined && col.width !== defaultWidth,
     cellXfId: cellXfId,
@@ -219,14 +233,70 @@ export function convRowToXlsxRow(
   };
 }
 
-export function makeColsXml(cols: XlsxCol[], defaultColWidth: number): string {
+export function isEqualsXlsxCol(a: XlsxCol, b: XlsxCol) {
+  return (
+    // index must not be compared.
+    a.width === b.width &&
+    a.customWidth === b.customWidth &&
+    a.cellXfId === b.cellXfId
+  );
+}
+
+export function groupXlsxCol(cols: Map<number, XlsxCol>) {
+  const result: GroupedXlsxCol[] = [];
+  let startCol: XlsxCol;
+  let endCol: XlsxCol;
+
+  let i = 0;
+  for (const col of cols.values()) {
+    if (i === 0) {
+      // the first
+      startCol = col;
+      endCol = col;
+    } else {
+      if (isEqualsXlsxCol(startCol!, col)) {
+        endCol = col;
+      } else {
+        result.push({
+          startIndex: startCol!.index,
+          endIndex: endCol!.index,
+          width: startCol!.width,
+          customWidth: startCol!.customWidth,
+          cellXfId: startCol!.cellXfId,
+        });
+        startCol = col;
+        endCol = col;
+      }
+    }
+
+    if (i == cols.size - 1) {
+      // the last
+      result.push({
+        startIndex: startCol!.index,
+        endIndex: endCol!.index,
+        width: startCol!.width,
+        customWidth: startCol!.customWidth,
+        cellXfId: startCol!.cellXfId,
+      });
+    }
+
+    i++;
+  }
+
+  return result;
+}
+
+export function makeColsXml(
+  cols: GroupedXlsxCol[],
+  defaultColWidth: number
+): string {
   if (cols.length === 0) {
     return "";
   }
 
   let result = "<cols>";
   for (const col of cols) {
-    result += `<col min="${col.min}" max="${col.max}"`;
+    result += `<col min="${col.startIndex + 1}" max="${col.endIndex + 1}"`;
 
     if (col.customWidth) {
       result += ` width="${col.width}" customWidth="1"`;
@@ -262,7 +332,7 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
 export function makeSheetDataXml(
   sheetData: SheetData,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[],
+  xlsxCols: Map<number, XlsxCol>,
   xlsxRows: XlsxRow[]
 ) {
   const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
@@ -357,7 +427,7 @@ export function rowToString(
   startNumber: number,
   endNumber: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[],
+  xlsxCols: Map<number, XlsxCol>,
   xlsxRows: XlsxRow[]
 ): string | null {
   if (row.length === 0) {
@@ -460,7 +530,7 @@ export function convertCellToXlsxCell(
   columnIndex: number,
   rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[],
+  xlsxCols: Map<number, XlsxCol>,
   xlsxRows: XlsxRow[]
 ): XlsxCell {
   const rowNumber = rowIndex + 1;
@@ -644,7 +714,7 @@ function getCellXfId(
   colName: string,
   rowIndex: number,
   styleMappers: StyleMappers,
-  xlsxCols: XlsxCol[],
+  xlsxCols: Map<number, XlsxCol>,
   xlsxRows: XlsxRow[]
 ) {
   const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
@@ -652,7 +722,7 @@ function getCellXfId(
     return styleMappers.cellXfs.getCellXfId(composedStyle);
   }
 
-  const foundCol = xlsxCols.find((it) => isInRange(colName, it.min, it.max));
+  const foundCol = xlsxCols.get(convColNameToColIndex(colName));
   if (foundCol) {
     return foundCol.cellXfId;
   }

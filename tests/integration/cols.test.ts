@@ -40,9 +40,22 @@ describe("cols", () => {
     ws.setCell(0, 4, { type: "number", value: 5 });
     ws.setCell(0, 5, { type: "number", value: 6 });
 
-    // In online Excel, I set the width to 25, but in the saved styles.xml, it is 25.625.
-    ws.setColWidth({ startIndex: 1, endIndex: 1, width: 25.625 });
-    ws.setColWidth({ startIndex: 2, endIndex: 4, width: 6.625 });
+    ws.setColProps({
+      index: 1,
+      width: 25.625,
+    });
+    ws.setColProps({
+      index: 2,
+      width: 6.625,
+    });
+    ws.setColProps({
+      index: 3,
+      width: 6.625,
+    });
+    ws.setColProps({
+      index: 4,
+      width: 6.625,
+    });
 
     const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);

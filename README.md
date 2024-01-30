@@ -152,16 +152,9 @@ import { Workbook } from "xlsx-kaku";
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
-// The width of only column A will be changed.
-ws.setColWidth({ startIndex: 0, endIndex: 0, width: 12 });
-
-// The width of columns B to C will be changed.
-ws.setColWidth({ startIndex: 1, endIndex: 2, width: 24 });
-
-// The style of column D will be changed.
-ws.setColStyle({
-  startIndex: 3,
-  endIndex: 3,
+ws.setColProps({
+  index: 0,
+  width: 12,
   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
 });
 
@@ -176,22 +169,11 @@ import { Workbook } from "xlsx-kaku";
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
+// Currently, RowProps do not work without a value in the cell.
 ws.setCell(0, 0, { type: "number", value: 1 });
-ws.setCell(1, 0, { type: "number", value: 2 });
-ws.setCell(2, 0, { type: "number", value: 3 });
-ws.setCell(3, 0, { type: "number", value: 4 });
-
-// Change the height of the first row.
-ws.setRowHeight({ index: 0, height: 20.25 });
-
-// Unlike column width, it is necessary to set each row individually.
-ws.setRowHeight({ index: 1, height: 39.75 });
-ws.setRowHeight({ index: 2, height: 39.75 });
-ws.setRowHeight({ index: 3, height: 39.75 });
-
-// Change the color of the third row.
-ws.setRowStyle({
-  index: 2,
+ws.setRowProps({
+  index: 0,
+  height: 20,
   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
 });
 

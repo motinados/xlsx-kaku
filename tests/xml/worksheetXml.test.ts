@@ -34,10 +34,10 @@ import { WorksheetRels } from "../../src/worksheetRels";
 import {
   ColProps,
   DEFAULT_COL_WIDTH,
+  DEFAULT_ROW_HEIGHT,
   FreezePane,
   MergeCell,
 } from "../../src/worksheet";
-import { DEFAULT_ROW_HEIGHT } from "../../src/row";
 
 describe("Writer", () => {
   function getStyleMappers() {

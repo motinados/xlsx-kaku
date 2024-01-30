@@ -1,5 +1,8 @@
-import { DEFAULT_ROW_HEIGHT } from "../src/row";
-import { DEFAULT_COL_WIDTH, Worksheet } from "../src/worksheet";
+import {
+  DEFAULT_COL_WIDTH,
+  DEFAULT_ROW_HEIGHT,
+  Worksheet,
+} from "../src/worksheet";
 
 describe("worksheet", () => {
   test("should be able to create a worksheet", () => {

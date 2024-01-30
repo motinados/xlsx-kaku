@@ -1,4 +1,3 @@
-import { DEFAULT_ROW_HEIGHT, RowProps } from "./row";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
 
@@ -7,10 +6,17 @@ import { expandRange } from "./utils";
  * Changing this value will result in differences in integration tests.
  */
 export const DEFAULT_COL_WIDTH = 9;
+export const DEFAULT_ROW_HEIGHT = 13.5;
 
 export type ColProps = {
   index: number;
   width?: number;
+  style?: CellStyle;
+};
+
+export type RowProps = {
+  index: number;
+  height?: number;
   style?: CellStyle;
 };
 

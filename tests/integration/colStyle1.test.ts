@@ -34,15 +34,17 @@ describe("col style with cell value", () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
 
-    ws.setColStyle({
-      startIndex: 0,
-      endIndex: 0,
-      style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
+    ws.setColProps({
+      index: 0,
+      style: {
+        fill: { patternType: "solid", fgColor: "FFFFFF00" },
+      },
     });
-    ws.setColStyle({
-      startIndex: 2,
-      endIndex: 2,
-      style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
+    ws.setColProps({
+      index: 2,
+      style: {
+        fill: { patternType: "solid", fgColor: "FFFF0000" },
+      },
     });
 
     ws.setCell(0, 0, { type: "number", value: 1 });

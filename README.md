@@ -33,7 +33,7 @@ function main() {
   ws.setCell(0, 0, { type: "string", value: "Hello" });
   ws.setCell(0, 1, { type: "number", value: 123 });
 
-  const xlsx = await wb.generateXlsxSync();
+  const xlsx = wb.generateXlsxSync();
   writeFileSync("sample.xlsx", xlsx);
 }
 ```

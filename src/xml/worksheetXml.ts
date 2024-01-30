@@ -124,7 +124,7 @@ export function makeWorksheetXml(
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
 
-  const colsXml = makeColsXml(groupXlsxCol(xlsxCols), defaultColWidth);
+  const colsXml = makeColsXml(groupXlsxCols(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
   const sheetDataXml = makeSheetDataXml(
     sheetData,
@@ -248,7 +248,7 @@ export function isEqualsXlsxCol(a: XlsxCol, b: XlsxCol) {
   );
 }
 
-export function groupXlsxCol(cols: Map<number, XlsxCol>) {
+export function groupXlsxCols(cols: Map<number, XlsxCol>) {
   const result: GroupedXlsxCol[] = [];
   let startCol: XlsxCol;
   let endCol: XlsxCol;

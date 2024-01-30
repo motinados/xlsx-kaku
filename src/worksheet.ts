@@ -1,7 +1,24 @@
-import { ColProps, DEFAULT_COL_WIDTH } from "./col";
-import { DEFAULT_ROW_HEIGHT, RowProps } from "./row";
-import { NullableCell, SheetData } from "./sheetData";
+import { CellStyle, NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
+
+/**
+ * The value is the same as the one in files created with Online Excel.
+ * Changing this value will result in differences in integration tests.
+ */
+export const DEFAULT_COL_WIDTH = 9;
+export const DEFAULT_ROW_HEIGHT = 13.5;
+
+export type ColProps = {
+  index: number;
+  width?: number;
+  style?: CellStyle;
+};
+
+export type RowProps = {
+  index: number;
+  height?: number;
+  style?: CellStyle;
+};
 
 export type MergeCell = {
   /**

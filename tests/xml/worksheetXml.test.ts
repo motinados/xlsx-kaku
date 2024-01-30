@@ -17,7 +17,7 @@ import {
   rowToString,
   convRowToXlsxRow,
   makeSheetFormatPrXml,
-  groupXlsxCol,
+  groupXlsxCols,
   XlsxCol,
   isEqualsXlsxCol,
   GroupedXlsxCol,
@@ -31,9 +31,13 @@ import { CellStyleXfs } from "../../src/cellStyleXfs";
 import { CellStyles } from "../../src/cellStyles";
 import { Hyperlinks } from "../../src/hyperlinks";
 import { WorksheetRels } from "../../src/worksheetRels";
-import { FreezePane, MergeCell } from "../../src/worksheet";
-import { ColProps, DEFAULT_COL_WIDTH } from "../../src/col";
-import { DEFAULT_ROW_HEIGHT } from "../../src/row";
+import {
+  ColProps,
+  DEFAULT_COL_WIDTH,
+  DEFAULT_ROW_HEIGHT,
+  FreezePane,
+  MergeCell,
+} from "../../src/worksheet";
 
 describe("Writer", () => {
   function getStyleMappers() {
@@ -382,7 +386,7 @@ describe("Writer", () => {
         convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
-    const groupedXlsxCols = groupXlsxCol(xlsxCols);
+    const groupedXlsxCols = groupXlsxCols(xlsxCols);
     expect(makeColsXml(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
     );
@@ -399,7 +403,7 @@ describe("Writer", () => {
         convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
-    const groupedXlsxCols = groupXlsxCol(xlsxCols);
+    const groupedXlsxCols = groupXlsxCols(xlsxCols);
 
     // TODO: Is this necessary?
     expect(makeColsXml(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
@@ -437,7 +441,7 @@ describe("Writer", () => {
         convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
-    const groupedXlsxCols = groupXlsxCol(xlsxCols);
+    const groupedXlsxCols = groupXlsxCols(xlsxCols);
     expect(makeColsXml(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}" style="1"/><col min="2" max="3" width="25" customWidth="1" style="2"/></cols>`
     );
@@ -536,7 +540,7 @@ describe("Writer", () => {
       cellXfId: 1,
       customWidth: true,
     };
-    const actual = groupXlsxCol(
+    const actual = groupXlsxCols(
       new Map([
         [0, c1],
         [1, c2],
@@ -581,7 +585,7 @@ describe("Writer", () => {
       cellXfId: 1,
       customWidth: true,
     };
-    const actual = groupXlsxCol(
+    const actual = groupXlsxCols(
       new Map([
         [0, c1],
         [1, c2],
@@ -627,7 +631,7 @@ describe("Writer", () => {
       cellXfId: 1,
       customWidth: true,
     };
-    const actual = groupXlsxCol(
+    const actual = groupXlsxCols(
       new Map([
         [0, c1],
         [1, c2],
@@ -679,7 +683,7 @@ describe("Writer", () => {
       cellXfId: 1,
       customWidth: true,
     };
-    const actual = groupXlsxCol(
+    const actual = groupXlsxCols(
       new Map([
         [0, c1],
         [1, c2],
@@ -732,7 +736,7 @@ describe("Writer", () => {
       cellXfId: 1,
       customWidth: true,
     };
-    const actual = groupXlsxCol(
+    const actual = groupXlsxCols(
       new Map([
         [0, c1],
         [1, c2],
@@ -791,7 +795,7 @@ describe("Writer", () => {
       cellXfId: 0,
       customWidth: true,
     };
-    const actual = groupXlsxCol(
+    const actual = groupXlsxCols(
       new Map([
         [0, c1],
         [1, c2],
@@ -858,7 +862,7 @@ describe("Writer", () => {
       cellXfId: 0,
       customWidth: true,
     };
-    const actual = groupXlsxCol(
+    const actual = groupXlsxCols(
       new Map([
         [0, c1],
         [1, c2],

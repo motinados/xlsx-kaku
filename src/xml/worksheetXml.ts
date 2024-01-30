@@ -1,17 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 import { FreezePane, MergeCell, Worksheet } from "..";
-// <<<<<<< HEAD
-// import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "../col";
-// import { RowProps, DEFAULT_ROW_HEIGHT } from "../row";
-// =======
-import { ColProps, DEFAULT_COL_WIDTH } from "../col";
-import { DEFAULT_ROW_HEIGHT, RowProps } from "../row";
-// >>>>>>> main
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
 import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
+import {
+  ColProps,
+  DEFAULT_COL_WIDTH,
+  DEFAULT_ROW_HEIGHT,
+  RowProps,
+} from "../worksheet";
 
 export type XlsxCol = {
   /** e.g. column A is 0 */
@@ -111,13 +110,12 @@ export function makeWorksheetXml(
 
   const xlsxCols = new Map<number, XlsxCol>();
   for (const col of worksheet.cols.values()) {
-    const i = col.index;
     const xlsxCol = convertCombinedColToXlsxCol(
       col,
       styleMappers,
       defaultColWidth
     );
-    xlsxCols.set(i, xlsxCol);
+    xlsxCols.set(xlsxCol.index, xlsxCol);
   }
 
   const xlsxRows = new Map<number, XlsxRow>();
@@ -126,7 +124,7 @@ export function makeWorksheetXml(
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
 
-  const colsXml = makeColsXml(groupXlsxCol(xlsxCols), defaultColWidth);
+  const colsXml = makeColsXml(groupXlsxCols(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
   const sheetDataXml = makeSheetDataXml(
     sheetData,
@@ -250,7 +248,7 @@ export function isEqualsXlsxCol(a: XlsxCol, b: XlsxCol) {
   );
 }
 
-export function groupXlsxCol(cols: Map<number, XlsxCol>) {
+export function groupXlsxCols(cols: Map<number, XlsxCol>) {
   const result: GroupedXlsxCol[] = [];
   let startCol: XlsxCol;
   let endCol: XlsxCol;

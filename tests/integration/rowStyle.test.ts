@@ -40,20 +40,21 @@ describe("row style", () => {
     ws.setCell(3, 0, { type: "number", value: 4 });
     ws.setCell(4, 0, { type: "number", value: 5 });
 
-    ws.setRowStyle({
+    ws.setRowProps({
       index: 1,
       style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
     });
 
-    ws.setRowStyle({
+    ws.setRowProps({
       index: 2,
       style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
     });
-    ws.setRowStyle({
+
+    ws.setRowProps({
       index: 3,
+      height: 20.25,
       style: { fill: { patternType: "solid", fgColor: "FFFF0000" } },
     });
-    ws.setRowHeight({ index: 3, height: 20.25 });
 
     const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);

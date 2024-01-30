@@ -1,5 +1,5 @@
 import { ColProps, DEFAULT_COL_WIDTH } from "./col";
-import { DEFAULT_ROW_HEIGHT, Row, RowHeight, RowStyle } from "./row";
+import { DEFAULT_ROW_HEIGHT, RowProps } from "./row";
 import { NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
 
@@ -27,7 +27,7 @@ export class Worksheet {
   private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
   private _cols = new Map<number, ColProps>();
-  private _rows: Row[] = [];
+  private _rows = new Map<number, RowProps>();
   private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
 
@@ -106,12 +106,8 @@ export class Worksheet {
     this._cols.set(colProps.index, colProps);
   }
 
-  setRowHeight(row: RowHeight) {
-    this._rows.push(row);
-  }
-
-  setRowStyle(row: RowStyle) {
-    this._rows.push(row);
+  setRowProps(row: RowProps) {
+    this._rows.set(row.index, row);
   }
 
   setMergeCell(mergeCell: MergeCell) {

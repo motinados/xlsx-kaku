@@ -39,10 +39,10 @@ describe("rows", () => {
     ws.setCell(4, 0, { type: "number", value: 5 });
     ws.setCell(5, 0, { type: "number", value: 6 });
 
-    ws.setRowHeight({ index: 1, height: 20.25 });
-    ws.setRowHeight({ index: 2, height: 39.75 });
-    ws.setRowHeight({ index: 3, height: 39.75 });
-    ws.setRowHeight({ index: 4, height: 39.75 });
+    ws.setRowProps({ index: 1, height: 20.25 });
+    ws.setRowProps({ index: 2, height: 39.75 });
+    ws.setRowProps({ index: 3, height: 39.75 });
+    ws.setRowProps({ index: 4, height: 39.75 });
 
     const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);

@@ -1,17 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
 import { FreezePane, MergeCell, Worksheet } from "..";
-// <<<<<<< HEAD
-// import { CombinedCol, DEFAULT_COL_WIDTH, combineColProps } from "../col";
-// import { RowProps, DEFAULT_ROW_HEIGHT } from "../row";
-// =======
-import { ColProps, DEFAULT_COL_WIDTH } from "../col";
 import { DEFAULT_ROW_HEIGHT, RowProps } from "../row";
-// >>>>>>> main
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
 import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
+import { ColProps, DEFAULT_COL_WIDTH } from "../worksheet";
 
 export type XlsxCol = {
   /** e.g. column A is 0 */

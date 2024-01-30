@@ -31,8 +31,12 @@ import { CellStyleXfs } from "../../src/cellStyleXfs";
 import { CellStyles } from "../../src/cellStyles";
 import { Hyperlinks } from "../../src/hyperlinks";
 import { WorksheetRels } from "../../src/worksheetRels";
-import { FreezePane, MergeCell } from "../../src/worksheet";
-import { ColProps, DEFAULT_COL_WIDTH } from "../../src/col";
+import {
+  ColProps,
+  DEFAULT_COL_WIDTH,
+  FreezePane,
+  MergeCell,
+} from "../../src/worksheet";
 import { DEFAULT_ROW_HEIGHT } from "../../src/row";
 
 describe("Writer", () => {

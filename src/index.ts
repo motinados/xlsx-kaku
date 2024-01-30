@@ -4,8 +4,7 @@ import { Font } from "./fonts";
 import { NumberFormat } from "./numberFormats";
 import { Cell, NullableCell, RowData, SheetData } from "./sheetData";
 import { Workbook } from "./workbook";
-import { Worksheet, MergeCell, FreezePane } from "./worksheet";
-import { ColProps } from "./col";
+import { ColProps, Worksheet, MergeCell, FreezePane } from "./worksheet";
 import { RowProps } from "./row";
 import { genXlsx, genXlsxSync } from "./writer";
 
@@ -15,7 +14,6 @@ export { Font };
 export { NumberFormat };
 export { Cell, NullableCell, RowData, SheetData };
 export { Workbook };
-export { Worksheet, MergeCell, FreezePane };
-export { ColProps };
+export { ColProps, Worksheet, MergeCell, FreezePane };
 export { RowProps };
 export { genXlsx, genXlsxSync };

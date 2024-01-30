@@ -6,20 +6,6 @@ import { CellStyle } from "./sheetData";
  */
 export const DEFAULT_COL_WIDTH = 9;
 
-export type ColWidth = {
-  startIndex: number;
-  endIndex: number;
-  width: number;
-};
-
-export type ColStyle = {
-  startIndex: number;
-  endIndex: number;
-  style: CellStyle;
-};
-
-export type Col = ColWidth | ColStyle;
-
 export type ColProps = {
   index: number;
   width?: number;

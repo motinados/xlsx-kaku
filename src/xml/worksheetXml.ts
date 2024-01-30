@@ -110,13 +110,12 @@ export function makeWorksheetXml(
 
   const xlsxCols = new Map<number, XlsxCol>();
   for (const col of worksheet.cols.values()) {
-    const i = col.index;
     const xlsxCol = convertCombinedColToXlsxCol(
       col,
       styleMappers,
       defaultColWidth
     );
-    xlsxCols.set(i, xlsxCol);
+    xlsxCols.set(xlsxCol.index, xlsxCol);
   }
 
   const xlsxRows = new Map<number, XlsxRow>();

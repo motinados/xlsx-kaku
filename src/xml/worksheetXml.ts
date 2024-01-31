@@ -110,7 +110,7 @@ export function makeWorksheetXml(
 
   const xlsxCols = new Map<number, XlsxCol>();
   for (const col of worksheet.cols.values()) {
-    const xlsxCol = convertCombinedColToXlsxCol(
+    const xlsxCol = createXlsxColFromColProps(
       col,
       styleMappers,
       defaultColWidth
@@ -120,7 +120,7 @@ export function makeWorksheetXml(
 
   const xlsxRows = new Map<number, XlsxRow>();
   for (const row of worksheet.rows.values()) {
-    const xlsxRow = convRowToXlsxRow(row, styleMappers);
+    const xlsxRow = createXlsxRowFromRowProps(row, styleMappers);
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
 
@@ -172,7 +172,7 @@ export function makeWorksheetXml(
   };
 }
 
-export function convertCombinedColToXlsxCol(
+export function createXlsxColFromColProps(
   col: ColProps,
   mappers: StyleMappers,
   defaultWidth: number
@@ -218,7 +218,7 @@ export function composeXlsxCellStyle(
   return null;
 }
 
-export function convRowToXlsxRow(
+export function createXlsxRowFromRowProps(
   row: RowProps,
   styleMappers: StyleMappers
 ): XlsxRow {

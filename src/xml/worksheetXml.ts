@@ -110,7 +110,7 @@ export function makeWorksheetXml(
 
   const xlsxCols = new Map<number, XlsxCol>();
   for (const col of worksheet.cols.values()) {
-    const xlsxCol = convertCombinedColToXlsxCol(
+    const xlsxCol = createXlsxColFromColProps(
       col,
       styleMappers,
       defaultColWidth
@@ -120,19 +120,23 @@ export function makeWorksheetXml(
 
   const xlsxRows = new Map<number, XlsxRow>();
   for (const row of worksheet.rows.values()) {
-    const xlsxRow = convRowToXlsxRow(row, styleMappers);
+    const xlsxRow = createXlsxRowFromRowProps(row, styleMappers);
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
+
+  const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
 
   const colsXml = makeColsXml(groupXlsxCols(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
   const sheetDataXml = makeSheetDataXml(
     sheetData,
+    spanStartNumber,
+    spanEndNumber,
     styleMappers,
     xlsxCols,
     xlsxRows
   );
-  const dimension = getDimension(sheetData);
+  const dimension = getDimension(sheetData, spanStartNumber, spanEndNumber);
   const tabSelected = sheetCnt === 0;
   const sheetViewsXml = makeSheetViewsXml(
     tabSelected,
@@ -172,7 +176,7 @@ export function makeWorksheetXml(
   };
 }
 
-export function convertCombinedColToXlsxCol(
+export function createXlsxColFromColProps(
   col: ColProps,
   mappers: StyleMappers,
   defaultWidth: number
@@ -218,7 +222,7 @@ export function composeXlsxCellStyle(
   return null;
 }
 
-export function convRowToXlsxRow(
+export function createXlsxRowFromRowProps(
   row: RowProps,
   styleMappers: StyleMappers
 ): XlsxRow {
@@ -337,20 +341,20 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
 
 export function makeSheetDataXml(
   sheetData: SheetData,
+  spanStartNumber: number,
+  spanEndNumber: number,
   styleMappers: StyleMappers,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRows: Map<number, XlsxRow>
 ) {
-  const { startNumber, endNumber } = getSpansFromSheetData(sheetData);
-
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
     const str = rowToString(
       row,
       rowIndex,
-      startNumber,
-      endNumber,
+      spanStartNumber,
+      spanEndNumber,
       styleMappers,
       xlsxCols,
       xlsxRows
@@ -375,7 +379,7 @@ export function getSpansFromSheetData(sheetData: SheetData) {
   }[];
   const minStartNumber = Math.min(...all.map((row) => row.startNumber));
   const maxEndNumber = Math.max(...all.map((row) => row.endNumber));
-  return { startNumber: minStartNumber, endNumber: maxEndNumber };
+  return { spanStartNumber: minStartNumber, spanEndNumber: maxEndNumber };
 }
 
 export function getSpans(row: RowData) {
@@ -430,8 +434,8 @@ export function findLastNonNullCell(row: RowData) {
 export function rowToString(
   row: RowData,
   rowIndex: number,
-  startNumber: number,
-  endNumber: number,
+  spanStartNumber: number,
+  spanEndNumber: number,
   styleMappers: StyleMappers,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRows: Map<number, XlsxRow>
@@ -442,7 +446,7 @@ export function rowToString(
 
   const rowNumber = rowIndex + 1;
 
-  let result = `<row r="${rowNumber}" spans="${startNumber}:${endNumber}"`;
+  let result = `<row r="${rowNumber}" spans="${spanStartNumber}:${spanEndNumber}"`;
 
   const xlsxRow = xlsxRows.get(rowIndex);
   if (xlsxRow) {
@@ -752,7 +756,11 @@ function assignHyperlinkStyleIfUndefined(cell: Cell) {
   }
 }
 
-export function getDimension(sheetData: SheetData) {
+export function getDimension(
+  sheetData: SheetData,
+  spanStartNumber: number,
+  spanEndNumber: number
+) {
   // FIXME: The dimension is alse affected by 'cols'. It can have the correct value even without sheetData.
   if (sheetData.length === 0) {
     // This is a workaround for the case where sheetData is empty.
@@ -768,10 +776,8 @@ export function getDimension(sheetData: SheetData) {
   const firstRowNumber = firstRowIndex + 1;
   const lastRowNumber = lastRowIndex + 1;
 
-  const spans = getSpansFromSheetData(sheetData);
-  const { startNumber, endNumber } = spans;
-  const firstColumn = convColIndexToColName(startNumber - 1);
-  const lastColumn = convColIndexToColName(endNumber - 1);
+  const firstColumn = convColIndexToColName(spanStartNumber - 1);
+  const lastColumn = convColIndexToColName(spanEndNumber - 1);
 
   return {
     start: `${firstColumn}${firstRowNumber}`,

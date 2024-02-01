@@ -1,9 +1,10 @@
 import { Cell, RowData, SheetData } from "../../src/sheetData";
 import { SharedStrings } from "../../src/sharedStrings";
 import {
-  convertCombinedColToXlsxCol,
   convertCellToXlsxCell,
   convertIsoStringToSerialValue,
+  createXlsxColFromColProps,
+  createXlsxRowFromRowProps,
   findFirstNonNullCell,
   findLastNonNullCell,
   getDimension,
@@ -15,7 +16,6 @@ import {
   makeSheetDataXml,
   makeSheetViewsXml,
   rowToString,
-  convRowToXlsxRow,
   makeSheetFormatPrXml,
   groupXlsxCols,
   XlsxCol,
@@ -103,8 +103,8 @@ describe("Writer", () => {
       ],
     ];
     const spans = getSpansFromSheetData(sheetData)!;
-    expect(spans.startNumber).toBe(1);
-    expect(spans.endNumber).toBe(3);
+    expect(spans.spanStartNumber).toBe(1);
+    expect(spans.spanEndNumber).toBe(3);
   });
 
   test("getDimensions", () => {
@@ -118,7 +118,13 @@ describe("Writer", () => {
         null,
       ],
     ];
-    const { start, end } = getDimension(sheetData);
+    const { spanStartNumber, spanEndNumber } =
+      getSpansFromSheetData(sheetData)!;
+    const { start, end } = getDimension(
+      sheetData,
+      spanStartNumber,
+      spanEndNumber
+    );
     expect(start).toBe("A2");
     expect(end).toBe("C3");
   });
@@ -266,7 +272,10 @@ describe("Writer", () => {
   test("rowToString with height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
-    const xlsxRow = convRowToXlsxRow({ index: 0, height: 30 }, styleMappers);
+    const xlsxRow = createXlsxRowFromRowProps(
+      { index: 0, height: 30 },
+      styleMappers
+    );
     const result = rowToString(
       row,
       0,
@@ -284,7 +293,7 @@ describe("Writer", () => {
   test("rowToString with style", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
-    const xlsxRow = convRowToXlsxRow(
+    const xlsxRow = createXlsxRowFromRowProps(
       { index: 0, style: { alignment: { horizontal: "center" } } },
       styleMappers
     );
@@ -305,7 +314,7 @@ describe("Writer", () => {
   test("rowToString with style and height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
-    const xlsxRow = convRowToXlsxRow(
+    const xlsxRow = createXlsxRowFromRowProps(
       {
         index: 0,
         height: 30,
@@ -333,9 +342,12 @@ describe("Writer", () => {
       [null, null, { type: "number", value: 1 }, { type: "number", value: 2 }],
       [{ type: "number", value: 3 }, { type: "number", value: 4 }, null, null],
     ];
+    const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
     const styleMappers = getStyleMappers();
     const sheetDataXml = makeSheetDataXml(
       sheetData,
+      spanStartNumber,
+      spanEndNumber,
       styleMappers,
       new Map(),
       new Map()
@@ -356,9 +368,12 @@ describe("Writer", () => {
         null,
       ],
     ];
+    const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
     const styleMappers = getStyleMappers();
     const sheetDataXml = makeSheetDataXml(
       sheetData,
+      spanStartNumber,
+      spanEndNumber,
       styleMappers,
       new Map(),
       new Map()
@@ -383,7 +398,7 @@ describe("Writer", () => {
     cols.forEach((col) => {
       xlsxCols.set(
         col.index,
-        convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
+        createXlsxColFromColProps(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
@@ -400,7 +415,7 @@ describe("Writer", () => {
     cols.forEach((col) => {
       xlsxCols.set(
         col.index,
-        convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
+        createXlsxColFromColProps(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
@@ -438,7 +453,7 @@ describe("Writer", () => {
     cols.forEach((col) => {
       xlsxCols.set(
         col.index,
-        convertCombinedColToXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
+        createXlsxColFromColProps(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);

@@ -11,6 +11,8 @@ import {
   DEFAULT_ROW_HEIGHT,
   RowProps,
 } from "../worksheet";
+import { ConditionalFormatting } from "../conditionalFormatting";
+import { Dxf } from "../dxf";
 
 export type XlsxCol = {
   /** e.g. column A is 0 */
@@ -99,6 +101,7 @@ export type GroupedXlsxCol = {
 export function makeWorksheetXml(
   worksheet: Worksheet,
   styleMappers: StyleMappers,
+  dxf: Dxf,
   sheetCnt: number
 ) {
   styleMappers.hyperlinks.reset();
@@ -128,6 +131,27 @@ export function makeWorksheetXml(
 
   const colsXml = makeColsXml(groupXlsxCols(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
+
+  const conditionalFormattings: ConditionalFormatting[] = [];
+  if (worksheet.conditionalFormattings.length > 0) {
+    for (const cf of worksheet.conditionalFormattings) {
+      const id = dxf.addStyle(cf.style);
+      const conditionalFormatting = {
+        type: cf.type,
+        sqref: cf.sqref,
+        priority: cf.priority,
+        percent: cf.percent,
+        rank: cf.rank,
+        dxfId: id,
+      };
+      conditionalFormattings.push(conditionalFormatting);
+    }
+  }
+
+  const conditionalFormattingXml = makeConditionalFormattingXml(
+    conditionalFormattings
+  );
+
   const sheetDataXml = makeSheetDataXml(
     sheetData,
     spanStartNumber,
@@ -159,6 +183,7 @@ export function makeWorksheetXml(
     sheetFormatPrXML,
     sheetDataXml,
     mergeCellsXml,
+    conditionalFormattingXml,
     dimension,
     styleMappers.hyperlinks
   );
@@ -337,6 +362,34 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
   result += "</mergeCells>";
 
   return result;
+}
+
+export function makeConditionalFormattingXml(
+  formattings: ConditionalFormatting[]
+): string {
+  if (formattings.length === 0) {
+    return "";
+  }
+
+  for (const formatting of formattings) {
+    switch (formatting.type) {
+      case "top10": {
+        return (
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="top10" dxfId="${formatting.dxfId} priority="${formatting.priority}" percent="${formatting.percent}" rank="${formatting.rank}"/>` +
+          "</conditionalFormatting>"
+        );
+      }
+      default: {
+        const _exhaustiveCheck: never = formatting.type;
+        throw new Error(
+          `unknown conditional formatting type: ${_exhaustiveCheck}`
+        );
+      }
+    }
+  }
+
+  return "";
 }
 
 export function makeSheetDataXml(
@@ -890,6 +943,7 @@ export function composeSheetXml(
   sheetFormatPrXml: string,
   sheetDataString: string,
   mergeCellsXml: string,
+  conditionalFormattingXml: string,
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
 ) {
@@ -908,6 +962,7 @@ export function composeSheetXml(
 
   result +=
     mergeCellsXml +
+    conditionalFormattingXml +
     '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>';
 
   return result;

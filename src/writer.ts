@@ -20,6 +20,7 @@ import { makeStylesXml } from "./xml/stylesXml";
 import { makeWorkbookXml } from "./xml/workbookXml";
 import { makeRelsFile } from "./xml/rels";
 import { makeContentTypesXml } from "./xml/contentTypesXml";
+import { Dxf } from "./dxf";
 
 export type StyleMappers = {
   fills: Fills;
@@ -140,6 +141,8 @@ function createExcelFiles(worksheets: Worksheet[]) {
     worksheetRels: new WorksheetRels(),
   };
 
+  const dxf = new Dxf();
+
   const sheetXmlList: string[] = [];
   const worksheetRelsList: string[] = [];
   const worksheetsLength = worksheets.length;
@@ -149,6 +152,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
     const { sheetXml, worksheetRels } = makeWorksheetXml(
       worksheet,
       styleMappers,
+      dxf,
       count
     );
 

@@ -1,3 +1,4 @@
+import { ConditionalFormattingProps } from "./conditionalFormatting";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
 
@@ -47,6 +48,7 @@ export class Worksheet {
   private _rows = new Map<number, RowProps>();
   private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
+  private _conditionalFormattings: ConditionalFormattingProps[] = [];
 
   constructor(name: string, props: WorksheetProps | undefined = {}) {
     this._name = name;
@@ -87,6 +89,10 @@ export class Worksheet {
 
   get freezePane() {
     return this._freezePane;
+  }
+
+  get conditionalFormattings() {
+    return this._conditionalFormattings;
   }
 
   private getCell(rowIndex: number, colIndex: number): NullableCell {
@@ -152,5 +158,9 @@ export class Worksheet {
 
   setFreezePane(freezePane: FreezePane) {
     this._freezePane = freezePane;
+  }
+
+  setConditionalFormatting(conditionalFormatting: ConditionalFormattingProps) {
+    this._conditionalFormattings.push(conditionalFormatting);
   }
 }

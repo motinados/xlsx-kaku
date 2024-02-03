@@ -97,15 +97,23 @@ export type GroupedXlsxCol = {
   cellXfId: number | null;
 };
 
-export type XlsxConditionalFormatting = {
-  type: "top10";
-  sqref: string;
-  dxfId: number;
-  priority: number;
-  percent: boolean;
-  bottom: boolean;
-  rank: number;
-};
+export type XlsxConditionalFormatting =
+  | {
+      type: "top10";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      percent: boolean;
+      bottom: boolean;
+      rank: number;
+    }
+  | {
+      type: "aboveAverage";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      aboveAverage: boolean;
+    };
 
 export function makeWorksheetXml(
   worksheet: Worksheet,
@@ -146,22 +154,35 @@ export function makeWorksheetXml(
     for (const cf of worksheet.conditionalFormattings) {
       const id = dxf.addStyle(cf.style);
 
-      const type = cf.type === "top" || cf.type === "bottom" ? "top10" : null;
-      if (type === null) {
-        throw new Error(`unknown conditional formatting type: ${cf.type}`);
+      switch (cf.type) {
+        case "top":
+        case "bottom": {
+          const bottom = cf.type === "bottom";
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "top10",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            percent: cf.percent,
+            bottom,
+            rank: cf.rank,
+            dxfId: id,
+          };
+          conditionalFormattings.push(conditionalFormatting);
+          break;
+        }
+        case "aboveAverage":
+        case "belowAverage": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "aboveAverage",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            aboveAverage: cf.type === "aboveAverage",
+            dxfId: id,
+          };
+          conditionalFormattings.push(conditionalFormatting);
+          break;
+        }
       }
-
-      const bottom = cf.type === "bottom";
-      const conditionalFormatting: XlsxConditionalFormatting = {
-        type,
-        sqref: cf.sqref,
-        priority: cf.priority,
-        percent: cf.percent,
-        bottom,
-        rank: cf.rank,
-        dxfId: id,
-      };
-      conditionalFormattings.push(conditionalFormatting);
     }
   }
 
@@ -397,8 +418,16 @@ export function makeConditionalFormattingXml(
           "</conditionalFormatting>";
         break;
       }
+      case "aboveAverage": {
+        const aboveAverage = formatting.aboveAverage ? "" : ' aboveAverage="0"';
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="aboveAverage" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${aboveAverage}/>` +
+          "</conditionalFormatting>";
+        break;
+      }
       default: {
-        const _exhaustiveCheck: never = formatting.type;
+        const _exhaustiveCheck: never = formatting;
         throw new Error(
           `unknown conditional formatting type: ${_exhaustiveCheck}`
         );

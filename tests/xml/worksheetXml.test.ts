@@ -943,8 +943,6 @@ describe("Writer", () => {
       percent: false,
     });
 
-    console.log(conditionalFormattings);
-
     const acutual2 = makeConditionalFormattingXml(conditionalFormattings);
     const expected2 =
       `<conditionalFormatting sqref="A1:A10">` +

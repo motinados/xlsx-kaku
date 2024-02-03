@@ -103,6 +103,7 @@ export type XlsxConditionalFormatting = {
   dxfId: number;
   priority: number;
   percent: boolean;
+  bottom: boolean;
   rank: number;
 };
 
@@ -144,11 +145,19 @@ export function makeWorksheetXml(
   if (worksheet.conditionalFormattings.length > 0) {
     for (const cf of worksheet.conditionalFormattings) {
       const id = dxf.addStyle(cf.style);
-      const conditionalFormatting = {
-        type: cf.type,
+
+      const type = cf.type === "top" || cf.type === "bottom" ? "top10" : null;
+      if (type === null) {
+        throw new Error(`unknown conditional formatting type: ${cf.type}`);
+      }
+
+      const bottom = cf.type === "bottom";
+      const conditionalFormatting: XlsxConditionalFormatting = {
+        type,
         sqref: cf.sqref,
         priority: cf.priority,
         percent: cf.percent,
+        bottom,
         rank: cf.rank,
         dxfId: id,
       };
@@ -383,9 +392,10 @@ export function makeConditionalFormattingXml(
     switch (formatting.type) {
       case "top10": {
         const percent = formatting.percent ? ' percent="1"' : "";
+        const bottom = formatting.bottom ? ' bottom="1"' : "";
         return (
           `<conditionalFormatting sqref="${formatting.sqref}">` +
-          `<cfRule type="top10" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${percent} rank="${formatting.rank}"/>` +
+          `<cfRule type="top10" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${percent}${bottom} rank="${formatting.rank}"/>` +
           "</conditionalFormatting>"
         );
       }

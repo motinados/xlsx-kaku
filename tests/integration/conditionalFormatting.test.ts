@@ -48,7 +48,7 @@ describe("top10 conditional formatting", () => {
     ws.setConditionalFormatting({
       // Fixme: "A:A" is not supported
       sqref: "A1:A1048576",
-      type: "top10",
+      type: "top",
       priority: 1,
       percent: true,
       rank: 10,

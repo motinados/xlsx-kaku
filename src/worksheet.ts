@@ -1,4 +1,4 @@
-import { ConditionalFormattingProps } from "./conditionalFormatting";
+import { DxfStyle } from "./dxf";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
 
@@ -33,6 +33,15 @@ export type FreezePane = {
   split: number;
 };
 
+export type ConditionalFormatting = {
+  type: "top" | "bottom";
+  sqref: string;
+  priority: number;
+  percent: boolean;
+  rank: number;
+  style: DxfStyle;
+};
+
 export type WorksheetProps = {
   defaultColWidth?: number;
   defaultRowHeight?: number;
@@ -48,7 +57,7 @@ export class Worksheet {
   private _rows = new Map<number, RowProps>();
   private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
-  private _conditionalFormattings: ConditionalFormattingProps[] = [];
+  private _conditionalFormattings: ConditionalFormatting[] = [];
 
   constructor(name: string, props: WorksheetProps | undefined = {}) {
     this._name = name;
@@ -160,7 +169,7 @@ export class Worksheet {
     this._freezePane = freezePane;
   }
 
-  setConditionalFormatting(conditionalFormatting: ConditionalFormattingProps) {
+  setConditionalFormatting(conditionalFormatting: ConditionalFormatting) {
     this._conditionalFormattings.push(conditionalFormatting);
   }
 }

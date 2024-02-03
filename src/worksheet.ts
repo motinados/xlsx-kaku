@@ -51,6 +51,12 @@ export type ConditionalFormatting =
       sqref: string;
       priority: number;
       style: DxfStyle;
+    }
+  | {
+      type: "duplicateValues";
+      sqref: string;
+      priority: number;
+      style: DxfStyle;
     };
 
 export type WorksheetProps = {

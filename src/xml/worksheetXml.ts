@@ -194,6 +194,22 @@ export function makeWorksheetXml(
           conditionalFormattings.push(conditionalFormatting);
           break;
         }
+        case "duplicateValues": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "duplicateValues",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            dxfId: id,
+          };
+          conditionalFormattings.push(conditionalFormatting);
+          break;
+        }
+        default: {
+          const _exhaustiveCheck: never = cf;
+          throw new Error(
+            `unknown conditional formatting type: ${_exhaustiveCheck}`
+          );
+        }
       }
     }
   }

@@ -374,7 +374,7 @@ export function makeConditionalFormattingXml(
   for (const formatting of formattings) {
     switch (formatting.type) {
       case "top10": {
-        const percent = formatting.percent ? 'percent="1"' : "";
+        const percent = formatting.percent ? ' percent="1"' : "";
         return (
           `<conditionalFormatting sqref="${formatting.sqref}">` +
           `<cfRule type="top10" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${percent} rank="${formatting.rank}"/>` +

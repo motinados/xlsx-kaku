@@ -43,7 +43,11 @@ export type ConditionalFormatting =
       style: DxfStyle;
     }
   | {
-      type: "aboveAverage" | "belowAverage";
+      type:
+        | "aboveAverage"
+        | "belowAverage"
+        | "atOrAboveAverage"
+        | "atOrBelowAverage";
       sqref: string;
       priority: number;
       style: DxfStyle;

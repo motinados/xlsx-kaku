@@ -113,6 +113,7 @@ export type XlsxConditionalFormatting =
       dxfId: number;
       priority: number;
       aboveAverage: boolean;
+      equalAverage: boolean;
     };
 
 export function makeWorksheetXml(
@@ -171,12 +172,17 @@ export function makeWorksheetXml(
           break;
         }
         case "aboveAverage":
-        case "belowAverage": {
+        case "belowAverage":
+        case "atOrAboveAverage":
+        case "atOrBelowAverage": {
           const conditionalFormatting: XlsxConditionalFormatting = {
             type: "aboveAverage",
             sqref: cf.sqref,
             priority: cf.priority,
-            aboveAverage: cf.type === "aboveAverage",
+            aboveAverage:
+              cf.type === "aboveAverage" || cf.type === "atOrAboveAverage",
+            equalAverage:
+              cf.type === "atOrAboveAverage" || cf.type === "atOrBelowAverage",
             dxfId: id,
           };
           conditionalFormattings.push(conditionalFormatting);
@@ -420,9 +426,10 @@ export function makeConditionalFormattingXml(
       }
       case "aboveAverage": {
         const aboveAverage = formatting.aboveAverage ? "" : ' aboveAverage="0"';
+        const equalAverage = formatting.equalAverage ? ' equalAverage="1"' : "";
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
-          `<cfRule type="aboveAverage" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${aboveAverage}/>` +
+          `<cfRule type="aboveAverage" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${aboveAverage}${equalAverage}/>` +
           "</conditionalFormatting>";
         break;
       }

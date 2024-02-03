@@ -1,10 +1,11 @@
+import { makeFontXml } from "./dxf";
 import { stringifySorted } from "./utils";
 
 export type Font = {
-  name: string;
-  size: number;
+  name?: string;
+  size?: number;
   // TODO: support theme color
-  color: string;
+  color?: string;
   family?: number;
   scheme?: string;
   bold?: boolean;
@@ -52,39 +53,7 @@ export class Fonts {
 
     this.fonts.forEach((_, key) => {
       const font = JSON.parse(key) as Font;
-      xml += "<font>";
-
-      if (font.bold) {
-        xml += `<b/>`;
-      }
-
-      if (font.italic) {
-        xml += `<i/>`;
-      }
-
-      if (font.strike) {
-        xml += `<strike/>`;
-      }
-
-      if (font.underline) {
-        if (font.underline == "double") {
-          xml += `<u val="double"/>`;
-        } else {
-          xml += `<u/>`;
-        }
-      }
-      xml +=
-        `<sz val="${font.size}"/>` +
-        `<color rgb="${font.color}"/>` +
-        `<name val="${font.name}"/>`;
-      if (font.family) {
-        xml += `<family val="${font.family}"/>`;
-      }
-      if (font.scheme) {
-        xml += `<scheme val="${font.scheme}"/>`;
-      }
-
-      xml += "</font>";
+      xml += makeFontXml(font);
     });
     xml += "</fonts>";
 

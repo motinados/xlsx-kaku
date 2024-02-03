@@ -11,7 +11,6 @@ import {
   DEFAULT_ROW_HEIGHT,
   RowProps,
 } from "../worksheet";
-import { ConditionalFormatting } from "../conditionalFormatting";
 import { Dxf } from "../dxf";
 
 export type XlsxCol = {
@@ -98,6 +97,15 @@ export type GroupedXlsxCol = {
   cellXfId: number | null;
 };
 
+export type XlsxConditionalFormatting = {
+  type: "top10";
+  sqref: string;
+  dxfId: number;
+  priority: number;
+  percent: boolean;
+  rank: number;
+};
+
 export function makeWorksheetXml(
   worksheet: Worksheet,
   styleMappers: StyleMappers,
@@ -132,7 +140,7 @@ export function makeWorksheetXml(
   const colsXml = makeColsXml(groupXlsxCols(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
 
-  const conditionalFormattings: ConditionalFormatting[] = [];
+  const conditionalFormattings: XlsxConditionalFormatting[] = [];
   if (worksheet.conditionalFormattings.length > 0) {
     for (const cf of worksheet.conditionalFormattings) {
       const id = dxf.addStyle(cf.style);
@@ -365,7 +373,7 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
 }
 
 export function makeConditionalFormattingXml(
-  formattings: ConditionalFormatting[]
+  formattings: XlsxConditionalFormatting[]
 ): string {
   if (formattings.length === 0) {
     return "";

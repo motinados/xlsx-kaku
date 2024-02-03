@@ -57,6 +57,21 @@ export type ConditionalFormatting =
       sqref: string;
       priority: number;
       style: DxfStyle;
+    }
+  | {
+      type: "greaterThan" | "lessThan" | "equal";
+      sqref: string;
+      priority: number;
+      formula: string | number;
+      style: DxfStyle;
+    }
+  | {
+      type: "between";
+      sqref: string;
+      priority: number;
+      formulaA: string | number;
+      formulaB: string | number;
+      style: DxfStyle;
     };
 
 export type WorksheetProps = {

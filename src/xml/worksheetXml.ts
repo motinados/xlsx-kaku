@@ -120,6 +120,23 @@ export type XlsxConditionalFormatting =
       sqref: string;
       dxfId: number;
       priority: number;
+    }
+  | {
+      type: "cellIs";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "greaterThan" | "lessThan" | "equal";
+      formula: string;
+    }
+  | {
+      type: "cellIs";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "between";
+      formulaA: string;
+      formulaB: string;
     };
 
 export function makeWorksheetXml(
@@ -199,6 +216,33 @@ export function makeWorksheetXml(
             type: "duplicateValues",
             sqref: cf.sqref,
             priority: cf.priority,
+            dxfId: id,
+          };
+          conditionalFormattings.push(conditionalFormatting);
+          break;
+        }
+        case "greaterThan":
+        case "lessThan":
+        case "equal": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "cellIs",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: cf.type,
+            formula: "" + cf.formula,
+            dxfId: id,
+          };
+          conditionalFormattings.push(conditionalFormatting);
+          break;
+        }
+        case "between": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "cellIs",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: "between",
+            formulaA: "" + cf.formulaA,
+            formulaB: "" + cf.formulaB,
             dxfId: id,
           };
           conditionalFormattings.push(conditionalFormatting);
@@ -459,6 +503,21 @@ export function makeConditionalFormattingXml(
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
           `<cfRule type="duplicateValues" dxfId="${formatting.dxfId}" priority="${formatting.priority}"/>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "cellIs": {
+        let formula: string;
+        if (formatting.operator === "between") {
+          formula = `<formula>${formatting.formulaA}</formula><formula>${formatting.formulaB}</formula>`;
+        } else {
+          formula = `<formula>${formatting.formula}</formula>`;
+        }
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="cellIs" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}">` +
+          formula +
+          `</cfRule>` +
           "</conditionalFormatting>";
         break;
       }

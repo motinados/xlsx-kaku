@@ -971,4 +971,67 @@ describe("Writer", () => {
       `</conditionalFormatting>`;
     expect(actual).toBe(expected);
   });
+
+  test("makeConditionalFormattingXml to compare numbers", () => {
+    const conditionalFormattings: XlsxConditionalFormatting[] = [
+      {
+        sqref: "A1:A10",
+        type: "cellIs",
+        dxfId: 0,
+        priority: 1,
+        operator: "greaterThan",
+        formula: "10",
+      },
+      {
+        sqref: "B1:B10",
+        type: "cellIs",
+        dxfId: 1,
+        priority: 2,
+        operator: "lessThan",
+        formula: "10",
+      },
+      {
+        sqref: "C1:C10",
+        type: "cellIs",
+        dxfId: 2,
+        priority: 3,
+        operator: "equal",
+        formula: "10",
+      },
+      {
+        sqref: "D1:D10",
+        type: "cellIs",
+        dxfId: 3,
+        priority: 4,
+        operator: "between",
+        formulaA: "3",
+        formulaB: "8",
+      },
+    ];
+    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const expected =
+      `<conditionalFormatting sqref="A1:A10">` +
+      `<cfRule type="cellIs" dxfId="0" priority="1" operator="greaterThan">` +
+      `<formula>10</formula>` +
+      `</cfRule>` +
+      `</conditionalFormatting>` +
+      `<conditionalFormatting sqref="B1:B10">` +
+      `<cfRule type="cellIs" dxfId="1" priority="2" operator="lessThan">` +
+      `<formula>10</formula>` +
+      `</cfRule>` +
+      `</conditionalFormatting>` +
+      `<conditionalFormatting sqref="C1:C10">` +
+      `<cfRule type="cellIs" dxfId="2" priority="3" operator="equal">` +
+      `<formula>10</formula>` +
+      `</cfRule>` +
+      `</conditionalFormatting>` +
+      `<conditionalFormatting sqref="D1:D10">` +
+      `<cfRule type="cellIs" dxfId="3" priority="4" operator="between">` +
+      `<formula>3</formula>` +
+      `<formula>8</formula>` +
+      `</cfRule>` +
+      `</conditionalFormatting>`;
+
+    expect(actual).toBe(expected);
+  });
 });

@@ -45,17 +45,18 @@ describe("top10 conditional formatting", () => {
     ws.setCell(8, 0, { type: "number", value: 9 });
     ws.setCell(9, 0, { type: "number", value: 10 });
 
-    // ws.setConditionalFormatting({
-    //   sqref: "A1:A10",
-    //   type: "top10",
-    //   priority: 1,
-    //   percent: true,
-    //   rank: 10,
-    //   style: {
-    //     font: { color: "FF9C0006" },
-    //     fill: { bgColor: "FFFFC7CE" },
-    //   },
-    // });
+    ws.setConditionalFormatting({
+      // Fixme: "A:A" is not supported
+      sqref: "A1:A1048576",
+      type: "top10",
+      priority: 1,
+      percent: true,
+      rank: 10,
+      style: {
+        font: { color: "FF9C0006" },
+        fill: { bgColor: "FFFFC7CE" },
+      },
+    });
 
     const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
@@ -158,7 +159,7 @@ describe("top10 conditional formatting", () => {
     // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
     // It should be a problem-free difference.
-    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
+    // deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
 

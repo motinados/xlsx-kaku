@@ -5,7 +5,7 @@
 xlsx-kaku is a library for Node.js that outputs Excel xlsx files.  
 It is exclusively for outputting xlsx files and cannot read them.
 
-It currently only supports minimal functionality.
+It currently supports basic functionality.
 Please also see our [Roadmap](https://github.com/motinados/xlsx-kaku/issues/1).
 
 > This library is currently in the early stages of development.
@@ -240,4 +240,43 @@ ws.setFreezePane({ target: "row", split: 1 });
 // ws.setFreezePane({ target: "column", split: 1 });
 
 const xlsx = wb.generateXlsxSync();
+```
+
+### Conditional Formatting
+
+The following types can be used for comparing numbers:  
+"top", "bottom", "aboveAverage", "belowAverage", "atOrAboveAverage", "atOrBelowAverage",
+"duplicateValues", "greaterThan", "lessThan", "equal", "between"
+
+Here, we present example of "top".
+
+```ts
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
+
+ws.setCell(0, 0, { type: "number", value: 1 });
+ws.setCell(1, 0, { type: "number", value: 2 });
+ws.setCell(2, 0, { type: "number", value: 3 });
+ws.setCell(3, 0, { type: "number", value: 4 });
+ws.setCell(4, 0, { type: "number", value: 5 });
+ws.setCell(5, 0, { type: "number", value: 6 });
+ws.setCell(6, 0, { type: "number", value: 7 });
+ws.setCell(7, 0, { type: "number", value: 8 });
+ws.setCell(8, 0, { type: "number", value: 9 });
+ws.setCell(9, 0, { type: "number", value: 10 });
+
+ws.setConditionalFormatting({
+  sqref: "A:A",
+  type: "top",
+  priority: 1,
+  percent: true,
+  rank: 10,
+  style: {
+    font: { color: "FF9C0006" },
+    fill: { bgColor: "FFFFC7CE" },
+  },
+});
+
+const xlsx = wb.generateXlsxSync();
+writeFileSync("test.xlsx", xlsx);
 ```

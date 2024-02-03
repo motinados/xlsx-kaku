@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("top10 conditional formatting", () => {
-  const testName = "conditionalFormatting";
+describe("bottom conditional formatting", () => {
+  const testName = "conditionalFormatting1";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -48,7 +48,7 @@ describe("top10 conditional formatting", () => {
     ws.setConditionalFormatting({
       // Fixme: "A:A" is not supported
       sqref: "A1:A1048576",
-      type: "top",
+      type: "bottom",
       priority: 1,
       percent: true,
       rank: 10,
@@ -158,8 +158,6 @@ describe("top10 conditional formatting", () => {
 
     // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
-    // It should be a problem-free difference.
-    // deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
 

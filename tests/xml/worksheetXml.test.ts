@@ -21,6 +21,8 @@ import {
   XlsxCol,
   isEqualsXlsxCol,
   GroupedXlsxCol,
+  makeConditionalFormattingXml,
+  XlsxConditionalFormatting,
 } from "../../src/xml/worksheetXml";
 import { CellXfs } from "../../src/cellXfs";
 import { Fonts } from "../../src/fonts";
@@ -910,5 +912,46 @@ describe("Writer", () => {
       },
     ];
     expect(actual).toEqual(expected);
+  });
+
+  test("makeConditionalFormattingXml", () => {
+    const conditionalFormattings: XlsxConditionalFormatting[] = [
+      {
+        sqref: "A1:A10",
+        bottom: false,
+        dxfId: 0,
+        priority: 1,
+        type: "top10",
+        rank: 10,
+        percent: true,
+      },
+    ];
+    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const expected =
+      `<conditionalFormatting sqref="A1:A10">` +
+      `<cfRule type="top10" dxfId="0" priority="1" percent="1" rank="10"/>` +
+      `</conditionalFormatting>`;
+    expect(actual).toBe(expected);
+
+    conditionalFormattings.push({
+      sqref: "B1:B10",
+      bottom: true,
+      dxfId: 1,
+      priority: 1,
+      type: "top10",
+      rank: 10,
+      percent: false,
+    });
+
+    const acutual2 = makeConditionalFormattingXml(conditionalFormattings);
+    const expected2 =
+      `<conditionalFormatting sqref="A1:A10">` +
+      `<cfRule type="top10" dxfId="0" priority="1" percent="1" rank="10"/>` +
+      `</conditionalFormatting>` +
+      `<conditionalFormatting sqref="B1:B10">` +
+      `<cfRule type="top10" dxfId="1" priority="1" bottom="1" rank="10"/>` +
+      `</conditionalFormatting>`;
+
+    expect(acutual2).toBe(expected2);
   });
 });

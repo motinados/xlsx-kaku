@@ -384,20 +384,18 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
 export function makeConditionalFormattingXml(
   formattings: XlsxConditionalFormatting[]
 ): string {
-  if (formattings.length === 0) {
-    return "";
-  }
+  let xml = "";
 
   for (const formatting of formattings) {
     switch (formatting.type) {
       case "top10": {
         const percent = formatting.percent ? ' percent="1"' : "";
         const bottom = formatting.bottom ? ' bottom="1"' : "";
-        return (
+        xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
           `<cfRule type="top10" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${percent}${bottom} rank="${formatting.rank}"/>` +
-          "</conditionalFormatting>"
-        );
+          "</conditionalFormatting>";
+        break;
       }
       default: {
         const _exhaustiveCheck: never = formatting.type;
@@ -408,7 +406,7 @@ export function makeConditionalFormattingXml(
     }
   }
 
-  return "";
+  return xml;
 }
 
 export function makeSheetDataXml(

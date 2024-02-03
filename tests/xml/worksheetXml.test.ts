@@ -954,4 +954,21 @@ describe("Writer", () => {
 
     expect(acutual2).toBe(expected2);
   });
+
+  test("makeConditionalFormattingXml with duplicateValues", () => {
+    const conditionalFormattings: XlsxConditionalFormatting[] = [
+      {
+        sqref: "A1:A10",
+        type: "duplicateValues",
+        dxfId: 0,
+        priority: 1,
+      },
+    ];
+    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const expected =
+      `<conditionalFormatting sqref="A1:A10">` +
+      `<cfRule type="duplicateValues" dxfId="0" priority="1"/>` +
+      `</conditionalFormatting>`;
+    expect(actual).toBe(expected);
+  });
 });

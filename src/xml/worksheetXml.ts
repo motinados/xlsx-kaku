@@ -114,6 +114,12 @@ export type XlsxConditionalFormatting =
       priority: number;
       aboveAverage: boolean;
       equalAverage: boolean;
+    }
+  | {
+      type: "duplicateValues";
+      sqref: string;
+      dxfId: number;
+      priority: number;
     };
 
 export function makeWorksheetXml(
@@ -430,6 +436,13 @@ export function makeConditionalFormattingXml(
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
           `<cfRule type="aboveAverage" dxfId="${formatting.dxfId}" priority="${formatting.priority}"${aboveAverage}${equalAverage}/>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "duplicateValues": {
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="duplicateValues" dxfId="${formatting.dxfId}" priority="${formatting.priority}"/>` +
           "</conditionalFormatting>";
         break;
       }

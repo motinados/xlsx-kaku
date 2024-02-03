@@ -221,6 +221,33 @@ export function makeWorksheetXml(
           conditionalFormattings.push(conditionalFormatting);
           break;
         }
+        case "greaterThan":
+        case "lessThan":
+        case "equal": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "cellIs",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: cf.type,
+            formula: "" + cf.formula,
+            dxfId: id,
+          };
+          conditionalFormattings.push(conditionalFormatting);
+          break;
+        }
+        case "between": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "cellIs",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: "between",
+            formulaA: "" + cf.formulaA,
+            formulaB: "" + cf.formulaB,
+            dxfId: id,
+          };
+          conditionalFormattings.push(conditionalFormatting);
+          break;
+        }
         default: {
           const _exhaustiveCheck: never = cf;
           throw new Error(

@@ -33,14 +33,25 @@ export type FreezePane = {
   split: number;
 };
 
-export type ConditionalFormatting = {
-  type: "top" | "bottom";
-  sqref: string;
-  priority: number;
-  percent: boolean;
-  rank: number;
-  style: DxfStyle;
-};
+export type ConditionalFormatting =
+  | {
+      type: "top" | "bottom";
+      sqref: string;
+      priority: number;
+      percent: boolean;
+      rank: number;
+      style: DxfStyle;
+    }
+  | {
+      type:
+        | "aboveAverage"
+        | "belowAverage"
+        | "atOrAboveAverage"
+        | "atOrBelowAverage";
+      sqref: string;
+      priority: number;
+      style: DxfStyle;
+    };
 
 export type WorksheetProps = {
   defaultColWidth?: number;

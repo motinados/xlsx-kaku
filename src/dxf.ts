@@ -5,9 +5,9 @@ type Fill = {
 };
 
 export type DxfStyle = {
-  font: Font;
-  fill: Fill;
-  border: Border;
+  font?: Font;
+  fill?: Fill;
+  border?: Border;
 };
 
 // TODO: integrate styles
@@ -24,18 +24,29 @@ export class Dxf {
   }
 
   makeXml(): string {
+    if (this.count === 0) {
+      return "";
+    }
+
     let xml = `<dxfs count="${this.count}">`;
     this._dxf.forEach((style) => {
-      xml += `<dxf><font>${makeFontXml(style.font)}</font><fill>${makeFillXml(
-        style.fill
-      )}</fill><border>${makeBorderXml(style.border)}</border></dxf>`;
+      xml +=
+        "<dxf>" +
+        makeFontXml(style.font) +
+        makeFillXml(style.fill) +
+        makeBorderXml(style.border) +
+        "</dxf>";
     });
     xml += `</dxfs>`;
     return xml;
   }
 }
 
-export function makeFontXml(font: Font) {
+export function makeFontXml(font: Font | undefined) {
+  if (!font) {
+    return "";
+  }
+
   let xml = "<font>";
 
   if (font.bold) {
@@ -57,10 +68,19 @@ export function makeFontXml(font: Font) {
       xml += `<u/>`;
     }
   }
-  xml +=
-    `<sz val="${font.size}"/>` +
-    `<color rgb="${font.color}"/>` +
-    `<name val="${font.name}"/>`;
+
+  if (font.size) {
+    xml += `<sz val="${font.size}"/>`;
+  }
+
+  if (font.color) {
+    xml += `<color rgb="${font.color}"/>`;
+  }
+
+  if (font.name) {
+    xml += `<name val="${font.name}"/>`;
+  }
+
   if (font.family) {
     xml += `<family val="${font.family}"/>`;
   }
@@ -73,11 +93,19 @@ export function makeFontXml(font: Font) {
   return xml;
 }
 
-export function makeFillXml(fill: Fill) {
-  return `<patternFill><bgColor rgb="${fill.bgColor}"/></patternFill>`;
+export function makeFillXml(fill: Fill | undefined) {
+  if (!fill) {
+    return "";
+  }
+
+  return `<fill><patternFill><bgColor rgb="${fill.bgColor}"/></patternFill></fill>`;
 }
 
-export function makeBorderXml(border: Border) {
+export function makeBorderXml(border: Border | undefined) {
+  if (!border) {
+    return "";
+  }
+
   let xml = "<border>";
   if (border.left) {
     xml +=

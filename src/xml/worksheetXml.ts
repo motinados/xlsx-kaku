@@ -7,6 +7,7 @@ import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
 import {
   ColProps,
+  ConditionalFormatting,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
   RowProps,
@@ -173,93 +174,12 @@ export function makeWorksheetXml(
   const colsXml = makeColsXml(groupXlsxCols(xlsxCols), defaultColWidth);
   const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
 
-  const conditionalFormattings: XlsxConditionalFormatting[] = [];
-  if (worksheet.conditionalFormattings.length > 0) {
-    for (const cf of worksheet.conditionalFormattings) {
-      const id = dxf.addStyle(cf.style);
-
-      switch (cf.type) {
-        case "top":
-        case "bottom": {
-          const bottom = cf.type === "bottom";
-          const conditionalFormatting: XlsxConditionalFormatting = {
-            type: "top10",
-            sqref: cf.sqref,
-            priority: cf.priority,
-            percent: cf.percent,
-            bottom,
-            rank: cf.rank,
-            dxfId: id,
-          };
-          conditionalFormattings.push(conditionalFormatting);
-          break;
-        }
-        case "aboveAverage":
-        case "belowAverage":
-        case "atOrAboveAverage":
-        case "atOrBelowAverage": {
-          const conditionalFormatting: XlsxConditionalFormatting = {
-            type: "aboveAverage",
-            sqref: cf.sqref,
-            priority: cf.priority,
-            aboveAverage:
-              cf.type === "aboveAverage" || cf.type === "atOrAboveAverage",
-            equalAverage:
-              cf.type === "atOrAboveAverage" || cf.type === "atOrBelowAverage",
-            dxfId: id,
-          };
-          conditionalFormattings.push(conditionalFormatting);
-          break;
-        }
-        case "duplicateValues": {
-          const conditionalFormatting: XlsxConditionalFormatting = {
-            type: "duplicateValues",
-            sqref: cf.sqref,
-            priority: cf.priority,
-            dxfId: id,
-          };
-          conditionalFormattings.push(conditionalFormatting);
-          break;
-        }
-        case "greaterThan":
-        case "lessThan":
-        case "equal": {
-          const conditionalFormatting: XlsxConditionalFormatting = {
-            type: "cellIs",
-            sqref: cf.sqref,
-            priority: cf.priority,
-            operator: cf.type,
-            formula: "" + cf.formula,
-            dxfId: id,
-          };
-          conditionalFormattings.push(conditionalFormatting);
-          break;
-        }
-        case "between": {
-          const conditionalFormatting: XlsxConditionalFormatting = {
-            type: "cellIs",
-            sqref: cf.sqref,
-            priority: cf.priority,
-            operator: "between",
-            formulaA: "" + cf.formulaA,
-            formulaB: "" + cf.formulaB,
-            dxfId: id,
-          };
-          conditionalFormattings.push(conditionalFormatting);
-          break;
-        }
-        default: {
-          const _exhaustiveCheck: never = cf;
-          throw new Error(
-            `unknown conditional formatting type: ${_exhaustiveCheck}`
-          );
-        }
-      }
-    }
-  }
-
+  const xlsxConditionalFormattings = createXlsxConditionalFormatting(
+    worksheet.conditionalFormattings,
+    dxf
+  );
   const conditionalFormattingXml = makeConditionalFormattingXml(
-    conditionalFormattings
+    xlsxConditionalFormattings
   );
 
   const sheetDataXml = makeSheetDataXml(
@@ -376,6 +296,97 @@ export function createXlsxRowFromRowProps(
     customHeight: row.height !== undefined && row.height !== DEFAULT_ROW_HEIGHT,
     cellXfId: cellXfId,
   };
+}
+
+function createXlsxConditionalFormatting(
+  conditionalFormattings: ConditionalFormatting[],
+  dxf: Dxf
+) {
+  const xcfs: XlsxConditionalFormatting[] = [];
+  if (conditionalFormattings.length > 0) {
+    for (const cf of conditionalFormattings) {
+      const id = dxf.addStyle(cf.style);
+
+      switch (cf.type) {
+        case "top":
+        case "bottom": {
+          const bottom = cf.type === "bottom";
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "top10",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            percent: cf.percent,
+            bottom,
+            rank: cf.rank,
+            dxfId: id,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        case "aboveAverage":
+        case "belowAverage":
+        case "atOrAboveAverage":
+        case "atOrBelowAverage": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "aboveAverage",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            aboveAverage:
+              cf.type === "aboveAverage" || cf.type === "atOrAboveAverage",
+            equalAverage:
+              cf.type === "atOrAboveAverage" || cf.type === "atOrBelowAverage",
+            dxfId: id,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        case "duplicateValues": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "duplicateValues",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            dxfId: id,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        case "greaterThan":
+        case "lessThan":
+        case "equal": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "cellIs",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: cf.type,
+            formula: "" + cf.formula,
+            dxfId: id,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        case "between": {
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "cellIs",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: "between",
+            formulaA: "" + cf.formulaA,
+            formulaB: "" + cf.formulaB,
+            dxfId: id,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        default: {
+          const _exhaustiveCheck: never = cf;
+          throw new Error(
+            `unknown conditional formatting type: ${_exhaustiveCheck}`
+          );
+        }
+      }
+    }
+  }
+  return xcfs;
 }
 
 export function isEqualsXlsxCol(a: XlsxCol, b: XlsxCol) {

@@ -555,7 +555,7 @@ export function makeSheetDataXml(
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
-    const str = rowToString(
+    const str = makeRowXml(
       row,
       rowIndex,
       spanStartNumber,
@@ -636,7 +636,7 @@ export function findLastNonNullCell(row: RowData) {
 /**
  * <row r="1" spans="1:2"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>
  */
-export function rowToString(
+export function makeRowXml(
   row: RowData,
   rowIndex: number,
   spanStartNumber: number,

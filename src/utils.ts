@@ -94,3 +94,19 @@ export function isInRange(colName: string, min: number, max: number) {
 export function hasSheetName(address: string): boolean {
   return address.indexOf("!") !== -1;
 }
+
+/**
+ * e.g. "A1:A1048576" => "A1". e.g. "A1" => "A1"
+ * @param address
+ * @returns
+ */
+export function getFirstAddress(address: string): string {
+  if (isRange(address)) {
+    return address.split(":")[0] as string;
+  }
+  return address;
+}
+
+export function isRange(address: string): boolean {
+  return address.indexOf(":") !== -1;
+}

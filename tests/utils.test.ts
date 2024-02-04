@@ -5,6 +5,8 @@ import {
   expandRange,
   isInRange,
   hasSheetName,
+  getFirstAddress,
+  isRange,
 } from "../src/utils";
 
 describe("utils", () => {
@@ -71,5 +73,17 @@ describe("utils", () => {
   test("hasSheetName", () => {
     expect(hasSheetName("Sheet1!A1")).toBe(true);
     expect(hasSheetName("A1")).toBe(false);
+  });
+
+  test("isRange", () => {
+    expect(isRange("A1:A1")).toBe(true);
+    expect(isRange("A1:A2")).toBe(true);
+    expect(isRange("A1:B2")).toBe(true);
+    expect(isRange("A1")).toBe(false);
+  });
+
+  test("getFirstAddress", () => {
+    expect(getFirstAddress("A1:B2")).toBe("A1");
+    expect(getFirstAddress("B2")).toBe("B2");
   });
 });

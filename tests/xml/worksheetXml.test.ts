@@ -15,7 +15,7 @@ import {
   makeMergeCellsXml,
   makeSheetDataXml,
   makeSheetViewsXml,
-  rowToString,
+  makeRowXml,
   makeSheetFormatPrXml,
   groupXlsxCols,
   XlsxCol,
@@ -146,7 +146,7 @@ describe("Writer", () => {
     );
   });
 
-  test("cellToString for number", () => {
+  test("makeCellXml for number", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "number",
@@ -158,7 +158,7 @@ describe("Writer", () => {
     expect(result).toBe(`<c r="C1"><v>15</v></c>`);
   });
 
-  test("cellToString for string", () => {
+  test("makeCellXml for string", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "string",
@@ -172,7 +172,7 @@ describe("Writer", () => {
     expect(styleMappers.sharedStrings.uniqueCount).toBe(1);
   });
 
-  test("cellToString for date", () => {
+  test("makeCellXml for date", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "date",
@@ -184,7 +184,7 @@ describe("Writer", () => {
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
 
-  test("cellToString for Hyperlink", () => {
+  test("makeCellXml for Hyperlink", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "hyperlink",
@@ -223,7 +223,7 @@ describe("Writer", () => {
     expect(hyperlink.rid).toBe(rid);
   });
 
-  test("rowToString for number", () => {
+  test("makeRowXml for number", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [
       null,
@@ -231,21 +231,13 @@ describe("Writer", () => {
       { type: "number", value: 15 },
       { type: "number", value: 23 },
     ];
-    const result = rowToString(
-      row,
-      0,
-      3,
-      4,
-      styleMappers,
-      new Map(),
-      new Map()
-    );
+    const result = makeRowXml(row, 0, 3, 4, styleMappers, new Map(), new Map());
     expect(result).toBe(
       `<row r="1" spans="3:4"><c r="C1"><v>15</v></c><c r="D1"><v>23</v></c></row>`
     );
   });
 
-  test("rowToString for string", () => {
+  test("makeRowXml for string", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [
       null,
@@ -255,15 +247,7 @@ describe("Writer", () => {
       { type: "string", value: "hello" },
     ];
 
-    const result = rowToString(
-      row,
-      0,
-      3,
-      5,
-      styleMappers,
-      new Map(),
-      new Map()
-    );
+    const result = makeRowXml(row, 0, 3, 5, styleMappers, new Map(), new Map());
     expect(result).toBe(
       `<row r="1" spans="3:5"><c r="C1" t="s"><v>0</v></c><c r="D1" t="s"><v>1</v></c><c r="E1" t="s"><v>0</v></c></row>`
     );
@@ -271,14 +255,14 @@ describe("Writer", () => {
     expect(styleMappers.sharedStrings.uniqueCount).toBe(2);
   });
 
-  test("rowToString with height", () => {
+  test("makeRowXml with height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
     const xlsxRow = createXlsxRowFromRowProps(
       { index: 0, height: 30 },
       styleMappers
     );
-    const result = rowToString(
+    const result = makeRowXml(
       row,
       0,
       1,
@@ -292,14 +276,14 @@ describe("Writer", () => {
     );
   });
 
-  test("rowToString with style", () => {
+  test("makeRowXml with style", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
     const xlsxRow = createXlsxRowFromRowProps(
       { index: 0, style: { alignment: { horizontal: "center" } } },
       styleMappers
     );
-    const result = rowToString(
+    const result = makeRowXml(
       row,
       0,
       1,
@@ -313,7 +297,7 @@ describe("Writer", () => {
     );
   });
 
-  test("rowToString with style and height", () => {
+  test("makeRowXml with style and height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
     const xlsxRow = createXlsxRowFromRowProps(
@@ -324,7 +308,7 @@ describe("Writer", () => {
       },
       styleMappers
     );
-    const result = rowToString(
+    const result = makeRowXml(
       row,
       0,
       1,
@@ -338,7 +322,7 @@ describe("Writer", () => {
     );
   });
 
-  test("tableToString for number", () => {
+  test("makeSheetDataXml for number", () => {
     const sheetData: SheetData = [
       [],
       [null, null, { type: "number", value: 1 }, { type: "number", value: 2 }],
@@ -359,7 +343,7 @@ describe("Writer", () => {
     );
   });
 
-  test("tableToString for string", () => {
+  test("makeSheetDataXml for string", () => {
     const sheetData: SheetData = [
       [],
       [null, null, { type: "string", value: "hello" }],

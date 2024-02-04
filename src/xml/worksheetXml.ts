@@ -2,7 +2,11 @@ import { v4 as uuidv4 } from "uuid";
 import { FreezePane, MergeCell, Worksheet } from "..";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
-import { convColIndexToColName, convColNameToColIndex } from "../utils";
+import {
+  convColIndexToColName,
+  convColNameToColIndex,
+  getFirstAddress,
+} from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
 import {
@@ -138,6 +142,42 @@ export type XlsxConditionalFormatting =
       operator: "between";
       formulaA: string;
       formulaB: string;
+    }
+  | {
+      type: "containsText";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "containsText";
+      text: string;
+      formula: string;
+    }
+  | {
+      type: "notContainsText";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "notContains";
+      text: string;
+      formula: string;
+    }
+  | {
+      type: "beginsWith";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "beginsWith";
+      text: string;
+      formula: string;
+    }
+  | {
+      type: "endsWith";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "endsWith";
+      text: string;
+      formula: string;
     };
 
 export function makeWorksheetXml(
@@ -528,6 +568,50 @@ export function makeConditionalFormattingXml(
           `<conditionalFormatting sqref="${formatting.sqref}">` +
           `<cfRule type="cellIs" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}">` +
           formula +
+          `</cfRule>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "containsText": {
+        const firstCell = getFirstAddress(formatting.sqref);
+        const formula = `<formula>NOT(ISERROR(SEARCH("${formatting.text}",${firstCell})))</formula>`;
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
+          `<formula>${formula}</formula>` +
+          `</cfRule>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "notContainsText": {
+        const firstCell = getFirstAddress(formatting.sqref);
+        const formula = `<formula>ISERROR(SEARCH("${formatting.text}",${firstCell}))</formula>`;
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
+          `<formula>${formula}</formula>` +
+          `</cfRule>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "beginsWith": {
+        const firstCell = getFirstAddress(formatting.sqref);
+        const fomula = `<formula>LEFT(${firstCell}, LEN("${formatting.text}"))="${formatting.text}"</formula>`;
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
+          `<formula>${fomula}</formula>` +
+          `</cfRule>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "endsWith": {
+        const firstCell = getFirstAddress(formatting.sqref);
+        const fomula = `<formula>RIGHT(${firstCell}, LEN("${formatting.text}"))="${formatting.text}"</formula>`;
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
+          `<formula>${fomula}</formula>` +
           `</cfRule>` +
           "</conditionalFormatting>";
         break;

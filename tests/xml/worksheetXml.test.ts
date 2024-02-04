@@ -146,7 +146,7 @@ describe("Writer", () => {
     );
   });
 
-  test("cellToString for number", () => {
+  test("makeCellXml for number", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "number",
@@ -158,7 +158,7 @@ describe("Writer", () => {
     expect(result).toBe(`<c r="C1"><v>15</v></c>`);
   });
 
-  test("cellToString for string", () => {
+  test("makeCellXml for string", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "string",
@@ -172,7 +172,7 @@ describe("Writer", () => {
     expect(styleMappers.sharedStrings.uniqueCount).toBe(1);
   });
 
-  test("cellToString for date", () => {
+  test("makeCellXml for date", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "date",
@@ -184,7 +184,7 @@ describe("Writer", () => {
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
   });
 
-  test("cellToString for Hyperlink", () => {
+  test("makeCellXml for Hyperlink", () => {
     const styleMappers = getStyleMappers();
     const cell: Cell = {
       type: "hyperlink",
@@ -297,7 +297,7 @@ describe("Writer", () => {
     );
   });
 
-  test("rowToString with style and height", () => {
+  test("makeRowXml with style and height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
     const xlsxRow = createXlsxRowFromRowProps(
@@ -322,7 +322,7 @@ describe("Writer", () => {
     );
   });
 
-  test("tableToString for number", () => {
+  test("makeSheetDataXml for number", () => {
     const sheetData: SheetData = [
       [],
       [null, null, { type: "number", value: 1 }, { type: "number", value: 2 }],
@@ -343,7 +343,7 @@ describe("Writer", () => {
     );
   });
 
-  test("tableToString for string", () => {
+  test("makeSheetDataXml for string", () => {
     const sheetData: SheetData = [
       [],
       [null, null, { type: "string", value: "hello" }],

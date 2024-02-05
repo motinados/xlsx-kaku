@@ -1018,4 +1018,69 @@ describe("Writer", () => {
 
     expect(actual).toBe(expected);
   });
+
+  test("makeConditionalFormattingXml to compare strings", () => {
+    const conditionalFormattings: XlsxConditionalFormatting[] = [
+      {
+        sqref: "A1:A1048576",
+        type: "containsText",
+        dxfId: 3,
+        priority: 4,
+        operator: "containsText",
+        text: "a",
+        formula: 'NOT(ISERROR(SEARCH("a",A1)))',
+      },
+      {
+        sqref: "B1:B1048576",
+        type: "notContainsText",
+        dxfId: 2,
+        priority: 3,
+        operator: "notContains",
+        text: "a",
+        formula: 'ISERROR(SEARCH("a",B1))',
+      },
+      {
+        sqref: "C1:C1048576",
+        type: "beginsWith",
+        dxfId: 1,
+        priority: 2,
+        operator: "beginsWith",
+        text: "a",
+        formula: 'LEFT(C1,LEN("a"))="a"',
+      },
+      {
+        sqref: "D1:D1048576",
+        type: "endsWith",
+        dxfId: 0,
+        priority: 1,
+        operator: "endsWith",
+        text: "a",
+        formula: 'RIGHT(D1,LEN("a"))="a"',
+      },
+    ];
+
+    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const expected =
+      '<conditionalFormatting sqref="A1:A1048576">' +
+      '<cfRule type="containsText" dxfId="3" priority="4" operator="containsText" text="a">' +
+      '<formula>NOT(ISERROR(SEARCH("a",A1)))</formula>' +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="B1:B1048576">' +
+      '<cfRule type="notContainsText" dxfId="2" priority="3" operator="notContains" text="a">' +
+      '<formula>ISERROR(SEARCH("a",B1))</formula>' +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="C1:C1048576">' +
+      '<cfRule type="beginsWith" dxfId="1" priority="2" operator="beginsWith" text="a">' +
+      '<formula>LEFT(C1,LEN("a"))="a"</formula>' +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="D1:D1048576">' +
+      '<cfRule type="endsWith" dxfId="0" priority="1" operator="endsWith" text="a">' +
+      '<formula>RIGHT(D1,LEN("a"))="a"</formula>' +
+      "</cfRule>" +
+      "</conditionalFormatting>";
+    expect(actual).toBe(expected);
+  });
 });

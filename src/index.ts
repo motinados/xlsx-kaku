@@ -10,6 +10,7 @@ import {
   MergeCell,
   FreezePane,
   RowProps,
+  ConditionalFormatting,
 } from "./worksheet";
 import { genXlsx, genXlsxSync } from "./writer";
 
@@ -19,5 +20,12 @@ export { Font };
 export { NumberFormat };
 export { Cell, NullableCell, RowData, SheetData };
 export { Workbook };
-export { ColProps, Worksheet, MergeCell, FreezePane, RowProps };
+export {
+  ColProps,
+  Worksheet,
+  MergeCell,
+  FreezePane,
+  RowProps,
+  ConditionalFormatting,
+};
 export { genXlsx, genXlsxSync };

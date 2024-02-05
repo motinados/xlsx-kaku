@@ -72,6 +72,13 @@ export type ConditionalFormatting =
       formulaA: string | number;
       formulaB: string | number;
       style: DxfStyle;
+    }
+  | {
+      type: "containsText" | "notContainsText" | "beginsWith" | "endsWith";
+      sqref: string;
+      priority: number;
+      text: string;
+      style: DxfStyle;
     };
 
 export type WorksheetProps = {

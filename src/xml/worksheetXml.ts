@@ -2,7 +2,11 @@ import { v4 as uuidv4 } from "uuid";
 import { FreezePane, MergeCell, Worksheet } from "..";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
-import { convColIndexToColName, convColNameToColIndex } from "../utils";
+import {
+  convColIndexToColName,
+  convColNameToColIndex,
+  getFirstAddress,
+} from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
 import {
@@ -138,6 +142,42 @@ export type XlsxConditionalFormatting =
       operator: "between";
       formulaA: string;
       formulaB: string;
+    }
+  | {
+      type: "containsText";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "containsText";
+      text: string;
+      formula: string;
+    }
+  | {
+      type: "notContainsText";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "notContains";
+      text: string;
+      formula: string;
+    }
+  | {
+      type: "beginsWith";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "beginsWith";
+      text: string;
+      formula: string;
+    }
+  | {
+      type: "endsWith";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      operator: "endsWith";
+      text: string;
+      formula: string;
     };
 
 export function makeWorksheetXml(
@@ -377,6 +417,66 @@ function createXlsxConditionalFormatting(
           xcfs.push(conditionalFormatting);
           break;
         }
+        case "containsText": {
+          const firstCell = getFirstAddress(cf.sqref);
+          const formula = `NOT(ISERROR(SEARCH("${cf.text}",${firstCell})))`;
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "containsText",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: "containsText",
+            text: cf.text,
+            dxfId: id,
+            formula: formula,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        case "notContainsText": {
+          const firstCell = getFirstAddress(cf.sqref);
+          const formula = `ISERROR(SEARCH("${cf.text}",${firstCell}))`;
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "notContainsText",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: "notContains",
+            text: cf.text,
+            dxfId: id,
+            formula: formula,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        case "beginsWith": {
+          const firstCell = getFirstAddress(cf.sqref);
+          const fomula = `LEFT(${firstCell},LEN("${cf.text}"))="${cf.text}"`;
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "beginsWith",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: "beginsWith",
+            text: cf.text,
+            dxfId: id,
+            formula: fomula,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
+        case "endsWith": {
+          const firstCell = getFirstAddress(cf.sqref);
+          const fomula = `RIGHT(${firstCell},LEN("${cf.text}"))="${cf.text}"`;
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "endsWith",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            operator: "endsWith",
+            text: cf.text,
+            dxfId: id,
+            formula: fomula,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
         default: {
           const _exhaustiveCheck: never = cf;
           throw new Error(
@@ -528,6 +628,18 @@ export function makeConditionalFormattingXml(
           `<conditionalFormatting sqref="${formatting.sqref}">` +
           `<cfRule type="cellIs" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}">` +
           formula +
+          `</cfRule>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "containsText":
+      case "notContainsText":
+      case "beginsWith":
+      case "endsWith": {
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
+          `<formula>${formatting.formula}</formula>` +
           `</cfRule>` +
           "</conditionalFormatting>";
         break;

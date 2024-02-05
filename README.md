@@ -244,16 +244,16 @@ const xlsx = wb.generateXlsxSync();
 
 ### Conditional Formatting
 
-The following types can be used for comparing numbers:  
-"top", "bottom", "aboveAverage", "belowAverage", "atOrAboveAverage", "atOrBelowAverage",
-"duplicateValues", "greaterThan", "lessThan", "equal", "between"
-
-Here, we present example of "top".
-
 ```ts
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
+// The following types are supported for numbers:
+//
+// "top", "bottom", "aboveAverage", "belowAverage", "atOrAboveAverage", "atOrBelowAverage",
+// "duplicateValues", "greaterThan", "lessThan", "equal", "between"
+//
+// Here, we present example of "top".
 ws.setCell(0, 0, { type: "number", value: 1 });
 ws.setCell(1, 0, { type: "number", value: 2 });
 ws.setCell(2, 0, { type: "number", value: 3 });
@@ -275,6 +275,33 @@ ws.setConditionalFormatting({
     font: { color: "FF9C0006" },
     fill: { bgColor: "FFFFC7CE" },
   },
+});
+
+// The following types are supported for strings:
+//
+// "containsText", "notContainsText", "beginsWith", "endsWith";
+//
+// Here, we present example of "containsText"
+ws.setCell(0, 1, { type: "string", value: "Lion" });
+ws.setCell(1, 1, { type: "string", value: "Elephant" });
+ws.setCell(2, 1, { type: "string", value: "Panda" });
+ws.setCell(3, 1, { type: "string", value: "Giraffe" });
+ws.setCell(4, 1, { type: "string", value: "Turtle" });
+ws.setCell(5, 1, { type: "string", value: "Apple" });
+ws.setCell(6, 1, { type: "string", value: "Banana" });
+ws.setCell(7, 1, { type: "string", value: "Strawberry" });
+ws.setCell(8, 1, { type: "string", value: "Melon" });
+ws.setCell(9, 1, { type: "string", value: "Orange" });
+
+ws.setConditionalFormatting({
+  type: "containsText",
+  sqref: "B1:B1048576",
+  text: "a",
+  style: {
+    font: { color: "FF9C0006" },
+    fill: { bgColor: "FFFFC7CE" },
+  },
+  priority: 1,
 });
 
 const xlsx = wb.generateXlsxSync();

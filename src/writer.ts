@@ -94,10 +94,14 @@ function generateXMLs(worksheets: Worksheet[]) {
   files.push({ filename: "_rels/.rels", content: relsFile });
   files.push({ filename: "docProps/app.xml", content: appXml });
   files.push({ filename: "docProps/core.xml", content: coreXml });
-  files.push({
-    filename: "xl/sharedStrings.xml",
-    content: sharedStringsXml ?? "",
-  });
+
+  if (sharedStringsXml !== null) {
+    files.push({
+      filename: "xl/sharedStrings.xml",
+      content: sharedStringsXml,
+    });
+  }
+
   files.push({ filename: "xl/styles.xml", content: stylesXml });
   files.push({ filename: "xl/workbook.xml", content: workbookXml });
   files.push({

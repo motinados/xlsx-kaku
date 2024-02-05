@@ -45,6 +45,17 @@ describe("conditional formatting for strings", () => {
     ws.setCell(8, 0, { type: "string", value: "Melon" });
     ws.setCell(9, 0, { type: "string", value: "Orange" });
 
+    ws.setConditionalFormatting({
+      type: "containsText",
+      sqref: "A1:A1048576",
+      text: "a",
+      style: {
+        font: { color: "FF9C0006" },
+        fill: { bgColor: "FFFFC7CE" },
+      },
+      priority: 4,
+    });
+
     ws.setCell(0, 1, { type: "string", value: "Lion" });
     ws.setCell(1, 1, { type: "string", value: "Elephant" });
     ws.setCell(2, 1, { type: "string", value: "Panda" });
@@ -55,6 +66,17 @@ describe("conditional formatting for strings", () => {
     ws.setCell(7, 1, { type: "string", value: "Strawberry" });
     ws.setCell(8, 1, { type: "string", value: "Melon" });
     ws.setCell(9, 1, { type: "string", value: "Orange" });
+
+    ws.setConditionalFormatting({
+      type: "notContainsText",
+      sqref: "B1:B1048576",
+      text: "a",
+      style: {
+        font: { color: "FF9C0006" },
+        fill: { bgColor: "FFFFC7CE" },
+      },
+      priority: 3,
+    });
 
     ws.setCell(0, 2, { type: "string", value: "Lion" });
     ws.setCell(1, 2, { type: "string", value: "Elephant" });
@@ -67,6 +89,17 @@ describe("conditional formatting for strings", () => {
     ws.setCell(8, 2, { type: "string", value: "Melon" });
     ws.setCell(9, 2, { type: "string", value: "Orange" });
 
+    ws.setConditionalFormatting({
+      type: "beginsWith",
+      sqref: "C1:C1048576",
+      text: "a",
+      style: {
+        font: { color: "FF9C0006" },
+        fill: { bgColor: "FFFFC7CE" },
+      },
+      priority: 2,
+    });
+
     ws.setCell(0, 3, { type: "string", value: "Lion" });
     ws.setCell(1, 3, { type: "string", value: "Elephant" });
     ws.setCell(2, 3, { type: "string", value: "Panda" });
@@ -78,6 +111,17 @@ describe("conditional formatting for strings", () => {
     ws.setCell(8, 3, { type: "string", value: "Melon" });
     ws.setCell(9, 3, { type: "string", value: "Orange" });
 
+    ws.setConditionalFormatting({
+      type: "endsWith",
+      sqref: "D1:D1048576",
+      text: "a",
+      style: {
+        font: { color: "FF9C0006" },
+        fill: { bgColor: "FFFFC7CE" },
+      },
+      priority: 1,
+    });
+
     const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);
 
@@ -85,7 +129,7 @@ describe("conditional formatting for strings", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
     rmSync(actualUnzippedDir, { recursive: true });
   });
@@ -268,6 +312,16 @@ describe("conditional formatting for strings", () => {
       actualObj,
       "worksheet.sheetViews.sheetView.selection"
     );
+
+    // It should be a problem-free difference.
+    // In oneline Excel, the ID of the last created element becomes 0.
+    for (const c of expectedObj.worksheet.conditionalFormatting) {
+      deletePropertyFromObject(c, "cfRule.@_dxfId");
+    }
+    // In xlsx-kaku, the ID of the first created element becomes 0.
+    for (const c of actualObj.worksheet.conditionalFormatting) {
+      deletePropertyFromObject(c, "cfRule.@_dxfId");
+    }
 
     expect(actualObj).toEqual(expectedObj);
   });

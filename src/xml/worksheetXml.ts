@@ -178,6 +178,24 @@ export type XlsxConditionalFormatting =
       operator: "endsWith";
       text: string;
       formula: string;
+    }
+  | {
+      type: "timePeriod";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      timePeriod:
+        | "yesterday"
+        | "today"
+        | "tomorrow"
+        | "last7Days"
+        | "lastWeek"
+        | "thisWeek"
+        | "nextWeek"
+        | "lastMonth"
+        | "thisMonth"
+        | "nextMonth";
+      formula: string;
     };
 
 export function makeWorksheetXml(
@@ -641,6 +659,15 @@ export function makeConditionalFormattingXml(
           `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
           `<formula>${formatting.formula}</formula>` +
           `</cfRule>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "timePeriod": {
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="timePeriod" dxfId="${formatting.dxfId}" priority="${formatting.priority}" timePeriod="${formatting.timePeriod}">` +
+          `<formula>${formatting.formula}</formula>` +
+          "</cfRule>" +
           "</conditionalFormatting>";
         break;
       }

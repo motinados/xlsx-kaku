@@ -495,6 +495,63 @@ function createXlsxConditionalFormatting(
           xcfs.push(conditionalFormatting);
           break;
         }
+        case "timePeriod": {
+          const firstCell = getFirstAddress(cf.sqref);
+          let formula: string;
+
+          switch (cf.timePeriod) {
+            case "yesterday": {
+              formula = `FLOOR(${firstCell},1)=TODAY()-1`;
+              break;
+            }
+            case "today": {
+              formula = `FLOOR(${firstCell},1)=TODAY()`;
+              break;
+            }
+            case "tomorrow": {
+              formula = `FLOOR(${firstCell},1)=TODAY()+1`;
+              break;
+            }
+            case "last7Days": {
+              formula = `AND(TODAY()-FLOOR(${firstCell},1)<=6,FLOOR(${firstCell},1)<=TODAY())`;
+              break;
+            }
+            case "lastWeek": {
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(${firstCell},0)<(WEEKDAY(TODAY())+7))`;
+              break;
+            }
+            case "thisWeek": {
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)<=WEEKDAY(TODAY())-1,ROUNDDOWN(${firstCell},0)-TODAY()<=7-WEEKDAY(TODAY()))`;
+              break;
+            }
+            case "nextWeek": {
+              formula = `AND(ROUNDDOWN(${firstCell},0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(${firstCell},0)-TODAY()<(15-WEEKDAY(TODAY())))`;
+              break;
+            }
+            case "lastMonth": {
+              formula = `AND(MONTH(${firstCell})=MONTH(EDATE(TODAY(),0-1)),YEAR(${firstCell})=YEAR(EDATE(TODAY(),0-1)))`;
+              break;
+            }
+            case "thisMonth": {
+              formula = `AND(MONTH(${firstCell})=MONTH(TODAY()),YEAR(${firstCell})=YEAR(TODAY()))`;
+              break;
+            }
+            case "nextMonth": {
+              formula = `AND(MONTH(${firstCell})=MONTH(EDATE(TODAY(),0+1)),YEAR(${firstCell})=YEAR(EDATE(TODAY(),0+1)))`;
+              break;
+            }
+          }
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "timePeriod",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            timePeriod: cf.timePeriod,
+            formula: formula,
+            dxfId: id,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
         default: {
           const _exhaustiveCheck: never = cf;
           throw new Error(

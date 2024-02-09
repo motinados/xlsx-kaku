@@ -79,9 +79,9 @@ describe("conditional formatting for date", () => {
 
     ws.setConditionalFormatting({
       type: "timePeriod",
-      sqref: "A1:A1048576",
-      priority: 9,
-      timePeriod: "yesterday",
+      sqref: "B1:B1048576",
+      priority: 10,
+      timePeriod: "today",
       style: {
         font: { color: "FF9C0006" },
         fill: { bgColor: "FFFFC7CE" },
@@ -100,9 +100,9 @@ describe("conditional formatting for date", () => {
 
     ws.setConditionalFormatting({
       type: "timePeriod",
-      sqref: "B1:B1048576",
-      priority: 8,
-      timePeriod: "today",
+      sqref: "A1:A1048576",
+      priority: 9,
+      timePeriod: "yesterday",
       style: {
         font: { color: "FF9C0006" },
         fill: { bgColor: "FFFFC7CE" },
@@ -122,7 +122,7 @@ describe("conditional formatting for date", () => {
     ws.setConditionalFormatting({
       type: "timePeriod",
       sqref: "C1:C1048576",
-      priority: 7,
+      priority: 8,
       timePeriod: "tomorrow",
       style: {
         font: { color: "FF9C0006" },
@@ -143,7 +143,7 @@ describe("conditional formatting for date", () => {
     ws.setConditionalFormatting({
       type: "timePeriod",
       sqref: "D1:D1048576",
-      priority: 6,
+      priority: 7,
       timePeriod: "last7Days",
       style: {
         font: { color: "FF9C0006" },
@@ -164,7 +164,7 @@ describe("conditional formatting for date", () => {
     ws.setConditionalFormatting({
       type: "timePeriod",
       sqref: "E1:E1048576",
-      priority: 5,
+      priority: 6,
       timePeriod: "lastWeek",
       style: {
         font: { color: "FF9C0006" },
@@ -185,7 +185,7 @@ describe("conditional formatting for date", () => {
     ws.setConditionalFormatting({
       type: "timePeriod",
       sqref: "F1:F1048576",
-      priority: 4,
+      priority: 5,
       timePeriod: "thisWeek",
       style: {
         font: { color: "FF9C0006" },
@@ -206,7 +206,7 @@ describe("conditional formatting for date", () => {
     ws.setConditionalFormatting({
       type: "timePeriod",
       sqref: "G1:G1048576",
-      priority: 3,
+      priority: 4,
       timePeriod: "nextWeek",
       style: {
         font: { color: "FF9C0006" },
@@ -227,7 +227,7 @@ describe("conditional formatting for date", () => {
     ws.setConditionalFormatting({
       type: "timePeriod",
       sqref: "H1:H1048576",
-      priority: 2,
+      priority: 3,
       timePeriod: "lastMonth",
       style: {
         font: { color: "FF9C0006" },
@@ -248,6 +248,27 @@ describe("conditional formatting for date", () => {
     ws.setConditionalFormatting({
       type: "timePeriod",
       sqref: "I1:I1048576",
+      priority: 2,
+      timePeriod: "thisMonth",
+      style: {
+        font: { color: "FF9C0006" },
+        fill: { bgColor: "FFFFC7CE" },
+      },
+    });
+
+    for (let i = 0; i < dates.length; i++) {
+      ws.setCell(i, 9, {
+        type: "date",
+        value: dates[i]!,
+        style: {
+          numberFormat: { formatCode: "yyyy-mm-dd;@" },
+        },
+      });
+    }
+
+    ws.setConditionalFormatting({
+      type: "timePeriod",
+      sqref: "J1:J1048576",
       priority: 1,
       timePeriod: "nextMonth",
       style: {

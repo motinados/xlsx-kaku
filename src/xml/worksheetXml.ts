@@ -513,19 +513,19 @@ function createXlsxConditionalFormatting(
               break;
             }
             case "last7Days": {
-              formula = `AND(TODAY()-FLOOR(${firstCell},1)<=6,FLOOR(${firstCell},1)<=TODAY())`;
+              formula = `AND(TODAY()-FLOOR(${firstCell},1)&lt;=6,FLOOR(${firstCell},1)&lt;=TODAY())`;
               break;
             }
             case "lastWeek": {
-              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(${firstCell},0)<(WEEKDAY(TODAY())+7))`;
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)&gt;=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(${firstCell},0)&lt;(WEEKDAY(TODAY())+7))`;
               break;
             }
             case "thisWeek": {
-              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)<=WEEKDAY(TODAY())-1,ROUNDDOWN(${firstCell},0)-TODAY()<=7-WEEKDAY(TODAY()))`;
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)&lt;=WEEKDAY(TODAY())-1,ROUNDDOWN(${firstCell},0)-TODAY()&lt;=7-WEEKDAY(TODAY()))`;
               break;
             }
             case "nextWeek": {
-              formula = `AND(ROUNDDOWN(${firstCell},0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(${firstCell},0)-TODAY()<(15-WEEKDAY(TODAY())))`;
+              formula = `AND(ROUNDDOWN(${firstCell},0)-TODAY()&gt;(7-WEEKDAY(TODAY())),ROUNDDOWN(${firstCell},0)-TODAY()&lt;(15-WEEKDAY(TODAY())))`;
               break;
             }
             case "lastMonth": {

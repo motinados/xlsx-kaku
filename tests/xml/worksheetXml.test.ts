@@ -1083,4 +1083,147 @@ describe("Writer", () => {
       "</conditionalFormatting>";
     expect(actual).toBe(expected);
   });
+
+  test("makeConditionalFormattingXml to compare dates", () => {
+    const conditionalFormattings: XlsxConditionalFormatting[] = [
+      {
+        sqref: "A1:A1048576",
+        type: "timePeriod",
+        dxfId: 0,
+        priority: 1,
+        timePeriod: "yesterday",
+        formula: "FLOOR(A1,1)=TODAY()-1",
+      },
+      {
+        sqref: "B1:B1048576",
+        type: "timePeriod",
+        dxfId: 9,
+        priority: 10,
+        timePeriod: "today",
+        formula: "FLOOR(B1,1)=TODAY()",
+      },
+      {
+        sqref: "C1:C10",
+        type: "timePeriod",
+        dxfId: 8,
+        priority: 9,
+        timePeriod: "tomorrow",
+        formula: "FLOOR(C1,1)=TODAY()+1",
+      },
+      {
+        sqref: "D1:D10",
+        type: "timePeriod",
+        dxfId: 7,
+        priority: 8,
+        timePeriod: "last7Days",
+        formula: "AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY())",
+      },
+      {
+        sqref: "E1:E10",
+        type: "timePeriod",
+        dxfId: 6,
+        priority: 7,
+        timePeriod: "lastWeek",
+        formula:
+          "AND(TODAY()-ROUNDDOWN(E1,0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(E1,0)<(WEEKDAY(TODAY())+7))",
+      },
+      {
+        sqref: "F1:F10",
+        type: "timePeriod",
+        dxfId: 5,
+        priority: 6,
+        timePeriod: "thisWeek",
+        formula:
+          "AND(TODAY()-ROUNDDOWN(F1,0)<=WEEKDAY(TODAY())-1,ROUNDDOWN(F1,0)-TODAY()<=7-WEEKDAY(TODAY()))",
+      },
+      {
+        sqref: "G1:G10",
+        type: "timePeriod",
+        dxfId: 4,
+        priority: 5,
+        timePeriod: "nextWeek",
+        formula:
+          "AND(ROUNDDOWN(G1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(G1,0)-TODAY()<(15-WEEKDAY(TODAY())))",
+      },
+      {
+        sqref: "H1:H10",
+        type: "timePeriod",
+        dxfId: 3,
+        priority: 4,
+        timePeriod: "lastMonth",
+        formula:
+          "AND(MONTH(H1)=MONTH(EDATE(TODAY(),0-1)),YEAR(H1)=YEAR(EDATE(TODAY(),0-1)))",
+      },
+      {
+        sqref: "I1:I10",
+        type: "timePeriod",
+        dxfId: 2,
+        priority: 3,
+        timePeriod: "thisMonth",
+        formula: "AND(MONTH(I1)=MONTH(TODAY()),YEAR(I1)=YEAR(TODAY()))",
+      },
+      {
+        sqref: "J1:J10",
+        type: "timePeriod",
+        dxfId: 1,
+        priority: 2,
+        timePeriod: "nextMonth",
+        formula:
+          "AND(MONTH(J1)=MONTH(EDATE(TODAY(),0+1)),YEAR(J1)=YEAR(EDATE(TODAY(),0+1)))",
+      },
+    ];
+    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const expected =
+      '<conditionalFormatting sqref="A1:A1048576">' +
+      '<cfRule type="timePeriod" dxfId="0" priority="1" timePeriod="yesterday">' +
+      "<formula>FLOOR(A1,1)=TODAY()-1</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="B1:B1048576">' +
+      '<cfRule type="timePeriod" dxfId="9" priority="10" timePeriod="today">' +
+      "<formula>FLOOR(B1,1)=TODAY()</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="C1:C10">' +
+      '<cfRule type="timePeriod" dxfId="8" priority="9" timePeriod="tomorrow">' +
+      "<formula>FLOOR(C1,1)=TODAY()+1</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="D1:D10">' +
+      '<cfRule type="timePeriod" dxfId="7" priority="8" timePeriod="last7Days">' +
+      "<formula>AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY())</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="E1:E10">' +
+      '<cfRule type="timePeriod" dxfId="6" priority="7" timePeriod="lastWeek">' +
+      "<formula>AND(TODAY()-ROUNDDOWN(E1,0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(E1,0)<(WEEKDAY(TODAY())+7))</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="F1:F10">' +
+      '<cfRule type="timePeriod" dxfId="5" priority="6" timePeriod="thisWeek">' +
+      "<formula>AND(TODAY()-ROUNDDOWN(F1,0)<=WEEKDAY(TODAY())-1,ROUNDDOWN(F1,0)-TODAY()<=7-WEEKDAY(TODAY()))</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="G1:G10">' +
+      '<cfRule type="timePeriod" dxfId="4" priority="5" timePeriod="nextWeek">' +
+      "<formula>AND(ROUNDDOWN(G1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(G1,0)-TODAY()<(15-WEEKDAY(TODAY())))</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="H1:H10">' +
+      '<cfRule type="timePeriod" dxfId="3" priority="4" timePeriod="lastMonth">' +
+      "<formula>AND(MONTH(H1)=MONTH(EDATE(TODAY(),0-1)),YEAR(H1)=YEAR(EDATE(TODAY(),0-1)))</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="I1:I10">' +
+      '<cfRule type="timePeriod" dxfId="2" priority="3" timePeriod="thisMonth">' +
+      "<formula>AND(MONTH(I1)=MONTH(TODAY()),YEAR(I1)=YEAR(TODAY()))</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>" +
+      '<conditionalFormatting sqref="J1:J10">' +
+      '<cfRule type="timePeriod" dxfId="1" priority="2" timePeriod="nextMonth">' +
+      "<formula>AND(MONTH(J1)=MONTH(EDATE(TODAY(),0+1)),YEAR(J1)=YEAR(EDATE(TODAY(),0+1)))</formula>" +
+      "</cfRule>" +
+      "</conditionalFormatting>";
+    expect(actual).toBe(expected);
+  });
 });

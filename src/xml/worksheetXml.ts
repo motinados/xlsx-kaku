@@ -178,6 +178,24 @@ export type XlsxConditionalFormatting =
       operator: "endsWith";
       text: string;
       formula: string;
+    }
+  | {
+      type: "timePeriod";
+      sqref: string;
+      dxfId: number;
+      priority: number;
+      timePeriod:
+        | "yesterday"
+        | "today"
+        | "tomorrow"
+        | "last7Days"
+        | "lastWeek"
+        | "thisWeek"
+        | "nextWeek"
+        | "lastMonth"
+        | "thisMonth"
+        | "nextMonth";
+      formula: string;
     };
 
 export function makeWorksheetXml(
@@ -477,6 +495,63 @@ function createXlsxConditionalFormatting(
           xcfs.push(conditionalFormatting);
           break;
         }
+        case "timePeriod": {
+          const firstCell = getFirstAddress(cf.sqref);
+          let formula: string;
+
+          switch (cf.timePeriod) {
+            case "yesterday": {
+              formula = `FLOOR(${firstCell},1)=TODAY()-1`;
+              break;
+            }
+            case "today": {
+              formula = `FLOOR(${firstCell},1)=TODAY()`;
+              break;
+            }
+            case "tomorrow": {
+              formula = `FLOOR(${firstCell},1)=TODAY()+1`;
+              break;
+            }
+            case "last7Days": {
+              formula = `AND(TODAY()-FLOOR(${firstCell},1)&lt;=6,FLOOR(${firstCell},1)&lt;=TODAY())`;
+              break;
+            }
+            case "lastWeek": {
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)&gt;=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(${firstCell},0)&lt;(WEEKDAY(TODAY())+7))`;
+              break;
+            }
+            case "thisWeek": {
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)&lt;=WEEKDAY(TODAY())-1,ROUNDDOWN(${firstCell},0)-TODAY()&lt;=7-WEEKDAY(TODAY()))`;
+              break;
+            }
+            case "nextWeek": {
+              formula = `AND(ROUNDDOWN(${firstCell},0)-TODAY()&gt;(7-WEEKDAY(TODAY())),ROUNDDOWN(${firstCell},0)-TODAY()&lt;(15-WEEKDAY(TODAY())))`;
+              break;
+            }
+            case "lastMonth": {
+              formula = `AND(MONTH(${firstCell})=MONTH(EDATE(TODAY(),0-1)),YEAR(${firstCell})=YEAR(EDATE(TODAY(),0-1)))`;
+              break;
+            }
+            case "thisMonth": {
+              formula = `AND(MONTH(${firstCell})=MONTH(TODAY()),YEAR(${firstCell})=YEAR(TODAY()))`;
+              break;
+            }
+            case "nextMonth": {
+              formula = `AND(MONTH(${firstCell})=MONTH(EDATE(TODAY(),0+1)),YEAR(${firstCell})=YEAR(EDATE(TODAY(),0+1)))`;
+              break;
+            }
+          }
+          const conditionalFormatting: XlsxConditionalFormatting = {
+            type: "timePeriod",
+            sqref: cf.sqref,
+            priority: cf.priority,
+            timePeriod: cf.timePeriod,
+            formula: formula,
+            dxfId: id,
+          };
+          xcfs.push(conditionalFormatting);
+          break;
+        }
         default: {
           const _exhaustiveCheck: never = cf;
           throw new Error(
@@ -641,6 +716,15 @@ export function makeConditionalFormattingXml(
           `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
           `<formula>${formatting.formula}</formula>` +
           `</cfRule>` +
+          "</conditionalFormatting>";
+        break;
+      }
+      case "timePeriod": {
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="timePeriod" dxfId="${formatting.dxfId}" priority="${formatting.priority}" timePeriod="${formatting.timePeriod}">` +
+          `<formula>${formatting.formula}</formula>` +
+          "</cfRule>" +
           "</conditionalFormatting>";
         break;
       }

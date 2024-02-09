@@ -79,6 +79,23 @@ export type ConditionalFormatting =
       priority: number;
       text: string;
       style: DxfStyle;
+    }
+  | {
+      type: "timePeriod";
+      sqref: string;
+      priority: number;
+      timePeriod:
+        | "yesterday"
+        | "today"
+        | "tomorrow"
+        | "last7Days"
+        | "thisMonth"
+        | "lastMonth"
+        | "nextMonth"
+        | "thisWeek"
+        | "lastWeek"
+        | "nextWeek";
+      style: DxfStyle;
     };
 
 export type WorksheetProps = {

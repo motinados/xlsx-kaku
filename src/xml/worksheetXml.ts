@@ -397,6 +397,15 @@ function createXlsxConditionalFormatting(
         };
         xcfs.push(conditionalFormatting);
         continue;
+      } else if (cf.type === "colorScale") {
+        const conditionalFormatting: XlsxConditionalFormatting = {
+          type: "colorScale",
+          sqref: cf.sqref,
+          priority: cf.priority,
+          colorScale: cf.colorScale,
+        };
+        xcfs.push(conditionalFormatting);
+        continue;
       }
 
       const id = dxf.addStyle(cf.style);

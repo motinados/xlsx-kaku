@@ -105,6 +105,21 @@ export type ConditionalFormatting =
       border: boolean;
       gradient: boolean;
       negativeBarBorderColorSameAsPositive: boolean;
+    }
+  | {
+      type: "colorScale";
+      sqref: string;
+      priority: number;
+      colorScale:
+        | {
+            min: string;
+            max: string;
+          }
+        | {
+            min: string;
+            mid: string;
+            max: string;
+          };
     };
 
 export type WorksheetProps = {

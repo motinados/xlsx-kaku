@@ -40,6 +40,57 @@ export type Border = {
   };
 };
 
+export function makeBorderXml(border: Border | undefined) {
+  if (!border) {
+    return "";
+  }
+
+  let xml = "<border>";
+  if (border.left) {
+    xml +=
+      `<left style="${border.left.style}">` +
+      `<color rgb="${border.left.color}"/>` +
+      "</left>";
+  } else {
+    xml += "<left/>";
+  }
+  if (border.right) {
+    xml +=
+      `<right style="${border.right.style}">` +
+      `<color rgb="${border.right.color}"/>` +
+      "</right>";
+  } else {
+    xml += "<right/>";
+  }
+  if (border.top) {
+    xml +=
+      `<top style="${border.top.style}">` +
+      `<color rgb="${border.top.color}"/>` +
+      "</top>";
+  } else {
+    xml += "<top/>";
+  }
+  if (border.bottom) {
+    xml +=
+      `<bottom style="${border.bottom.style}">` +
+      `<color rgb="${border.bottom.color}"/>` +
+      "</bottom>";
+  } else {
+    xml += "<bottom/>";
+  }
+  if (border.diagonal) {
+    xml +=
+      `<diagonal style="${border.diagonal.style}">` +
+      `<color rgb="${border.diagonal.color}"/>` +
+      "</diagonal>";
+  } else {
+    xml += "<diagonal/>";
+  }
+  xml += "</border>";
+
+  return xml;
+}
+
 export class Borders {
   // default border
   //   <borders count="1">
@@ -113,48 +164,7 @@ export class Borders {
 
     this.borders.forEach((_, key) => {
       const border = JSON.parse(key) as Border;
-      xml += "<border>";
-      if (border.left) {
-        xml +=
-          `<left style="${border.left.style}">` +
-          `<color rgb="${border.left.color}"/>` +
-          "</left>";
-      } else {
-        xml += "<left/>";
-      }
-      if (border.right) {
-        xml +=
-          `<right style="${border.right.style}">` +
-          `<color rgb="${border.right.color}"/>` +
-          "</right>";
-      } else {
-        xml += "<right/>";
-      }
-      if (border.top) {
-        xml +=
-          `<top style="${border.top.style}">` +
-          `<color rgb="${border.top.color}"/>` +
-          "</top>";
-      } else {
-        xml += "<top/>";
-      }
-      if (border.bottom) {
-        xml +=
-          `<bottom style="${border.bottom.style}">` +
-          `<color rgb="${border.bottom.color}"/>` +
-          "</bottom>";
-      } else {
-        xml += "<bottom/>";
-      }
-      if (border.diagonal) {
-        xml +=
-          `<diagonal style="${border.diagonal.style}">` +
-          `<color rgb="${border.diagonal.color}"/>` +
-          "</diagonal>";
-      } else {
-        xml += "<diagonal/>";
-      }
-      xml += "</border>";
+      xml += makeBorderXml(border);
     });
     xml += "</borders>";
 

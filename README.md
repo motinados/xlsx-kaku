@@ -244,6 +244,8 @@ const xlsx = wb.generateXlsxSync();
 
 ### Conditional Formatting
 
+Besides the conditional formatting introduced here, it also supports "timePeriod", "dataBar", "colorScale" and "iconSet".
+
 ```ts
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");

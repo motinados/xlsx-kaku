@@ -96,6 +96,15 @@ export type ConditionalFormatting =
         | "lastWeek"
         | "nextWeek";
       style: DxfStyle;
+    }
+  | {
+      type: "dataBar";
+      sqref: string;
+      priority: number;
+      color: string;
+      border: boolean;
+      gradient: boolean;
+      negativeBarBorderColorSameAsPositive: boolean;
     };
 
 export type WorksheetProps = {

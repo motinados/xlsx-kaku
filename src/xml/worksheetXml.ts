@@ -196,6 +196,16 @@ export type XlsxConditionalFormatting =
         | "thisMonth"
         | "nextMonth";
       formula: string;
+    }
+  | {
+      type: "dataBar";
+      sqref: string;
+      priority: number;
+      color: string;
+      x14Id: string;
+      border: boolean;
+      gradient: boolean;
+      negativeBarBorderColorSameAsPositive: boolean;
     };
 
 export function makeWorksheetXml(
@@ -259,6 +269,7 @@ export function makeWorksheetXml(
     defaultRowHeight,
     defaultColWidth
   );
+  const extLstXml = makeExtLstXml(xlsxConditionalFormattings);
 
   // Perhaps passing a UUID to every sheet won't cause any issues,
   // but for the sake of integration testing, only the first sheet is given specific UUID.
@@ -272,6 +283,7 @@ export function makeWorksheetXml(
     sheetDataXml,
     mergeCellsXml,
     conditionalFormattingXml,
+    extLstXml,
     dimension,
     styleMappers.hyperlinks
   );
@@ -363,6 +375,22 @@ function createXlsxConditionalFormatting(
   const xcfs: XlsxConditionalFormatting[] = [];
   if (conditionalFormattings.length > 0) {
     for (const cf of conditionalFormattings) {
+      if (cf.type === "dataBar") {
+        const conditionalFormatting: XlsxConditionalFormatting = {
+          type: "dataBar",
+          sqref: cf.sqref,
+          priority: cf.priority,
+          color: cf.color,
+          x14Id: uuidv4(),
+          border: cf.border,
+          gradient: cf.gradient,
+          negativeBarBorderColorSameAsPositive:
+            cf.negativeBarBorderColorSameAsPositive,
+        };
+        xcfs.push(conditionalFormatting);
+        continue;
+      }
+
       const id = dxf.addStyle(cf.style);
 
       switch (cf.type) {
@@ -726,6 +754,24 @@ export function makeConditionalFormattingXml(
           `<formula>${formatting.formula}</formula>` +
           "</cfRule>" +
           "</conditionalFormatting>";
+        break;
+      }
+      case "dataBar": {
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="dataBar" priority="${formatting.priority}">` +
+          `<dataBar>` +
+          `<cfvo type="min"/>` +
+          `<cfvo type="max"/>` +
+          `<color rgb="${formatting.color}"/>` +
+          `</dataBar>` +
+          `<extLst>` +
+          `<ext xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" uri="{B025F937-C7B1-47D3-B67F-A62EFF666E3E}">` +
+          `<x14:id>{${formatting.x14Id}}</x14:id>` +
+          `</ext>` +
+          `</extLst>` +
+          `</cfRule>` +
+          `</conditionalFormatting>`;
         break;
       }
       default: {
@@ -1284,6 +1330,57 @@ export function makeSheetFormatPrXml(
   return shhetFormatPrXML;
 }
 
+export function makeExtLstXml(
+  xlsxConditionalFormattings: XlsxConditionalFormatting[]
+) {
+  const dataBars = xlsxConditionalFormattings.filter(
+    (cf) => cf.type === "dataBar"
+  );
+
+  if (dataBars.length === 0) {
+    return "";
+  }
+
+  let xml =
+    "<extLst>" +
+    '<ext xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}">' +
+    "<x14:conditionalFormattings>";
+
+  for (const formatting of dataBars) {
+    if (formatting.type === "dataBar") {
+      xml +=
+        `<x14:conditionalFormatting xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">` +
+        `<x14:cfRule type="dataBar" id="{${formatting.x14Id}}">` +
+        `<x14:dataBar minLength="0" maxLength="100"${
+          formatting.border ? ' border="1"' : ""
+        }${formatting.gradient ? "" : ' gradient="0"'}${
+          formatting.negativeBarBorderColorSameAsPositive
+            ? ""
+            : ' negativeBarBorderColorSameAsPositive="0"'
+        }>` +
+        `<x14:cfvo type="autoMin"/>` +
+        `<x14:cfvo type="autoMax"/>` +
+        `${
+          formatting.border
+            ? `<x14:borderColor rgb="${formatting.color}"/>`
+            : ""
+        }` +
+        `<x14:negativeFillColor rgb="FFFF0000"/>` +
+        `${
+          formatting.border ? '<x14:negativeBorderColor rgb="FFFF0000"/>' : ""
+        }` +
+        `<x14:axisColor rgb="FF000000"/>` +
+        `</x14:dataBar>` +
+        `</x14:cfRule>` +
+        `<xm:sqref>${formatting.sqref}</xm:sqref>` +
+        `</x14:conditionalFormatting>`;
+    }
+  }
+
+  xml += "</x14:conditionalFormattings></ext></extLst>";
+  return xml;
+}
+
 export function composeSheetXml(
   uuid: string,
   colsXml: string,
@@ -1292,6 +1389,7 @@ export function composeSheetXml(
   sheetDataString: string,
   mergeCellsXml: string,
   conditionalFormattingXml: string,
+  extLstXml: string,
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
 ) {
@@ -1311,7 +1409,9 @@ export function composeSheetXml(
   result +=
     mergeCellsXml +
     conditionalFormattingXml +
-    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>';
+    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>' +
+    extLstXml +
+    "</worksheet>";
 
   return result;
 }

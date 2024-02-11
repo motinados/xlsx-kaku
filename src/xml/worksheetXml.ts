@@ -225,7 +225,10 @@ export type XlsxConditionalFormatting =
         | "5Arrows"
         | "3ArrowsGray"
         | "4ArrowsGray"
-        | "5ArrowsGray";
+        | "5ArrowsGray"
+        | "3Symbols"
+        | "3Symbols2"
+        | "3Flags";
     };
 
 export function makeWorksheetXml(
@@ -835,7 +838,10 @@ export function makeConditionalFormattingXml(
         let iconSet;
         switch (formatting.iconSet) {
           case "3Arrows":
-          case "3ArrowsGray": {
+          case "3ArrowsGray":
+          case "3Symbols":
+          case "3Symbols2":
+          case "3Flags": {
             iconSet =
               `<iconSet iconSet="${formatting.iconSet}">` +
               '<cfvo type="percent" val="0"/>' +

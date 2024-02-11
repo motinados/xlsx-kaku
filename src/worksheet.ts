@@ -131,7 +131,10 @@ export type ConditionalFormatting =
         | "5Arrows"
         | "3ArrowsGray"
         | "4ArrowsGray"
-        | "5ArrowsGray";
+        | "5ArrowsGray"
+        | "3Symbols"
+        | "3Symbols2"
+        | "3Flags";
     };
 
 export type WorksheetProps = {

@@ -832,29 +832,42 @@ export function makeConditionalFormattingXml(
         break;
       }
       case "iconSet": {
-        const iconSet =
-          formatting.iconSet === "3Arrows" || "3ArrowsGray"
-            ? `<iconSet iconSet="${formatting.iconSet}">` +
+        let iconSet;
+        switch (formatting.iconSet) {
+          case "3Arrows":
+          case "3ArrowsGray": {
+            iconSet =
+              `<iconSet iconSet="${formatting.iconSet}">` +
               '<cfvo type="percent" val="0"/>' +
               '<cfvo type="percent" val="33"/>' +
               '<cfvo type="percent" val="67"/>' +
-              "</iconSet>"
-            : formatting.iconSet === "4Arrows" || "4ArrowsGray"
-            ? `<iconSet iconSet="${formatting.iconSet}">` +
+              "</iconSet>";
+            break;
+          }
+          case "4Arrows":
+          case "4ArrowsGray": {
+            iconSet =
+              `<iconSet iconSet="${formatting.iconSet}">` +
               '<cfvo type="percent" val="0"/>' +
               '<cfvo type="percent" val="25"/>' +
               '<cfvo type="percent" val="50"/>' +
               '<cfvo type="percent" val="75"/>' +
-              "</iconSet>"
-            : formatting.iconSet === "5Arrows" || "5ArrowsGray"
-            ? `<iconSet iconSet="${formatting.iconSet}">` +
+              "</iconSet>";
+            break;
+          }
+          case "5Arrows":
+          case "5ArrowsGray": {
+            iconSet =
+              `<iconSet iconSet="${formatting.iconSet}">` +
               '<cfvo type="percent" val="0"/>' +
               '<cfvo type="percent" val="20"/>' +
               '<cfvo type="percent" val="40"/>' +
               '<cfvo type="percent" val="60"/>' +
               '<cfvo type="percent" val="80"/>' +
-              "</iconSet>"
-            : "";
+              "</iconSet>";
+            break;
+          }
+        }
 
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +

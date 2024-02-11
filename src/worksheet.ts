@@ -120,6 +120,18 @@ export type ConditionalFormatting =
             mid: string;
             max: string;
           };
+    }
+  | {
+      type: "iconSet";
+      sqref: string;
+      priority: number;
+      iconSet:
+        | "3Arrows"
+        | "4Arrows"
+        | "5Arrows"
+        | "3ArrowsGray"
+        | "4ArrowsGray"
+        | "5ArrowsGray";
     };
 
 export type WorksheetProps = {

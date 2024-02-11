@@ -214,6 +214,18 @@ export type XlsxConditionalFormatting =
       colorScale:
         | { min: string; max: string }
         | { min: string; mid: string; max: string };
+    }
+  | {
+      type: "iconSet";
+      sqref: string;
+      priority: number;
+      iconSet:
+        | "3Arrows"
+        | "4Arrows"
+        | "5Arrows"
+        | "3ArrowsGray"
+        | "4ArrowsGray"
+        | "5ArrowsGray";
     };
 
 export function makeWorksheetXml(
@@ -403,6 +415,15 @@ function createXlsxConditionalFormatting(
           sqref: cf.sqref,
           priority: cf.priority,
           colorScale: cf.colorScale,
+        };
+        xcfs.push(conditionalFormatting);
+        continue;
+      } else if (cf.type === "iconSet") {
+        const conditionalFormatting: XlsxConditionalFormatting = {
+          type: "iconSet",
+          sqref: cf.sqref,
+          priority: cf.priority,
+          iconSet: cf.iconSet,
         };
         xcfs.push(conditionalFormatting);
         continue;
@@ -808,6 +829,52 @@ export function makeConditionalFormattingXml(
         }
 
         xml += `</colorScale></cfRule></conditionalFormatting>`;
+        break;
+      }
+      case "iconSet": {
+        let iconSet;
+        switch (formatting.iconSet) {
+          case "3Arrows":
+          case "3ArrowsGray": {
+            iconSet =
+              `<iconSet iconSet="${formatting.iconSet}">` +
+              '<cfvo type="percent" val="0"/>' +
+              '<cfvo type="percent" val="33"/>' +
+              '<cfvo type="percent" val="67"/>' +
+              "</iconSet>";
+            break;
+          }
+          case "4Arrows":
+          case "4ArrowsGray": {
+            iconSet =
+              `<iconSet iconSet="${formatting.iconSet}">` +
+              '<cfvo type="percent" val="0"/>' +
+              '<cfvo type="percent" val="25"/>' +
+              '<cfvo type="percent" val="50"/>' +
+              '<cfvo type="percent" val="75"/>' +
+              "</iconSet>";
+            break;
+          }
+          case "5Arrows":
+          case "5ArrowsGray": {
+            iconSet =
+              `<iconSet iconSet="${formatting.iconSet}">` +
+              '<cfvo type="percent" val="0"/>' +
+              '<cfvo type="percent" val="20"/>' +
+              '<cfvo type="percent" val="40"/>' +
+              '<cfvo type="percent" val="60"/>' +
+              '<cfvo type="percent" val="80"/>' +
+              "</iconSet>";
+            break;
+          }
+        }
+
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="iconSet" priority="${formatting.priority}">` +
+          iconSet +
+          `</cfRule>` +
+          `</conditionalFormatting>`;
         break;
       }
       default: {

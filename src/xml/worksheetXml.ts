@@ -214,6 +214,18 @@ export type XlsxConditionalFormatting =
       colorScale:
         | { min: string; max: string }
         | { min: string; mid: string; max: string };
+    }
+  | {
+      type: "iconSet";
+      sqref: string;
+      priority: number;
+      iconSet:
+        | "3Arrows"
+        | "4Arrows"
+        | "5Arrows"
+        | "3ArrowsGray"
+        | "4ArrowsGray"
+        | "5ArrowsGray";
     };
 
 export function makeWorksheetXml(
@@ -808,6 +820,39 @@ export function makeConditionalFormattingXml(
         }
 
         xml += `</colorScale></cfRule></conditionalFormatting>`;
+        break;
+      }
+      case "iconSet": {
+        const iconSet =
+          formatting.iconSet === "3Arrows" || "3ArrowsGray"
+            ? `<iconSet iconSet="${formatting.iconSet}">` +
+              '<cfvo type="percent" val="0"/>' +
+              '<cfvo type="percent" val="33"/>' +
+              '<cfvo type="percent" val="67"/>' +
+              "</iconSet>"
+            : formatting.iconSet === "4Arrows" || "4ArrowsGray"
+            ? `<iconSet iconSet="${formatting.iconSet}">` +
+              '<cfvo type="percent" val="0"/>' +
+              '<cfvo type="percent" val="25"/>' +
+              '<cfvo type="percent" val="50"/>' +
+              '<cfvo type="percent" val="75"/>' +
+              "</iconSet>"
+            : formatting.iconSet === "5Arrows" || "5ArrowsGray"
+            ? `<iconSet iconSet="${formatting.iconSet}">` +
+              '<cfvo type="percent" val="0"/>' +
+              '<cfvo type="percent" val="20"/>' +
+              '<cfvo type="percent" val="40"/>' +
+              '<cfvo type="percent" val="60"/>' +
+              '<cfvo type="percent" val="80"/>' +
+              "</iconSet>"
+            : "";
+
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="${formatting.iconSet}" priority="${formatting.priority}">` +
+          iconSet +
+          `</cfRule>` +
+          `</conditionalFormatting>`;
         break;
       }
       default: {

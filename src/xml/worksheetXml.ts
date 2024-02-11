@@ -1360,9 +1360,15 @@ export function makeExtLstXml(
         }>` +
         `<x14:cfvo type="autoMin"/>` +
         `<x14:cfvo type="autoMax"/>` +
-        `<x14:borderColor rgb="${formatting.color}"/>` +
+        `${
+          formatting.border
+            ? `<x14:borderColor rgb="${formatting.color}"/>`
+            : ""
+        }` +
         `<x14:negativeFillColor rgb="FFFF0000"/>` +
-        `<x14:negativeBorderColor rgb="FFFF0000"/>` +
+        `${
+          formatting.border ? '<x14:negativeBorderColor rgb="FFFF0000"/>' : ""
+        }` +
         `<x14:axisColor rgb="FF000000"/>` +
         `</x14:dataBar>` +
         `</x14:cfRule>` +

@@ -1357,7 +1357,7 @@ export function makeExtLstXml(
           formatting.negativeBarBorderColorSameAsPositive
             ? ""
             : ' negativeBarBorderColorSameAsPositive="0"'
-        }">` +
+        }>` +
         `<x14:cfvo type="autoMin"/>` +
         `<x14:cfvo type="autoMax"/>` +
         `<x14:borderColor rgb="${formatting.color}"/>` +

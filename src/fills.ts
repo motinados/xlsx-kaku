@@ -8,9 +8,34 @@ export type Fill =
       patternType: "gray125";
     }
   | {
-      patternType: "solid";
-      fgColor: string;
+      patternType?: "solid";
+      fgColor?: string;
+      bgColor?: string | "indexed64";
     };
+
+export function makeFillXml(fill: Fill | undefined) {
+  if (!fill) {
+    return "";
+  }
+
+  let xml = "<fill>";
+
+  if (fill.patternType === "none" || fill.patternType === "gray125") {
+    xml += `<patternFill patternType="${fill.patternType}"/>`;
+  } else {
+    const patternType = fill.patternType
+      ? `<patternFill patternType="${fill.patternType}">`
+      : "<patternFill>";
+    const fgColor = fill.fgColor ? `<fgColor rgb="${fill.fgColor}"/>` : "";
+    const bgColor = fill.bgColor
+      ? `<bgColor rgb="${fill.bgColor}"/>`
+      : '<bgColor indexed="64"/>';
+    xml += patternType + fgColor + bgColor + "</patternFill>";
+  }
+
+  xml += "</fill>";
+  return xml;
+}
 
 // <fills count="3">
 //     <fill>
@@ -58,18 +83,7 @@ export class Fills {
     let xml = `<fills count="${this.fills.size}">`;
     this.fills.forEach((_, key) => {
       const fill = JSON.parse(key) as Fill;
-
-      xml += "<fill>";
-      if (fill.patternType === "none" || fill.patternType === "gray125") {
-        xml += `<patternFill patternType="${fill.patternType}"/>`;
-      } else {
-        xml +=
-          `<patternFill patternType="${fill.patternType}">` +
-          `<fgColor rgb="${fill.fgColor}"/>` +
-          '<bgColor indexed="64"/>' +
-          "</patternFill>";
-      }
-      xml += "</fill>";
+      xml += makeFillXml(fill);
     });
     xml += "</fills>";
     return xml;

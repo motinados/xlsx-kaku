@@ -1,10 +1,7 @@
 import { Border, Font } from ".";
 import { makeBorderXml } from "./borders";
+import { Fill, makeFillXml } from "./fills";
 import { makeFontXml } from "./fonts";
-
-type Fill = {
-  bgColor: string;
-};
 
 export type DxfStyle = {
   font?: Font;
@@ -42,12 +39,4 @@ export class Dxf {
     xml += `</dxfs>`;
     return xml;
   }
-}
-
-export function makeFillXml(fill: Fill | undefined) {
-  if (!fill) {
-    return "";
-  }
-
-  return `<fill><patternFill><bgColor rgb="${fill.bgColor}"/></patternFill></fill>`;
 }

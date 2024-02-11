@@ -196,6 +196,16 @@ export type XlsxConditionalFormatting =
         | "thisMonth"
         | "nextMonth";
       formula: string;
+    }
+  | {
+      type: "dataBar";
+      sqref: string;
+      priority: number;
+      color: string;
+      x14Id: string;
+      border: boolean;
+      gradient: boolean;
+      negativeBarBorderColorSameAsPositive: boolean;
     };
 
 export function makeWorksheetXml(
@@ -726,6 +736,24 @@ export function makeConditionalFormattingXml(
           `<formula>${formatting.formula}</formula>` +
           "</cfRule>" +
           "</conditionalFormatting>";
+        break;
+      }
+      case "dataBar": {
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="dataBar" priority="${formatting.priority}">` +
+          `<dataBar>` +
+          `<cfvo type="min"/>` +
+          `<cfvo type="max"/>` +
+          `<color rgb="${formatting.color}"/>` +
+          `</dataBar>` +
+          `<extLst>` +
+          `<ext xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" uri="{B025F937-C7B1-47D3-B67F-A62EFF666E3E}">` +
+          `<x14:id>{${formatting.x14Id}}</x14:id>` +
+          `</ext>` +
+          `</extLst>` +
+          `</cfRule>` +
+          `</conditionalFormatting>`;
         break;
       }
       default: {
@@ -1282,6 +1310,43 @@ export function makeSheetFormatPrXml(
       : `<sheetFormatPr defaultRowHeight="${defaultRowHeight}" defaultColWidth="${defaultColWidth}"/>`;
 
   return shhetFormatPrXML;
+}
+
+export function makeExtLstXml(
+  xlsxConditionalFormattings: XlsxConditionalFormatting[]
+) {
+  let xml =
+    "<extLst>" +
+    '<ext xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}">' +
+    "<x14:conditionalFormattings>";
+
+  for (const formatting of xlsxConditionalFormattings) {
+    if (formatting.type === "dataBar") {
+      xml +=
+        `<x14:conditionalFormatting xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">` +
+        `<x14:cfRule type="dataBar" id="{${formatting.x14Id}}">` +
+        `<x14:dataBar minLength="0" maxLength="100"${
+          formatting.border ? ' border="1"' : ""
+        }${formatting.gradient ? "" : ' gradient="0"'}${
+          formatting.negativeBarBorderColorSameAsPositive
+            ? ""
+            : ' negativeBarBorderColorSameAsPositive="0"'
+        }">` +
+        `<x14:cfvo type="autoMin"/>` +
+        `<x14:cfvo type="autoMax"/>` +
+        `<x14:borderColor rgb="${formatting.color}"/>` +
+        `<x14:negativeFillColor rgb="FFFF0000"/>` +
+        `<x14:negativeBorderColor rgb="FFFF0000"/>` +
+        `<x14:axisColor rgb="FF000000"/>` +
+        `</x14:dataBar>` +
+        `</x14:cfRule>` +
+        `<xm:sqref>${formatting.sqref}</xm:sqref>` +
+        `</x14:conditionalFormatting>`;
+    }
+  }
+
+  xml += "</x14:conditionalFormattings></ext></extLst>";
+  return xml;
 }
 
 export function composeSheetXml(

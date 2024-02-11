@@ -373,6 +373,22 @@ function createXlsxConditionalFormatting(
   const xcfs: XlsxConditionalFormatting[] = [];
   if (conditionalFormattings.length > 0) {
     for (const cf of conditionalFormattings) {
+      if (cf.type === "dataBar") {
+        const conditionalFormatting: XlsxConditionalFormatting = {
+          type: "dataBar",
+          sqref: cf.sqref,
+          priority: cf.priority,
+          color: cf.color,
+          x14Id: uuidv4(),
+          border: cf.border,
+          gradient: cf.gradient,
+          negativeBarBorderColorSameAsPositive:
+            cf.negativeBarBorderColorSameAsPositive,
+        };
+        xcfs.push(conditionalFormatting);
+        continue;
+      }
+
       const id = dxf.addStyle(cf.style);
 
       switch (cf.type) {

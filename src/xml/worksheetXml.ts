@@ -206,6 +206,14 @@ export type XlsxConditionalFormatting =
       border: boolean;
       gradient: boolean;
       negativeBarBorderColorSameAsPositive: boolean;
+    }
+  | {
+      type: "colorScale";
+      sqref: string;
+      priority: number;
+      colorScale:
+        | { min: string; max: string }
+        | { min: string; mid: string; max: string };
     };
 
 export function makeWorksheetXml(
@@ -386,6 +394,15 @@ function createXlsxConditionalFormatting(
           gradient: cf.gradient,
           negativeBarBorderColorSameAsPositive:
             cf.negativeBarBorderColorSameAsPositive,
+        };
+        xcfs.push(conditionalFormatting);
+        continue;
+      } else if (cf.type === "colorScale") {
+        const conditionalFormatting: XlsxConditionalFormatting = {
+          type: "colorScale",
+          sqref: cf.sqref,
+          priority: cf.priority,
+          colorScale: cf.colorScale,
         };
         xcfs.push(conditionalFormatting);
         continue;
@@ -772,6 +789,25 @@ export function makeConditionalFormattingXml(
           `</extLst>` +
           `</cfRule>` +
           `</conditionalFormatting>`;
+        break;
+      }
+      case "colorScale": {
+        xml +=
+          `<conditionalFormatting sqref="${formatting.sqref}">` +
+          `<cfRule type="colorScale" priority="${formatting.priority}">` +
+          `<colorScale>`;
+
+        xml += '<cfvo type="min"/>';
+        if ("mid" in formatting.colorScale) {
+          xml += `<cfvo type="percentile" val="50"/>`;
+        }
+        xml += '<cfvo type="max"/>';
+
+        for (const color of Object.values(formatting.colorScale)) {
+          xml += `<color rgb="${color}"/>`;
+        }
+
+        xml += `</colorScale></cfRule></conditionalFormatting>`;
         break;
       }
       default: {

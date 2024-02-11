@@ -849,7 +849,7 @@ export function makeConditionalFormattingXml(
 
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
-          `<cfRule type="${formatting.iconSet}" priority="${formatting.priority}">` +
+          `<cfRule type="iconSet" priority="${formatting.priority}">` +
           iconSet +
           `</cfRule>` +
           `</conditionalFormatting>`;

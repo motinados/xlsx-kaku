@@ -418,6 +418,15 @@ function createXlsxConditionalFormatting(
         };
         xcfs.push(conditionalFormatting);
         continue;
+      } else if (cf.type === "iconSet") {
+        const conditionalFormatting: XlsxConditionalFormatting = {
+          type: "iconSet",
+          sqref: cf.sqref,
+          priority: cf.priority,
+          iconSet: cf.iconSet,
+        };
+        xcfs.push(conditionalFormatting);
+        continue;
       }
 
       const id = dxf.addStyle(cf.style);

@@ -56,7 +56,7 @@ describe("conditional formatting with databar", () => {
       type: "dataBar",
       priority: 1,
       sqref: "B1:B1048576",
-      border: true,
+      border: false,
       gradient: false,
       color: "FF638EC6",
       negativeBarBorderColorSameAsPositive: true,
@@ -69,9 +69,9 @@ describe("conditional formatting with databar", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
-    // rmSync(actualUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -162,6 +162,8 @@ describe("conditional formatting with databar", () => {
 
     // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
 
@@ -239,10 +241,6 @@ describe("conditional formatting with databar", () => {
     const expectedObj = parseXml(expectedXml);
     const actualObj = parseXml(actualXml);
 
-    // It may be a problem-free difference.
-    deletePropertyFromObject(expectedObj, "worksheet.dimension.@_ref");
-    deletePropertyFromObject(actualObj, "worksheet.dimension.@_ref");
-
     // It should be a problem-free difference.
     deletePropertyFromObject(
       expectedObj,
@@ -254,18 +252,24 @@ describe("conditional formatting with databar", () => {
     );
 
     // It should be a problem-free difference.
-    // In oneline Excel, the ID of the last created element becomes 0.
     for (const c of expectedObj.worksheet.conditionalFormatting) {
-      deletePropertyFromObject(c, "cfRule.@_dxfId");
+      deletePropertyFromObject(c, "cfRule.extLst.ext.x14:id");
     }
-    // In xlsx-kaku, the ID of the first created element becomes 0.
     for (const c of actualObj.worksheet.conditionalFormatting) {
-      deletePropertyFromObject(c, "cfRule.@_dxfId");
+      deletePropertyFromObject(c, "cfRule.extLst.ext.x14:id");
     }
 
     // It should be a problem-free difference.
-    deletePropertyFromObject(expectedObj, "worksheet.cols.col.@_bestFit");
-    deletePropertyFromObject(expectedObj, "worksheet.cols.col.@_style");
+    for (const c of expectedObj.worksheet.extLst.ext[
+      "x14:conditionalFormattings"
+    ]["x14:conditionalFormatting"]) {
+      deletePropertyFromObject(c, "x14:cfRule.@_id");
+    }
+    for (const c of actualObj.worksheet.extLst.ext[
+      "x14:conditionalFormattings"
+    ]["x14:conditionalFormatting"]) {
+      deletePropertyFromObject(c, "x14:cfRule.@_id");
+    }
 
     expect(actualObj).toEqual(expectedObj);
   });

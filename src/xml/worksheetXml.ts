@@ -269,6 +269,7 @@ export function makeWorksheetXml(
     defaultRowHeight,
     defaultColWidth
   );
+  const extLstXml = makeExtLstXml(xlsxConditionalFormattings);
 
   // Perhaps passing a UUID to every sheet won't cause any issues,
   // but for the sake of integration testing, only the first sheet is given specific UUID.
@@ -282,6 +283,7 @@ export function makeWorksheetXml(
     sheetDataXml,
     mergeCellsXml,
     conditionalFormattingXml,
+    extLstXml,
     dimension,
     styleMappers.hyperlinks
   );
@@ -1331,12 +1333,20 @@ export function makeSheetFormatPrXml(
 export function makeExtLstXml(
   xlsxConditionalFormattings: XlsxConditionalFormatting[]
 ) {
+  const dataBars = xlsxConditionalFormattings.filter(
+    (cf) => cf.type === "dataBar"
+  );
+
+  if (dataBars.length === 0) {
+    return "";
+  }
+
   let xml =
     "<extLst>" +
     '<ext xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" uri="{78C0D931-6437-407d-A8EE-F0AAD7539E65}">' +
     "<x14:conditionalFormattings>";
 
-  for (const formatting of xlsxConditionalFormattings) {
+  for (const formatting of dataBars) {
     if (formatting.type === "dataBar") {
       xml +=
         `<x14:conditionalFormatting xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">` +
@@ -1373,6 +1383,7 @@ export function composeSheetXml(
   sheetDataString: string,
   mergeCellsXml: string,
   conditionalFormattingXml: string,
+  extLstXml: string,
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
 ) {
@@ -1392,7 +1403,8 @@ export function composeSheetXml(
   result +=
     mergeCellsXml +
     conditionalFormattingXml +
-    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>';
+    '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/></worksheet>' +
+    extLstXml;
 
   return result;
 }

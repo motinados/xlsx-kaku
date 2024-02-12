@@ -2,7 +2,7 @@
 type WorksheetRel = {
   id: string;
   target: string;
-  targetMode?: "External"; // | "internal";
+  targetMode: "External" | null; // | "internal";
   relationshipType: string;
 };
 
@@ -15,13 +15,14 @@ export class WorksheetRels {
 
   addWorksheetRel({
     target,
+    targetMode,
     relationshipType,
   }: {
     target: string;
+    targetMode: "External" | null;
     relationshipType: string;
   }): string {
     const id = "rId" + (this.rels.length + 1);
-    const targetMode = "External";
     const worksheetRel: WorksheetRel = {
       id,
       target,

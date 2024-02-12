@@ -1181,6 +1181,7 @@ export function convertCellToXlsxCell(
       if (cell.linkType === "external") {
         const rid = styleMappers.worksheetRels.addWorksheetRel({
           target: cell.value,
+          targetMode: "External",
           relationshipType:
             "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
         });
@@ -1201,6 +1202,7 @@ export function convertCellToXlsxCell(
       } else if (cell.linkType === "email") {
         const rid = styleMappers.worksheetRels.addWorksheetRel({
           target: `mailto:${cell.value}`,
+          targetMode: "External",
           relationshipType:
             "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
         });

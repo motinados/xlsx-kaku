@@ -6,6 +6,7 @@ describe("WorksheetRels", () => {
     const target = "http://www.google.com";
     const id = worksheetRels.addWorksheetRel({
       target: target,
+      targetMode: "External",
       relationshipType:
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     });
@@ -26,11 +27,13 @@ describe("WorksheetRels", () => {
 
     worksheetRels.addWorksheetRel({
       target: target1,
+      targetMode: "External",
       relationshipType:
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     });
     worksheetRels.addWorksheetRel({
       target: target2,
+      targetMode: "External",
       relationshipType:
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     });
@@ -52,11 +55,13 @@ describe("WorksheetRels", () => {
 
     worksheetRels.addWorksheetRel({
       target: target1,
+      targetMode: "External",
       relationshipType:
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     });
     worksheetRels.addWorksheetRel({
       target: target2,
+      targetMode: "External",
       relationshipType:
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     });
@@ -81,11 +86,13 @@ describe("WorksheetRels", () => {
 
     worksheetRels.addWorksheetRel({
       target: target1,
+      targetMode: "External",
       relationshipType:
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     });
     worksheetRels.addWorksheetRel({
       target: target2,
+      targetMode: "External",
       relationshipType:
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
     });

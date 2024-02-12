@@ -13,7 +13,13 @@ export class WorksheetRels {
     return this.rels.length;
   }
 
-  addWorksheetRel(target: string, relationshipType: string): string {
+  addWorksheetRel({
+    target,
+    relationshipType,
+  }: {
+    target: string;
+    relationshipType: string;
+  }): string {
     const id = "rId" + (this.rels.length + 1);
     const targetMode = "External";
     const worksheetRel: WorksheetRel = {

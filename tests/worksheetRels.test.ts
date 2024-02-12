@@ -4,7 +4,10 @@ describe("WorksheetRels", () => {
   test("addWorksheetRel should add a new worksheet relationship", () => {
     const worksheetRels = new WorksheetRels();
     const target = "http://www.google.com";
-    const id = worksheetRels.addWorksheetRel(target);
+    const id = worksheetRels.addWorksheetRel(
+      target,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+    );
     const rels = worksheetRels.getWorksheetRels();
 
     expect(rels.length).toBe(1);
@@ -20,8 +23,14 @@ describe("WorksheetRels", () => {
     const target1 = "http://www.google.com";
     const target2 = "http://www.github.com";
 
-    worksheetRels.addWorksheetRel(target1);
-    worksheetRels.addWorksheetRel(target2);
+    worksheetRels.addWorksheetRel(
+      target1,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+    );
+    worksheetRels.addWorksheetRel(
+      target2,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+    );
 
     const rels = worksheetRels.getWorksheetRels();
 
@@ -38,8 +47,14 @@ describe("WorksheetRels", () => {
     const target1 = "http://www.google.com";
     const target2 = "http://www.github.com";
 
-    worksheetRels.addWorksheetRel(target1);
-    worksheetRels.addWorksheetRel(target2);
+    worksheetRels.addWorksheetRel(
+      target1,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+    );
+    worksheetRels.addWorksheetRel(
+      target2,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+    );
 
     const expectedXML =
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
@@ -59,8 +74,14 @@ describe("WorksheetRels", () => {
     const target1 = "http://www.google.com";
     const target2 = "http://www.github.com";
 
-    worksheetRels.addWorksheetRel(target1);
-    worksheetRels.addWorksheetRel(target2);
+    worksheetRels.addWorksheetRel(
+      target1,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+    );
+    worksheetRels.addWorksheetRel(
+      target2,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+    );
 
     worksheetRels.reset();
 

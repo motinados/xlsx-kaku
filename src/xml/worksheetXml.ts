@@ -1179,7 +1179,10 @@ export function convertCellToXlsxCell(
       });
 
       if (cell.linkType === "external") {
-        const rid = styleMappers.worksheetRels.addWorksheetRel(cell.value);
+        const rid = styleMappers.worksheetRels.addWorksheetRel(
+          cell.value,
+          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
+        );
         styleMappers.hyperlinks.addHyperlink({
           linkType: "external",
           ref: `${colName}${rowNumber}`,
@@ -1196,7 +1199,8 @@ export function convertCellToXlsxCell(
         });
       } else if (cell.linkType === "email") {
         const rid = styleMappers.worksheetRels.addWorksheetRel(
-          `mailto:${cell.value}`
+          `mailto:${cell.value}`,
+          "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"
         );
         styleMappers.hyperlinks.addHyperlink({
           linkType: "email",

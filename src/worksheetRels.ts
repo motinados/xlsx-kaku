@@ -39,14 +39,13 @@ export class WorksheetRels {
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
     for (const worksheetRel of this.rels) {
       const targetMode = worksheetRel.targetMode
-        ? `" TargetMode="${worksheetRel.targetMode}"`
+        ? ` TargetMode="${worksheetRel.targetMode}"`
         : "";
       xml +=
-        '<Relationship Id="' +
-        worksheetRel.id +
-        `" Type="${worksheetRel.relationshipType}"` +
+        `<Relationship Id="${worksheetRel.id}"` +
+        ` Type="${worksheetRel.relationshipType}"` +
+        ` Target="${worksheetRel.target}"` +
         targetMode +
-        worksheetRel.target +
         "/>";
     }
     xml += "</Relationships>";

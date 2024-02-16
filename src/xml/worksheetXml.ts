@@ -915,9 +915,7 @@ export function makeSheetDataXml(
       xlsxCols,
       xlsxRows
     );
-    if (str !== null) {
-      result += str;
-    }
+    result += str;
     rowIndex++;
   }
   result += `</sheetData>`;
@@ -995,9 +993,9 @@ export function makeRowXml(
   styleMappers: StyleMappers,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRows: Map<number, XlsxRow>
-): string | null {
+): string {
   if (row.length === 0) {
-    return null;
+    return "";
   }
 
   const rowNumber = rowIndex + 1;

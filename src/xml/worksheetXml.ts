@@ -231,6 +231,23 @@ export type XlsxConditionalFormatting =
         | "3Flags";
     };
 
+export type XlsxImage = {
+  rId: string;
+  id: string;
+  name: string;
+  editAs: "oneCell";
+  from: {
+    col: number;
+    colOff: number;
+    row: number;
+    rowOff: number;
+  };
+  ext: {
+    cx: number;
+    cy: number;
+  };
+};
+
 export function makeWorksheetXml(
   worksheet: Worksheet,
   styleMappers: StyleMappers,

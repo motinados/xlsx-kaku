@@ -139,6 +139,8 @@ export type ConditionalFormatting =
 
 export type Image = {
   name: string;
+  // TODO: Support other image formats.
+  extension: "png";
   data: Uint8Array;
   from: {
     col: number;

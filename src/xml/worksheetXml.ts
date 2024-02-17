@@ -687,6 +687,7 @@ export function createXlsxImage(
 
   return {
     rId,
+    // TODO: calculate id
     id: "2",
     name: image.name,
     editAs: "oneCell",
@@ -696,6 +697,7 @@ export function createXlsxImage(
       row: 0,
       rowOff: 0,
     },
+    // TODO: calculate cx, cy
     ext: {
       cx: 1714500,
       cy: 1714500,

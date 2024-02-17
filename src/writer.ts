@@ -21,6 +21,7 @@ import { makeWorkbookXml } from "./xml/workbookXml";
 import { makeRelsFile } from "./xml/rels";
 import { makeContentTypesXml } from "./xml/contentTypesXml";
 import { Dxf } from "./dxf";
+import { DrawingRels } from "./drawingRels";
 
 export type StyleMappers = {
   fills: Fills;
@@ -87,6 +88,7 @@ function generateXMLs(worksheets: Worksheet[]) {
     coreXml,
     sheetXmlList,
     worksheetRelsList,
+    drawingRelsList,
   } = createExcelFiles(worksheets);
 
   const files: { filename: string; content: string }[] = [];
@@ -124,6 +126,13 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
+  for (let i = 0; i < drawingRelsList.length; i++) {
+    files.push({
+      filename: `xl/drawings/_rels/drawing${i + 1}.xml.rels`,
+      content: drawingRelsList[i]!,
+    });
+  }
+
   return files;
 }
 
@@ -146,23 +155,30 @@ function createExcelFiles(worksheets: Worksheet[]) {
   };
 
   const dxf = new Dxf();
+  const drawingRels = new DrawingRels();
 
   const sheetXmlList: string[] = [];
   const worksheetRelsList: string[] = [];
   const worksheetsLength = worksheets.length;
+  const drawingRelsList: string[] = [];
 
   let count = 0;
   for (const worksheet of worksheets) {
-    const { sheetXml, worksheetRels } = makeWorksheetXml(
+    const { sheetXml, worksheetRels, drawingRelsXml } = makeWorksheetXml(
       worksheet,
       styleMappers,
       dxf,
+      drawingRels,
       count
     );
 
     sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {
       worksheetRelsList.push(worksheetRels);
+    }
+
+    if (drawingRelsXml !== null) {
+      drawingRelsList.push(drawingRelsXml);
     }
 
     count++;
@@ -197,5 +213,6 @@ function createExcelFiles(worksheets: Worksheet[]) {
     coreXml,
     sheetXmlList,
     worksheetRelsList,
+    drawingRelsList,
   };
 }

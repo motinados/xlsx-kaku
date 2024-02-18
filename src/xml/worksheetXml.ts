@@ -680,6 +680,7 @@ export function createXlsxImage(
   image: Image,
   drawingRels: DrawingRels
 ): XlsxImage {
+  // FIXME: target
   const rId = drawingRels.addDrawingRel({
     target: "../media/image1.png",
     relationshipType:
@@ -698,10 +699,9 @@ export function createXlsxImage(
       row: 0,
       rowOff: 0,
     },
-    // TODO: calculate cx, cy
     ext: {
-      cx: 1714500,
-      cy: 1714500,
+      cx: (914400 / 96) * image.width,
+      cy: (914400 / 96) * image.height,
     },
   };
 }

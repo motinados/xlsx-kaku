@@ -146,6 +146,8 @@ export type Image = {
     col: number;
     row: number;
   };
+  width: number;
+  height: number;
 };
 
 export type WorksheetProps = {

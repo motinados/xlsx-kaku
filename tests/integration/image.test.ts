@@ -146,7 +146,7 @@ describe("inserting image", () => {
     // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
     // It should be a problem-free difference.
-    // deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
 

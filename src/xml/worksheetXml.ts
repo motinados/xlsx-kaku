@@ -363,6 +363,7 @@ export function makeWorksheetXml(
     sheetXml,
     worksheetRels,
     drawingRelsXml,
+    xlsxImages,
   };
 }
 

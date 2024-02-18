@@ -22,6 +22,7 @@ import { makeRelsFile } from "./xml/rels";
 import { makeContentTypesXml } from "./xml/contentTypesXml";
 import { Dxf } from "./dxf";
 import { DrawingRels } from "./drawingRels";
+import { makeDrawingXml } from "./xml/drawingXml";
 
 type CompressibleFile = {
   filename: string;
@@ -102,6 +103,7 @@ function generateXMLs(worksheets: Worksheet[]) {
     sheetXmlList,
     worksheetRelsList,
     drawingRelsList,
+    drawingXmlList,
   } = createExcelFiles(worksheets);
 
   const files: CompressibleFile[] = [];
@@ -146,6 +148,13 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
+  for (let i = 0; i < drawingXmlList.length; i++) {
+    files.push({
+      filename: `xl/drawings/drawing${i + 1}.xml`,
+      content: drawingXmlList[i]!,
+    });
+  }
+
   const images = worksheets.flatMap((worksheet) => worksheet.images);
   for (let i = 0; i < images.length; i++) {
     files.push({
@@ -182,16 +191,12 @@ function createExcelFiles(worksheets: Worksheet[]) {
   const worksheetRelsList: string[] = [];
   const worksheetsLength = worksheets.length;
   const drawingRelsList: string[] = [];
+  const drawingXmlList: string[] = [];
 
   let count = 0;
   for (const worksheet of worksheets) {
-    const { sheetXml, worksheetRels, drawingRelsXml } = makeWorksheetXml(
-      worksheet,
-      styleMappers,
-      dxf,
-      drawingRels,
-      count
-    );
+    const { sheetXml, worksheetRels, drawingRelsXml, xlsxImages } =
+      makeWorksheetXml(worksheet, styleMappers, dxf, drawingRels, count);
 
     sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {
@@ -200,6 +205,11 @@ function createExcelFiles(worksheets: Worksheet[]) {
 
     if (drawingRelsXml !== null) {
       drawingRelsList.push(drawingRelsXml);
+    }
+
+    if (xlsxImages.length > 0) {
+      const drawingXml = makeDrawingXml(xlsxImages);
+      drawingXmlList.push(drawingXml);
     }
 
     count++;
@@ -235,5 +245,6 @@ function createExcelFiles(worksheets: Worksheet[]) {
     sheetXmlList,
     worksheetRelsList,
     drawingRelsList,
+    drawingXmlList,
   };
 }

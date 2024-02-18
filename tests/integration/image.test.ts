@@ -43,6 +43,8 @@ describe("inserting image", () => {
         col: 0,
         row: 0,
       },
+      width: 180,
+      height: 180,
     });
 
     const xlsx = await wb.generateXlsx();
@@ -226,6 +228,46 @@ describe("inserting image", () => {
 
     const expectedObj = parseXml(expectedRels);
     const actualObj = parseXml(actualRels);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("drawing1.xml", () => {
+    const expectedXmlPath = resolve(
+      expectedFileDir,
+      "xl/drawings/drawing1.xml"
+    );
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/drawings/drawing1.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parseXml(expectedXml);
+    const actualObj = parseXml(actualXml);
+
+    // expectedObj is twoCellAnchor, but replace it with oneCellAnchor for testing.
+    const body = expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"];
+    expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"] = body;
+
+    const ext =
+      expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"]["xdr:pic"]["xdr:spPr"][
+        "a:xfrm"
+      ]["a:ext"];
+    expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]["xdr:ext"] = ext;
+
+    deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:twoCellAnchor");
+
+    // Not required for oneCellAnchor
+    deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:oneCellAnchor.xdr:to");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
+    );
 
     expect(actualObj).toEqual(expectedObj);
   });

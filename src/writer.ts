@@ -222,7 +222,16 @@ function createExcelFiles(worksheets: Worksheet[]) {
     hasSharedStrings,
     worksheetsLength
   );
+
+  const imageExtensions = Array.from(
+    new Set(
+      worksheets.flatMap((worksheet) =>
+        worksheet.images.map((image) => image.extension)
+      )
+    )
+  );
   const contentTypesXml = makeContentTypesXml(
+    imageExtensions,
     hasSharedStrings,
     worksheetsLength,
     drawingXmlList.length

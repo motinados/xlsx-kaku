@@ -1,6 +1,7 @@
 export function makeContentTypesXml(
   sharedStrings: boolean,
-  sheetsLength: number
+  sheetsLength: number,
+  drawingsLength: number
 ) {
   let result =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
@@ -22,6 +23,10 @@ export function makeContentTypesXml(
   if (sharedStrings) {
     result +=
       '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>';
+  }
+
+  for (let i = 1; i <= drawingsLength; i++) {
+    result += `<Override PartName="/xl/drawings/drawing${i}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>`;
   }
 
   result += "</Types>";

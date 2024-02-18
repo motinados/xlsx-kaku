@@ -224,7 +224,8 @@ function createExcelFiles(worksheets: Worksheet[]) {
   );
   const contentTypesXml = makeContentTypesXml(
     hasSharedStrings,
-    worksheetsLength
+    worksheetsLength,
+    drawingXmlList.length
   );
 
   const stylesXml = makeStylesXml(styleMappers, dxf);

@@ -272,6 +272,20 @@ describe("inserting image", () => {
     expect(actualObj).toEqual(expectedObj);
   });
 
+  test("media", () => {
+    const expectedFiles = listFiles(resolve(expectedFileDir, "xl/media"));
+    const actualFiles = listFiles(resolve(actualFileDir, "xl/media"));
+
+    const expectedSubPaths = expectedFiles.map((it) =>
+      removeBasePath(it, expectedFileDir)
+    );
+    const actualSubPaths = actualFiles.map((it) =>
+      removeBasePath(it, actualFileDir)
+    );
+
+    expect(actualSubPaths).toEqual(expectedSubPaths);
+  });
+
   test("worksheets", () => {
     const expectedXmlPath = resolve(
       expectedFileDir,

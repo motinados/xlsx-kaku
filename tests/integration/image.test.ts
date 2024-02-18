@@ -212,6 +212,24 @@ describe("inserting image", () => {
     expect(actualRelationships).toEqual(expectedRelationships);
   });
 
+  test("drawing1.xml.rels", () => {
+    const expectedRelsPath = resolve(
+      expectedFileDir,
+      "xl/drawings/_rels/drawing1.xml.rels"
+    );
+    const expectedRels = readFileSync(expectedRelsPath, "utf8");
+    const actualRelsPath = resolve(
+      actualFileDir,
+      "xl/drawings/_rels/drawing1.xml.rels"
+    );
+    const actualRels = readFileSync(actualRelsPath, "utf8");
+
+    const expectedObj = parseXml(expectedRels);
+    const actualObj = parseXml(actualRels);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
   test("worksheets", () => {
     const expectedXmlPath = resolve(
       expectedFileDir,

@@ -282,14 +282,14 @@ export function makeWorksheetXml(
 
   const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
 
-  const colsXml = makeColsXml(groupXlsxCols(xlsxCols), defaultColWidth);
-  const mergeCellsXml = makeMergeCellsXml(worksheet.mergeCells);
+  const colsElm = makeColsElm(groupXlsxCols(xlsxCols), defaultColWidth);
+  const mergeCellsElm = makeMergeCellsElm(worksheet.mergeCells);
 
   const xlsxConditionalFormattings = createXlsxConditionalFormatting(
     worksheet.conditionalFormattings,
     dxf
   );
-  const conditionalFormattingXml = makeConditionalFormattingXml(
+  const conditionalFormattingElm = makeConditionalFormattingElm(
     xlsxConditionalFormattings
   );
 
@@ -305,7 +305,7 @@ export function makeWorksheetXml(
     });
   }
 
-  const sheetDataXml = makeSheetDataXml(
+  const sheetDataElm = makeSheetDataElm(
     sheetData,
     spanStartNumber,
     spanEndNumber,
@@ -315,17 +315,17 @@ export function makeWorksheetXml(
   );
   const dimension = getDimension(sheetData, spanStartNumber, spanEndNumber);
   const tabSelected = sheetCnt === 0;
-  const sheetViewsXml = makeSheetViewsXml(
+  const sheetViewsElm = makeSheetViewsElm(
     tabSelected,
     dimension,
     worksheet.freezePane
   );
-  const sheetFormatPrXML = makeSheetFormatPrXml(
+  const sheetFormatPrElm = makeSheetFormatPrElm(
     defaultRowHeight,
     defaultColWidth
   );
-  const drawingXml = makeDrawingXml(xlsxImages);
-  const extLstXml = makeExtLstXml(xlsxConditionalFormattings);
+  const drawingElm = makeDrawingElm(xlsxImages);
+  const extLstElm = makeExtLstElm(xlsxConditionalFormattings);
 
   // Perhaps passing a UUID to every sheet won't cause any issues,
   // but for the sake of integration testing, only the first sheet is given specific UUID.
@@ -333,14 +333,14 @@ export function makeWorksheetXml(
     sheetCnt === 0 ? "00000000-0001-0000-0000-000000000000" : uuidv4();
   const sheetXml = composeSheetXml(
     uuid,
-    colsXml,
-    sheetViewsXml,
-    sheetFormatPrXML,
-    sheetDataXml,
-    mergeCellsXml,
-    conditionalFormattingXml,
-    extLstXml,
-    drawingXml,
+    colsElm,
+    sheetViewsElm,
+    sheetFormatPrElm,
+    sheetDataElm,
+    mergeCellsElm,
+    conditionalFormattingElm,
+    extLstElm,
+    drawingElm,
     dimension,
     styleMappers.hyperlinks
   );
@@ -759,7 +759,7 @@ export function groupXlsxCols(cols: Map<number, XlsxCol>) {
   return result;
 }
 
-export function makeColsXml(
+export function makeColsElm(
   cols: GroupedXlsxCol[],
   defaultColWidth: number
 ): string {
@@ -788,7 +788,7 @@ export function makeColsXml(
   return result;
 }
 
-export function makeMergeCellsXml(mergeCells: MergeCell[]) {
+export function makeMergeCellsElm(mergeCells: MergeCell[]) {
   if (mergeCells.length === 0) {
     return "";
   }
@@ -802,7 +802,7 @@ export function makeMergeCellsXml(mergeCells: MergeCell[]) {
   return result;
 }
 
-export function makeConditionalFormattingXml(
+export function makeConditionalFormattingElm(
   formattings: XlsxConditionalFormatting[]
 ): string {
   let xml = "";
@@ -968,7 +968,7 @@ export function makeConditionalFormattingXml(
   return xml;
 }
 
-export function makeSheetDataXml(
+export function makeSheetDataElm(
   sheetData: SheetData,
   spanStartNumber: number,
   spanEndNumber: number,
@@ -979,7 +979,7 @@ export function makeSheetDataXml(
   let result = `<sheetData>`;
   let rowIndex = 0;
   for (const row of sheetData) {
-    const str = makeRowXml(
+    const str = makeRowElm(
       row,
       rowIndex,
       spanStartNumber,
@@ -1058,7 +1058,7 @@ export function findLastNonNullCell(row: RowData) {
 /**
  * <row r="1" spans="1:2"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>
  */
-export function makeRowXml(
+export function makeRowElm(
   row: RowData,
   rowIndex: number,
   spanStartNumber: number,
@@ -1090,7 +1090,7 @@ export function makeRowXml(
   let columnIndex = 0;
   for (const cell of row) {
     if (cell !== null) {
-      result += makeCellXml(
+      result += makeCellElm(
         convertCellToXlsxCell(
           cell,
           columnIndex,
@@ -1109,7 +1109,7 @@ export function makeRowXml(
   return result;
 }
 
-export function makeCellXml(cell: XlsxCell) {
+export function makeCellElm(cell: XlsxCell) {
   switch (cell.type) {
     case "number": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
@@ -1450,7 +1450,7 @@ function findLastNotBlankRow(sheetData: SheetData) {
 //     <selection pane="topRight"/>
 // </sheetView>
 // </sheetViews>
-export function makeSheetViewsXml(
+export function makeSheetViewsElm(
   tabSelected: boolean,
   dimension: { start: string; end: string },
   freezePane: FreezePane | null
@@ -1503,7 +1503,7 @@ export function makeSheetViewsXml(
   }
 }
 
-export function makeSheetFormatPrXml(
+export function makeSheetFormatPrElm(
   defaultRowHeight: number,
   defaultColWidth: number
 ) {
@@ -1518,7 +1518,7 @@ export function makeSheetFormatPrXml(
   return shhetFormatPrXML;
 }
 
-export function makeExtLstXml(
+export function makeExtLstElm(
   xlsxConditionalFormattings: XlsxConditionalFormatting[]
 ) {
   const dataBars = xlsxConditionalFormattings.filter(
@@ -1569,7 +1569,7 @@ export function makeExtLstXml(
   return xml;
 }
 
-export function makeDrawingXml(xlsxImages: XlsxImage[]) {
+export function makeDrawingElm(xlsxImages: XlsxImage[]) {
   if (xlsxImages.length === 0) {
     return "";
   }
@@ -1584,14 +1584,14 @@ export function makeDrawingXml(xlsxImages: XlsxImage[]) {
 
 export function composeSheetXml(
   uuid: string,
-  colsXml: string,
-  sheetViewsXml: string,
-  sheetFormatPrXml: string,
+  colsElm: string,
+  sheetViewsElm: string,
+  sheetFormatPrElm: string,
   sheetDataString: string,
-  mergeCellsXml: string,
-  conditionalFormattingXml: string,
-  extLstXml: string,
-  drawingXml: string,
+  mergeCellsElm: string,
+  conditionalFormattingElm: string,
+  extLstElm: string,
+  drawingElm: string,
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
 ) {
@@ -1599,9 +1599,9 @@ export function composeSheetXml(
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     `<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac xr xr2 xr3" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision" xmlns:xr2="http://schemas.microsoft.com/office/spreadsheetml/2015/revision2" xmlns:xr3="http://schemas.microsoft.com/office/spreadsheetml/2016/revision3" xr:uid="{${uuid}}">` +
     `<dimension ref="${dimension.start}:${dimension.end}"/>` +
-    sheetViewsXml +
-    sheetFormatPrXml +
-    colsXml +
+    sheetViewsElm +
+    sheetFormatPrElm +
+    colsElm +
     sheetDataString;
 
   if (hyperlinks.getHyperlinks().length > 0) {
@@ -1609,11 +1609,11 @@ export function composeSheetXml(
   }
 
   result +=
-    mergeCellsXml +
-    conditionalFormattingXml +
+    mergeCellsElm +
+    conditionalFormattingElm +
     '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>' +
-    drawingXml +
-    extLstXml +
+    drawingElm +
+    extLstElm +
     "</worksheet>";
 
   return result;

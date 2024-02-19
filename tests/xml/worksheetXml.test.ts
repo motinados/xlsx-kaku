@@ -10,18 +10,18 @@ import {
   getDimension,
   getSpans,
   getSpansFromSheetData,
-  makeCellXml,
-  makeColsXml,
-  makeMergeCellsXml,
-  makeSheetDataXml,
-  makeSheetViewsXml,
-  makeRowXml,
-  makeSheetFormatPrXml,
+  makeCellElm,
+  makeColsElm,
+  makeMergeCellsElm,
+  makeSheetDataElm,
+  makeSheetViewsElm,
+  makeRowElm,
+  makeSheetFormatPrElm,
   groupXlsxCols,
   XlsxCol,
   isEqualsXlsxCol,
   GroupedXlsxCol,
-  makeConditionalFormattingXml,
+  makeConditionalFormattingElm,
   XlsxConditionalFormatting,
 } from "../../src/xml/worksheetXml";
 import { CellXfs } from "../../src/cellXfs";
@@ -152,7 +152,7 @@ describe("Writer", () => {
       type: "number",
       value: 15,
     };
-    const result = makeCellXml(
+    const result = makeCellElm(
       convertCellToXlsxCell(cell, 2, 0, styleMappers, new Map(), undefined)
     );
     expect(result).toBe(`<c r="C1"><v>15</v></c>`);
@@ -164,7 +164,7 @@ describe("Writer", () => {
       type: "string",
       value: "hello",
     };
-    const result = makeCellXml(
+    const result = makeCellElm(
       convertCellToXlsxCell(cell, 2, 0, styleMappers, new Map(), undefined)
     );
     expect(result).toBe(`<c r="C1" t="s"><v>0</v></c>`);
@@ -178,7 +178,7 @@ describe("Writer", () => {
       type: "date",
       value: "2020-01-01T00:00:00.000Z",
     };
-    const result = makeCellXml(
+    const result = makeCellElm(
       convertCellToXlsxCell(cell, 2, 0, styleMappers, new Map(), undefined)
     );
     expect(result).toBe(`<c r="C1" s="1"><v>43831</v></c>`);
@@ -192,7 +192,7 @@ describe("Writer", () => {
       value: "https://www.google.com",
       linkType: "external",
     };
-    const result = makeCellXml(
+    const result = makeCellElm(
       convertCellToXlsxCell(cell, 2, 0, styleMappers, new Map(), undefined)
     );
     expect(result).toBe(`<c r="C1" s="1" t="s"><v>0</v></c>`);
@@ -231,7 +231,7 @@ describe("Writer", () => {
       { type: "number", value: 15 },
       { type: "number", value: 23 },
     ];
-    const result = makeRowXml(row, 0, 3, 4, styleMappers, new Map(), new Map());
+    const result = makeRowElm(row, 0, 3, 4, styleMappers, new Map(), new Map());
     expect(result).toBe(
       `<row r="1" spans="3:4"><c r="C1"><v>15</v></c><c r="D1"><v>23</v></c></row>`
     );
@@ -247,7 +247,7 @@ describe("Writer", () => {
       { type: "string", value: "hello" },
     ];
 
-    const result = makeRowXml(row, 0, 3, 5, styleMappers, new Map(), new Map());
+    const result = makeRowElm(row, 0, 3, 5, styleMappers, new Map(), new Map());
     expect(result).toBe(
       `<row r="1" spans="3:5"><c r="C1" t="s"><v>0</v></c><c r="D1" t="s"><v>1</v></c><c r="E1" t="s"><v>0</v></c></row>`
     );
@@ -262,7 +262,7 @@ describe("Writer", () => {
       { index: 0, height: 30 },
       styleMappers
     );
-    const result = makeRowXml(
+    const result = makeRowElm(
       row,
       0,
       1,
@@ -283,7 +283,7 @@ describe("Writer", () => {
       { index: 0, style: { alignment: { horizontal: "center" } } },
       styleMappers
     );
-    const result = makeRowXml(
+    const result = makeRowElm(
       row,
       0,
       1,
@@ -308,7 +308,7 @@ describe("Writer", () => {
       },
       styleMappers
     );
-    const result = makeRowXml(
+    const result = makeRowElm(
       row,
       0,
       1,
@@ -330,7 +330,7 @@ describe("Writer", () => {
     ];
     const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
     const styleMappers = getStyleMappers();
-    const sheetDataXml = makeSheetDataXml(
+    const sheetDataXml = makeSheetDataElm(
       sheetData,
       spanStartNumber,
       spanEndNumber,
@@ -356,7 +356,7 @@ describe("Writer", () => {
     ];
     const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
     const styleMappers = getStyleMappers();
-    const sheetDataXml = makeSheetDataXml(
+    const sheetDataXml = makeSheetDataElm(
       sheetData,
       spanStartNumber,
       spanEndNumber,
@@ -388,7 +388,7 @@ describe("Writer", () => {
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
-    expect(makeColsXml(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
+    expect(makeColsElm(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="10" customWidth="1"/><col min="2" max="2" width="75" customWidth="1"/><col min="3" max="6" width="25" customWidth="1"/></cols>`
     );
   });
@@ -407,7 +407,7 @@ describe("Writer", () => {
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
 
     // TODO: Is this necessary?
-    expect(makeColsXml(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
+    expect(makeColsElm(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}"/></cols>`
     );
   });
@@ -443,7 +443,7 @@ describe("Writer", () => {
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
-    expect(makeColsXml(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
+    expect(makeColsElm(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}" style="1"/><col min="2" max="3" width="25" customWidth="1" style="2"/></cols>`
     );
   });
@@ -455,21 +455,21 @@ describe("Writer", () => {
       { ref: "E5:F6" },
     ];
 
-    expect(makeMergeCellsXml(mergeCells)).toBe(
+    expect(makeMergeCellsElm(mergeCells)).toBe(
       `<mergeCells count="3"><mergeCell ref="A1:B2"/><mergeCell ref="C3:D4"/><mergeCell ref="E5:F6"/></mergeCells>`
     );
   });
 
   test("mekeSheetViewsXml", () => {
     const dimension = { start: "A1", end: "B2" };
-    expect(makeSheetViewsXml(true, dimension, null)).toBe(
+    expect(makeSheetViewsElm(true, dimension, null)).toBe(
       `<sheetViews><sheetView tabSelected="1" workbookViewId="0"><selection activeCell="A1" sqref="A1"/></sheetView></sheetViews>`
     );
   });
 
   test("mekeSheetViewsXml with tabSelected false", () => {
     const dimension = { start: "A1", end: "B2" };
-    expect(makeSheetViewsXml(false, dimension, null)).toBe(
+    expect(makeSheetViewsElm(false, dimension, null)).toBe(
       `<sheetViews><sheetView workbookViewId="0"><selection activeCell="A1" sqref="A1"/></sheetView></sheetViews>`
     );
   });
@@ -477,7 +477,7 @@ describe("Writer", () => {
   test("mekeSheetViewsXml with frozen column", () => {
     const dimension = { start: "A1", end: "B2" };
     const freezePane: FreezePane = { target: "column", split: 1 };
-    expect(makeSheetViewsXml(true, dimension, freezePane)).toBe(
+    expect(makeSheetViewsElm(true, dimension, freezePane)).toBe(
       `<sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A1" sqref="A1"/></sheetView></sheetViews>`
     );
   });
@@ -485,21 +485,21 @@ describe("Writer", () => {
   test("mekeSheetViewsXml with frozen row", () => {
     const dimension = { start: "A1", end: "B2" };
     const freezePane: FreezePane = { target: "row", split: 1 };
-    expect(makeSheetViewsXml(true, dimension, freezePane)).toBe(
+    expect(makeSheetViewsElm(true, dimension, freezePane)).toBe(
       `<sheetViews><sheetView tabSelected="1" workbookViewId="0"><pane xSplit="1" topLeftCell="B1" activePane="topRight" state="frozen"/><selection pane="topRight" activeCell="A1" sqref="A1"/></sheetView></sheetViews>`
     );
   });
 
   test("makeSheetFormatPrXml", () => {
-    expect(makeSheetFormatPrXml(10, 20)).toBe(
+    expect(makeSheetFormatPrElm(10, 20)).toBe(
       `<sheetFormatPr defaultRowHeight="10" defaultColWidth="20"/>`
     );
 
-    expect(makeSheetFormatPrXml(10, DEFAULT_COL_WIDTH)).toBe(
+    expect(makeSheetFormatPrElm(10, DEFAULT_COL_WIDTH)).toBe(
       `<sheetFormatPr defaultRowHeight="10"/>`
     );
 
-    expect(makeSheetFormatPrXml(DEFAULT_ROW_HEIGHT, DEFAULT_COL_WIDTH)).toBe(
+    expect(makeSheetFormatPrElm(DEFAULT_ROW_HEIGHT, DEFAULT_COL_WIDTH)).toBe(
       `<sheetFormatPr defaultRowHeight="${DEFAULT_ROW_HEIGHT}"/>`
     );
   });
@@ -910,7 +910,7 @@ describe("Writer", () => {
         percent: true,
       },
     ];
-    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const actual = makeConditionalFormattingElm(conditionalFormattings);
     const expected =
       `<conditionalFormatting sqref="A1:A10">` +
       `<cfRule type="top10" dxfId="0" priority="1" percent="1" rank="10"/>` +
@@ -927,7 +927,7 @@ describe("Writer", () => {
       percent: false,
     });
 
-    const acutual2 = makeConditionalFormattingXml(conditionalFormattings);
+    const acutual2 = makeConditionalFormattingElm(conditionalFormattings);
     const expected2 =
       `<conditionalFormatting sqref="A1:A10">` +
       `<cfRule type="top10" dxfId="0" priority="1" percent="1" rank="10"/>` +
@@ -948,7 +948,7 @@ describe("Writer", () => {
         priority: 1,
       },
     ];
-    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const actual = makeConditionalFormattingElm(conditionalFormattings);
     const expected =
       `<conditionalFormatting sqref="A1:A10">` +
       `<cfRule type="duplicateValues" dxfId="0" priority="1"/>` +
@@ -992,7 +992,7 @@ describe("Writer", () => {
         formulaB: "8",
       },
     ];
-    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const actual = makeConditionalFormattingElm(conditionalFormattings);
     const expected =
       `<conditionalFormatting sqref="A1:A10">` +
       `<cfRule type="cellIs" dxfId="0" priority="1" operator="greaterThan">` +
@@ -1059,7 +1059,7 @@ describe("Writer", () => {
       },
     ];
 
-    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const actual = makeConditionalFormattingElm(conditionalFormattings);
     const expected =
       '<conditionalFormatting sqref="A1:A1048576">' +
       '<cfRule type="containsText" dxfId="3" priority="4" operator="containsText" text="a">' +
@@ -1172,7 +1172,7 @@ describe("Writer", () => {
           "AND(MONTH(J1)=MONTH(EDATE(TODAY(),0+1)),YEAR(J1)=YEAR(EDATE(TODAY(),0+1)))",
       },
     ];
-    const actual = makeConditionalFormattingXml(conditionalFormattings);
+    const actual = makeConditionalFormattingElm(conditionalFormattings);
     const expected =
       '<conditionalFormatting sqref="A1:A1048576">' +
       '<cfRule type="timePeriod" dxfId="0" priority="1" timePeriod="yesterday">' +

@@ -36,7 +36,7 @@ describe("inserting image", () => {
 
     const image = new Uint8Array(readFileSync("tests/assets/ufo_ushi.png"));
     ws.setImage({
-      name: "ufo_ushi",
+      displayName: "ufo_ushi",
       extension: "png",
       data: image,
       from: {

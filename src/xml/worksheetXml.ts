@@ -691,7 +691,7 @@ export function createXlsxImage(
     rId,
     // TODO: calculate id
     id: "2",
-    name: image.name,
+    name: image.displayName,
     editAs: "oneCell",
     from: {
       col: 0,

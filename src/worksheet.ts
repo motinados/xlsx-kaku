@@ -138,14 +138,14 @@ export type ConditionalFormatting =
     };
 
 export type Image = {
-  name: string;
-  // TODO: Support other image formats.
-  extension: "png";
-  data: Uint8Array;
+  displayName: string;
   from: {
     col: number;
     row: number;
   };
+  // TODO: Support other image formats.
+  extension: "png";
+  data: Uint8Array;
   width: number;
   height: number;
 };

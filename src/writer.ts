@@ -21,6 +21,13 @@ import { makeWorkbookXml } from "./xml/workbookXml";
 import { makeRelsFile } from "./xml/rels";
 import { makeContentTypesXml } from "./xml/contentTypesXml";
 import { Dxf } from "./dxf";
+import { DrawingRels } from "./drawingRels";
+import { makeDrawingXml } from "./xml/drawingXml";
+
+type CompressibleFile = {
+  filename: string;
+  content: string | Uint8Array;
+};
 
 export type StyleMappers = {
   fills: Fills;
@@ -45,12 +52,16 @@ export function genXlsxSync(worksheets: Worksheet[]) {
   return compressXMLsSync(files);
 }
 
-function compressXMLs(files: { filename: string; content: string }[]) {
+function compressXMLs(files: CompressibleFile[]) {
   return new Promise<Uint8Array>((resolve, reject) => {
     const data: { [key: string]: Uint8Array } = {};
 
     for (const file of files) {
-      data[file.filename] = strToU8(file.content);
+      if (file.content instanceof Uint8Array) {
+        data[file.filename] = file.content;
+      } else {
+        data[file.filename] = strToU8(file.content);
+      }
     }
 
     zip(data, (err, data) => {
@@ -64,11 +75,15 @@ function compressXMLs(files: { filename: string; content: string }[]) {
   });
 }
 
-function compressXMLsSync(files: { filename: string; content: string }[]) {
+function compressXMLsSync(files: CompressibleFile[]) {
   const data: { [key: string]: Uint8Array } = {};
 
   for (const file of files) {
-    data[file.filename] = strToU8(file.content);
+    if (file.content instanceof Uint8Array) {
+      data[file.filename] = file.content;
+    } else {
+      data[file.filename] = strToU8(file.content);
+    }
   }
 
   return zipSync(data);
@@ -87,9 +102,11 @@ function generateXMLs(worksheets: Worksheet[]) {
     coreXml,
     sheetXmlList,
     worksheetRelsList,
+    drawingRelsList,
+    drawingXmlList,
   } = createExcelFiles(worksheets);
 
-  const files: { filename: string; content: string }[] = [];
+  const files: CompressibleFile[] = [];
   files.push({ filename: "[Content_Types].xml", content: contentTypesXml });
   files.push({ filename: "_rels/.rels", content: relsFile });
   files.push({ filename: "docProps/app.xml", content: appXml });
@@ -124,6 +141,28 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
+  for (let i = 0; i < drawingRelsList.length; i++) {
+    files.push({
+      filename: `xl/drawings/_rels/drawing${i + 1}.xml.rels`,
+      content: drawingRelsList[i]!,
+    });
+  }
+
+  for (let i = 0; i < drawingXmlList.length; i++) {
+    files.push({
+      filename: `xl/drawings/drawing${i + 1}.xml`,
+      content: drawingXmlList[i]!,
+    });
+  }
+
+  const images = worksheets.flatMap((worksheet) => worksheet.images);
+  for (let i = 0; i < images.length; i++) {
+    files.push({
+      filename: `xl/media/image${i + 1}.${images[i]!.extension}`,
+      content: images[i]!.data,
+    });
+  }
+
   return files;
 }
 
@@ -146,23 +185,31 @@ function createExcelFiles(worksheets: Worksheet[]) {
   };
 
   const dxf = new Dxf();
+  const drawingRels = new DrawingRels();
 
   const sheetXmlList: string[] = [];
   const worksheetRelsList: string[] = [];
   const worksheetsLength = worksheets.length;
+  const drawingRelsList: string[] = [];
+  const drawingXmlList: string[] = [];
 
   let count = 0;
   for (const worksheet of worksheets) {
-    const { sheetXml, worksheetRels } = makeWorksheetXml(
-      worksheet,
-      styleMappers,
-      dxf,
-      count
-    );
+    const { sheetXml, worksheetRels, drawingRelsXml, xlsxImages } =
+      makeWorksheetXml(worksheet, styleMappers, dxf, drawingRels, count);
 
     sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {
       worksheetRelsList.push(worksheetRels);
+    }
+
+    if (drawingRelsXml !== null) {
+      drawingRelsList.push(drawingRelsXml);
+    }
+
+    if (xlsxImages.length > 0) {
+      const drawingXml = makeDrawingXml(xlsxImages);
+      drawingXmlList.push(drawingXml);
     }
 
     count++;
@@ -175,9 +222,19 @@ function createExcelFiles(worksheets: Worksheet[]) {
     hasSharedStrings,
     worksheetsLength
   );
+
+  const imageExtensions = Array.from(
+    new Set(
+      worksheets.flatMap((worksheet) =>
+        worksheet.images.map((image) => image.extension)
+      )
+    )
+  );
   const contentTypesXml = makeContentTypesXml(
+    imageExtensions,
     hasSharedStrings,
-    worksheetsLength
+    worksheetsLength,
+    drawingXmlList.length
   );
 
   const stylesXml = makeStylesXml(styleMappers, dxf);
@@ -197,5 +254,7 @@ function createExcelFiles(worksheets: Worksheet[]) {
     coreXml,
     sheetXmlList,
     worksheetRelsList,
+    drawingRelsList,
+    drawingXmlList,
   };
 }

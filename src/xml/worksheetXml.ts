@@ -14,9 +14,11 @@ import {
   ConditionalFormatting,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
+  Image,
   RowProps,
 } from "../worksheet";
 import { Dxf } from "../dxf";
+import { DrawingRels } from "../drawingRels";
 
 export type XlsxCol = {
   /** e.g. column A is 0 */
@@ -231,10 +233,28 @@ export type XlsxConditionalFormatting =
         | "3Flags";
     };
 
+export type XlsxImage = {
+  rId: string;
+  id: string;
+  name: string;
+  editAs: "oneCell";
+  from: {
+    col: number;
+    colOff: number;
+    row: number;
+    rowOff: number;
+  };
+  ext: {
+    cx: number;
+    cy: number;
+  };
+};
+
 export function makeWorksheetXml(
   worksheet: Worksheet,
   styleMappers: StyleMappers,
   dxf: Dxf,
+  drawingRels: DrawingRels,
   sheetCnt: number
 ) {
   styleMappers.hyperlinks.reset();
@@ -273,6 +293,18 @@ export function makeWorksheetXml(
     xlsxConditionalFormattings
   );
 
+  const xlsxImages = worksheet.images.map((image) =>
+    createXlsxImage(image, drawingRels)
+  );
+  if (xlsxImages.length > 0) {
+    styleMappers.worksheetRels.addWorksheetRel({
+      target: `../drawings/drawing${sheetCnt + 1}.xml`,
+      targetMode: null,
+      relationshipType:
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing",
+    });
+  }
+
   const sheetDataXml = makeSheetDataXml(
     sheetData,
     spanStartNumber,
@@ -292,6 +324,7 @@ export function makeWorksheetXml(
     defaultRowHeight,
     defaultColWidth
   );
+  const drawingXml = makeDrawingXml(xlsxImages);
   const extLstXml = makeExtLstXml(xlsxConditionalFormattings);
 
   // Perhaps passing a UUID to every sheet won't cause any issues,
@@ -307,6 +340,7 @@ export function makeWorksheetXml(
     mergeCellsXml,
     conditionalFormattingXml,
     extLstXml,
+    drawingXml,
     dimension,
     styleMappers.hyperlinks
   );
@@ -318,9 +352,18 @@ export function makeWorksheetXml(
     worksheetRels = null;
   }
 
+  let drawingRelsXml;
+  if (drawingRels.rels.length > 0) {
+    drawingRelsXml = drawingRels.makeXml();
+  } else {
+    drawingRelsXml = null;
+  }
+
   return {
     sheetXml,
     worksheetRels,
+    drawingRelsXml,
+    xlsxImages,
   };
 }
 
@@ -631,6 +674,36 @@ function createXlsxConditionalFormatting(
     }
   }
   return xcfs;
+}
+
+export function createXlsxImage(
+  image: Image,
+  drawingRels: DrawingRels
+): XlsxImage {
+  // FIXME: target
+  const rId = drawingRels.addDrawingRel({
+    target: "../media/image1.png",
+    relationshipType:
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
+  });
+
+  return {
+    rId,
+    // TODO: calculate id
+    id: "2",
+    name: image.displayName,
+    editAs: "oneCell",
+    from: {
+      col: 0,
+      colOff: 0,
+      row: 0,
+      rowOff: 0,
+    },
+    ext: {
+      cx: (914400 / 96) * image.width,
+      cy: (914400 / 96) * image.height,
+    },
+  };
 }
 
 export function isEqualsXlsxCol(a: XlsxCol, b: XlsxCol) {
@@ -1177,7 +1250,12 @@ export function convertCellToXlsxCell(
       });
 
       if (cell.linkType === "external") {
-        const rid = styleMappers.worksheetRels.addWorksheetRel(cell.value);
+        const rid = styleMappers.worksheetRels.addWorksheetRel({
+          target: cell.value,
+          targetMode: "External",
+          relationshipType:
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+        });
         styleMappers.hyperlinks.addHyperlink({
           linkType: "external",
           ref: `${colName}${rowNumber}`,
@@ -1193,9 +1271,12 @@ export function convertCellToXlsxCell(
           uuid: uuidv4(),
         });
       } else if (cell.linkType === "email") {
-        const rid = styleMappers.worksheetRels.addWorksheetRel(
-          `mailto:${cell.value}`
-        );
+        const rid = styleMappers.worksheetRels.addWorksheetRel({
+          target: `mailto:${cell.value}`,
+          targetMode: "External",
+          relationshipType:
+            "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+        });
         styleMappers.hyperlinks.addHyperlink({
           linkType: "email",
           ref: `${colName}${rowNumber}`,
@@ -1488,6 +1569,19 @@ export function makeExtLstXml(
   return xml;
 }
 
+export function makeDrawingXml(xlsxImages: XlsxImage[]) {
+  if (xlsxImages.length === 0) {
+    return "";
+  }
+
+  let xml = "";
+  for (const image of xlsxImages) {
+    xml += `<drawing r:id="${image.rId}"/>`;
+  }
+
+  return xml;
+}
+
 export function composeSheetXml(
   uuid: string,
   colsXml: string,
@@ -1497,6 +1591,7 @@ export function composeSheetXml(
   mergeCellsXml: string,
   conditionalFormattingXml: string,
   extLstXml: string,
+  drawingXml: string,
   dimension: { start: string; end: string },
   hyperlinks: Hyperlinks
 ) {
@@ -1517,6 +1612,7 @@ export function composeSheetXml(
     mergeCellsXml +
     conditionalFormattingXml +
     '<pageMargins left="0.7" right="0.7" top="0.75" bottom="0.75" header="0.3" footer="0.3"/>' +
+    drawingXml +
     extLstXml +
     "</worksheet>";
 

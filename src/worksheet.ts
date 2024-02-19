@@ -137,6 +137,19 @@ export type ConditionalFormatting =
         | "3Flags";
     };
 
+export type Image = {
+  displayName: string;
+  from: {
+    col: number;
+    row: number;
+  };
+  // TODO: Support other image formats.
+  extension: "png";
+  data: Uint8Array;
+  width: number;
+  height: number;
+};
+
 export type WorksheetProps = {
   defaultColWidth?: number;
   defaultRowHeight?: number;
@@ -153,6 +166,7 @@ export class Worksheet {
   private _mergeCells: MergeCell[] = [];
   private _freezePane: FreezePane | null = null;
   private _conditionalFormattings: ConditionalFormatting[] = [];
+  private _images: Image[] = [];
 
   constructor(name: string, props: WorksheetProps | undefined = {}) {
     this._name = name;
@@ -197,6 +211,10 @@ export class Worksheet {
 
   get conditionalFormattings() {
     return this._conditionalFormattings;
+  }
+
+  get images() {
+    return this._images;
   }
 
   private getCell(rowIndex: number, colIndex: number): NullableCell {
@@ -266,5 +284,9 @@ export class Worksheet {
 
   setConditionalFormatting(conditionalFormatting: ConditionalFormatting) {
     this._conditionalFormattings.push(conditionalFormatting);
+  }
+
+  setImage(image: Image) {
+    this._images.push(image);
   }
 }

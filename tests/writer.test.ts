@@ -23,4 +23,12 @@ describe("writer", () => {
       expect(e).toBeInstanceOf(Error);
     }
   });
+
+  test("A Error should occur when there is no sheet.", () => {
+    try {
+      genXlsxSync([]);
+    } catch (e) {
+      expect(e).toBeInstanceOf(Error);
+    }
+  });
 });

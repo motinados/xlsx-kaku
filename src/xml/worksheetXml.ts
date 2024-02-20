@@ -682,17 +682,17 @@ export function createXlsxImage(
   image: Image,
   drawingRels: DrawingRels
 ): XlsxImage {
-  // FIXME: target
+  const num = drawingRels.length + 1;
   const rId = drawingRels.addDrawingRel({
-    target: "../media/image1.png",
+    target: `../media/image${num}.png`,
     relationshipType:
       "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
   });
 
   return {
     rId,
-    // TODO: calculate id
-    id: "2",
+    // Files created in online Excel seem to start with a sequential number begginning from 2.
+    id: String(num + 1),
     name: image.displayName,
     editAs: "oneCell",
     from: {

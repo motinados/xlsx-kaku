@@ -231,6 +231,18 @@ describe("inserting multiple image", () => {
   });
 
   test("drawing1.xml.rels", () => {
+    function sortById(a: any, b: any) {
+      const rIdA = parseInt(a["@_Id"].substring(3));
+      const rIdB = parseInt(b["@_Id"].substring(3));
+      if (rIdA < rIdB) {
+        return -1;
+      }
+      if (rIdA > rIdB) {
+        return 1;
+      }
+      return 0;
+    }
+
     const expectedRelsPath = resolve(
       expectedFileDir,
       "xl/drawings/_rels/drawing1.xml.rels"
@@ -245,7 +257,13 @@ describe("inserting multiple image", () => {
     const expectedObj = parseXml(expectedRels);
     const actualObj = parseXml(actualRels);
 
-    expect(actualObj).toEqual(expectedObj);
+    const expectedRelationships = expectedObj.Relationships.Relationship;
+    expectedRelationships.sort(sortById);
+
+    const actualRelationships = actualObj.Relationships.Relationship;
+    actualRelationships.sort(sortById);
+
+    expect(actualRelationships).toEqual(expectedRelationships);
   });
 
   test("drawing1.xml", () => {

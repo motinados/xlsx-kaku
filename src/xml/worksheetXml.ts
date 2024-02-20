@@ -296,8 +296,10 @@ export function makeWorksheetXml(
   const xlsxImages = worksheet.images.map((image) =>
     createXlsxImage(image, drawingRels)
   );
+
+  let drawingRId: string | null = null;
   if (xlsxImages.length > 0) {
-    styleMappers.worksheetRels.addWorksheetRel({
+    drawingRId = styleMappers.worksheetRels.addWorksheetRel({
       target: `../drawings/drawing${sheetCnt + 1}.xml`,
       targetMode: null,
       relationshipType:
@@ -324,7 +326,7 @@ export function makeWorksheetXml(
     defaultRowHeight,
     defaultColWidth
   );
-  const drawingElm = makeDrawingElm(xlsxImages);
+  const drawingElm = makeDrawingElm(drawingRId);
   const extLstElm = makeExtLstElm(xlsxConditionalFormattings);
 
   // Perhaps passing a UUID to every sheet won't cause any issues,
@@ -1569,17 +1571,12 @@ export function makeExtLstElm(
   return xml;
 }
 
-export function makeDrawingElm(xlsxImages: XlsxImage[]) {
-  if (xlsxImages.length === 0) {
+export function makeDrawingElm(drawingRID: string | null) {
+  if (drawingRID === null) {
     return "";
   }
 
-  let xml = "";
-  for (const image of xlsxImages) {
-    xml += `<drawing r:id="${image.rId}"/>`;
-  }
-
-  return xml;
+  return `<drawing r:id="${drawingRID}"/>`;
 }
 
 export function composeSheetXml(

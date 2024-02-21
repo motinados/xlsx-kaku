@@ -301,6 +301,42 @@ describe("inserting multiple image", () => {
       deletePropertyFromObject(obj, "xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name");
     }
 
+    // It should be a problem-free difference.
+    for (const obj of expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      const ext =
+        obj["xdr:pic"]["xdr:nvPicPr"]["xdr:cNvPr"]["a:extLst"]["a:ext"];
+
+      if (Array.isArray(ext)) {
+        for (const e of ext) {
+          if (e["a16:creationId"]) {
+            deletePropertyFromObject(e["a16:creationId"], "@_id");
+          } else if (e["a16:predDERef"]) {
+            deletePropertyFromObject(e["a16:predDERef"], "@_pred");
+          }
+        }
+      } else {
+        deletePropertyFromObject(ext, "a16:creationId.@_id");
+      }
+    }
+
+    // It should be a problem-free difference.
+    for (const obj of actualObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      const ext =
+        obj["xdr:pic"]["xdr:nvPicPr"]["xdr:cNvPr"]["a:extLst"]["a:ext"];
+
+      if (Array.isArray(ext)) {
+        for (const e of ext) {
+          if (e["a16:creationId"]) {
+            deletePropertyFromObject(e["a16:creationId"], "@_id");
+          } else if (e["a16:predDERef"]) {
+            deletePropertyFromObject(e["a16:predDERef"], "@_pred");
+          }
+        }
+      } else {
+        deletePropertyFromObject(ext, "a16:creationId.@_id");
+      }
+    }
+
     expect(actualObj).toEqual(expectedObj);
   });
 

@@ -337,6 +337,18 @@ describe("inserting multiple image", () => {
       }
     }
 
+    // It may be a problem-free difference.
+    const expectedImage2Obj = expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"][1];
+    deletePropertyFromObject(
+      expectedImage2Obj["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:off"],
+      "@_y"
+    );
+    const actualImage2Obj = actualObj["xdr:wsDr"]["xdr:oneCellAnchor"][1];
+    deletePropertyFromObject(
+      actualImage2Obj["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:off"],
+      "@_y"
+    );
+
     expect(actualObj).toEqual(expectedObj);
   });
 

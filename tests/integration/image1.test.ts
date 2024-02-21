@@ -57,7 +57,7 @@ describe("inserting multiple image", () => {
       data: image2,
       from: {
         col: 0,
-        row: 15,
+        row: 14,
       },
       width: 180,
       height: 180,
@@ -282,26 +282,24 @@ describe("inserting multiple image", () => {
     const body = expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"];
     expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"] = body;
 
-    const ext =
-      expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"]["xdr:pic"]["xdr:spPr"][
-        "a:xfrm"
-      ]["a:ext"];
-    expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]["xdr:ext"] = ext;
+    for (let i = 0; i < body.length; i++) {
+      const ext = body[i]["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:ext"];
+      body[i]["xdr:ext"] = ext;
+
+      // Not required for oneCellAnchor
+      deletePropertyFromObject(body[i], "xdr:to");
+    }
 
     deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:twoCellAnchor");
 
-    // Not required for oneCellAnchor
-    deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:oneCellAnchor.xdr:to");
-
     // It should be a problem-free difference.
-    deletePropertyFromObject(
-      expectedObj,
-      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
-    );
-    deletePropertyFromObject(
-      actualObj,
-      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
-    );
+    for (const obj of expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      deletePropertyFromObject(obj, "xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name");
+    }
+
+    for (const obj of actualObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      deletePropertyFromObject(obj, "xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name");
+    }
 
     expect(actualObj).toEqual(expectedObj);
   });

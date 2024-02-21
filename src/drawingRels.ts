@@ -11,6 +11,10 @@ export class DrawingRels {
     return this._rels;
   }
 
+  get length(): number {
+    return this._rels.length;
+  }
+
   addDrawingRel({
     target,
     relationshipType,

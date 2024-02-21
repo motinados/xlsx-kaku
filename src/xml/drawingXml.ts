@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { XlsxImage } from "./worksheetXml";
 
 export function makeDrawingXml(xlsxImages: XlsxImage[]): string {
@@ -5,7 +6,9 @@ export function makeDrawingXml(xlsxImages: XlsxImage[]): string {
   xml +=
     '<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">';
 
+  let prevId: string | null = null;
   for (const xlsxImage of xlsxImages) {
+    const id = uuidv4();
     xml += '<xdr:oneCellAnchor editAs="oneCell">';
     xml += "<xdr:from>";
     xml += `<xdr:col>${xlsxImage.from.col}</xdr:col>`;
@@ -19,9 +22,15 @@ export function makeDrawingXml(xlsxImages: XlsxImage[]): string {
     xml += `<xdr:cNvPr id="${xlsxImage.id}" name="${xlsxImage.name}">`;
     xml += "<a:extLst>";
     xml += '<a:ext uri="{FF2B5EF4-FFF2-40B4-BE49-F238E27FC236}">';
-    xml +=
-      '<a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{30326E85-BE84-6669-3F03-22BBDB7D5735}"/>';
+    xml += `<a16:creationId xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" id="{${id}}"/>`;
     xml += "</a:ext>";
+
+    if (prevId) {
+      xml += '<a:ext uri="{147F2762-F138-4A5C-976F-8EAC2B608ADB}">';
+      xml += `<a16:predDERef xmlns:a16="http://schemas.microsoft.com/office/drawing/2014/main" pred="{${prevId}}"/>`;
+      xml += "</a:ext>";
+    }
+
     xml += "</a:extLst>";
     xml += "</xdr:cNvPr>";
     xml += "<xdr:cNvPicPr>";
@@ -46,6 +55,8 @@ export function makeDrawingXml(xlsxImages: XlsxImage[]): string {
     xml += "</xdr:pic>";
     xml += "<xdr:clientData/>";
     xml += "</xdr:oneCellAnchor>";
+
+    prevId = id;
   }
 
   xml += "</xdr:wsDr>";

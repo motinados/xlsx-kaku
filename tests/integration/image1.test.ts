@@ -70,9 +70,9 @@ describe("inserting multiple image", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
-    // rmSync(actualUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {

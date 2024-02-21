@@ -54,9 +54,9 @@ describe("inserting image", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
-    // rmSync(actualUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -267,6 +267,16 @@ describe("inserting image", () => {
     deletePropertyFromObject(
       actualObj,
       "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
+    );
+
+    deletePropertyFromObject(
+      expectedObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.a:extLst.a:ext.a16:creationId.@_id"
+    );
+
+    deletePropertyFromObject(
+      actualObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.a:extLst.a:ext.a16:creationId.@_id"
     );
 
     expect(actualObj).toEqual(expectedObj);

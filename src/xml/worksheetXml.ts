@@ -696,9 +696,9 @@ export function createXlsxImage(
     name: image.displayName,
     editAs: "oneCell",
     from: {
-      col: 0,
+      col: image.from.col,
       colOff: 0,
-      row: 0,
+      row: image.from.row,
       rowOff: 0,
     },
     ext: {

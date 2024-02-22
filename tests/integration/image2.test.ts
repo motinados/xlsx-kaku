@@ -32,14 +32,15 @@ describe("inserting images into multiple sheets", () => {
     await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
-    const ws = wb.addWorksheet("Sheet1");
+    const ws1 = wb.addWorksheet("Sheet1");
+    const ws2 = wb.addWorksheet("Sheet2");
 
     const image1 = new Uint8Array(readFileSync("tests/assets/ufo_ushi.png"));
     const image2 = new Uint8Array(
       readFileSync("tests/assets/ufo_mikakunin_hikou_buttai.png")
     );
 
-    ws.setImage({
+    ws1.setImage({
       displayName: "ufo_ushi",
       extension: "png",
       data: image1,
@@ -51,7 +52,31 @@ describe("inserting images into multiple sheets", () => {
       height: 180,
     });
 
-    ws.setImage({
+    ws1.setImage({
+      displayName: "ufo_mikakunin_hikou_buttai",
+      extension: "png",
+      data: image2,
+      from: {
+        col: 0,
+        row: 14,
+      },
+      width: 180,
+      height: 180,
+    });
+
+    ws2.setImage({
+      displayName: "ufo_ushi",
+      extension: "png",
+      data: image1,
+      from: {
+        col: 0,
+        row: 0,
+      },
+      width: 180,
+      height: 180,
+    });
+
+    ws2.setImage({
       displayName: "ufo_mikakunin_hikou_buttai",
       extension: "png",
       data: image2,
@@ -70,9 +95,9 @@ describe("inserting images into multiple sheets", () => {
   });
 
   afterAll(() => {
-    rmSync(outputDir, { recursive: true });
+    // rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
-    rmSync(actualUnzippedDir, { recursive: true });
+    // rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {

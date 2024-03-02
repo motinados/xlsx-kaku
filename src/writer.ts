@@ -155,12 +155,17 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
-  const images = worksheets.flatMap((worksheet) => worksheet.images);
-  for (let i = 0; i < images.length; i++) {
-    files.push({
-      filename: `xl/media/image${i + 1}.${images[i]!.extension}`,
-      content: images[i]!.data,
-    });
+  const imageMaps = worksheets.flatMap((worksheet) =>
+    worksheet.imageStore.getAllImages()
+  );
+
+  for (const map of imageMaps) {
+    for (const [_, value] of map) {
+      files.push({
+        filename: `xl/media/${value.fileBasename}.${value.extension}`,
+        content: value.data,
+      });
+    }
   }
 
   return files;

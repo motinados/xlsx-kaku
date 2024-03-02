@@ -255,6 +255,44 @@ describe("inserting images into multiple sheets", () => {
     expect(actualRelationships).toEqual(expectedRelationships);
   });
 
+  test("drawingXmlRels", () => {
+    function sortById(a: any, b: any) {
+      const rIdA = parseInt(a["@_Id"].substring(3));
+      const rIdB = parseInt(b["@_Id"].substring(3));
+      if (rIdA < rIdB) {
+        return -1;
+      }
+      if (rIdA > rIdB) {
+        return 1;
+      }
+      return 0;
+    }
+
+    const expectedRelsDir = resolve(expectedFileDir, "xl/drawings/_rels");
+    const expectedRelsPath = listFiles(expectedRelsDir);
+    const filenames = expectedRelsPath.map((it) => basename(it));
+    const actualRelsDir = resolve(actualFileDir, "xl/drawings/_rels");
+
+    for (const filename of filenames) {
+      const expectedRels = readFileSync(
+        resolve(expectedRelsDir, filename),
+        "utf8"
+      );
+      const actualRels = readFileSync(resolve(actualRelsDir, filename), "utf8");
+
+      const expectedObj = parseXml(expectedRels);
+      const actualObj = parseXml(actualRels);
+
+      const expectedRelationships = expectedObj.Relationships.Relationship;
+      expectedRelationships.sort(sortById);
+
+      const actualRelationships = actualObj.Relationships.Relationship;
+      actualRelationships.sort(sortById);
+
+      expect(actualRelationships).toEqual(expectedRelationships);
+    }
+  });
+
   test("drawing1.xml.rels", () => {
     function sortById(a: any, b: any) {
       const rIdA = parseInt(a["@_Id"].substring(3));

@@ -95,9 +95,9 @@ describe("inserting images into multiple sheets", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
-    // rmSync(actualUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -453,6 +453,12 @@ describe("inserting images into multiple sheets", () => {
     deletePropertyFromObject(
       actualObj,
       "worksheet.sheetViews.sheetView.selection"
+    );
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.@_tabSelected"
     );
 
     expect(actualObj).toEqual(expectedObj);

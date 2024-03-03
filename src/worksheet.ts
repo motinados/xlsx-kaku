@@ -169,15 +169,21 @@ export class Worksheet {
   private _freezePane: FreezePane | null = null;
   private _conditionalFormattings: ConditionalFormatting[] = [];
   private _images: Image[] = [];
-  private _imageStore = new ImageStore();
+  private _imageStore: ImageStore;
 
-  constructor(name: string, props: WorksheetProps | undefined = {}) {
+  constructor(
+    name: string,
+    imageStore: ImageStore,
+    props: WorksheetProps | undefined = {}
+  ) {
     this._name = name;
 
     this._props = {
       defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
       defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
+
+    this._imageStore = imageStore;
   }
 
   get name() {

@@ -40,7 +40,7 @@ describe("inserting images into multiple sheets", () => {
       readFileSync("tests/assets/ufo_mikakunin_hikou_buttai.png")
     );
 
-    ws1.setImage({
+    await ws1.setImage({
       displayName: "ufo_ushi",
       extension: "png",
       data: image1,
@@ -52,7 +52,7 @@ describe("inserting images into multiple sheets", () => {
       height: 180,
     });
 
-    ws1.setImage({
+    await ws1.setImage({
       displayName: "ufo_mikakunin_hikou_buttai",
       extension: "png",
       data: image2,
@@ -64,7 +64,7 @@ describe("inserting images into multiple sheets", () => {
       height: 180,
     });
 
-    ws2.setImage({
+    await ws2.setImage({
       displayName: "ufo_ushi",
       extension: "png",
       data: image1,
@@ -76,7 +76,7 @@ describe("inserting images into multiple sheets", () => {
       height: 180,
     });
 
-    ws2.setImage({
+    await ws2.setImage({
       displayName: "ufo_mikakunin_hikou_buttai",
       extension: "png",
       data: image2,

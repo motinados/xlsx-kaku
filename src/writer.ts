@@ -23,6 +23,7 @@ import { makeContentTypesXml } from "./xml/contentTypesXml";
 import { Dxf } from "./dxf";
 import { DrawingRels } from "./drawingRels";
 import { makeDrawingXml } from "./xml/drawingXml";
+import { ImageStore } from "./imageStore";
 
 type CompressibleFile = {
   filename: string;
@@ -42,13 +43,13 @@ export type StyleMappers = {
   worksheetRels: WorksheetRels;
 };
 
-export function genXlsx(worksheets: Worksheet[]) {
-  const files = generateXMLs(worksheets);
+export function genXlsx(worksheets: Worksheet[], imageStore: ImageStore) {
+  const files = generateXMLs(worksheets, imageStore);
   return compressXMLs(files);
 }
 
-export function genXlsxSync(worksheets: Worksheet[]) {
-  const files = generateXMLs(worksheets);
+export function genXlsxSync(worksheets: Worksheet[], imageStore: ImageStore) {
+  const files = generateXMLs(worksheets, imageStore);
   return compressXMLsSync(files);
 }
 
@@ -89,7 +90,7 @@ function compressXMLsSync(files: CompressibleFile[]) {
   return zipSync(data);
 }
 
-function generateXMLs(worksheets: Worksheet[]) {
+function generateXMLs(worksheets: Worksheet[], imageStore: ImageStore) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -155,17 +156,13 @@ function generateXMLs(worksheets: Worksheet[]) {
     });
   }
 
-  const imageMaps = worksheets.flatMap((worksheet) =>
-    worksheet.imageStore.getAllImages()
-  );
+  const images = imageStore.getAllImages();
 
-  for (const map of imageMaps) {
-    for (const [_, value] of map) {
-      files.push({
-        filename: `xl/media/${value.fileBasename}.${value.extension}`,
-        content: value.data,
-      });
-    }
+  for (const [_, value] of images) {
+    files.push({
+      filename: `xl/media/${value.fileBasename}.${value.extension}`,
+      content: value.data,
+    });
   }
 
   return files;

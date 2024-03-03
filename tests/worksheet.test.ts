@@ -1,3 +1,4 @@
+import { ImageStore } from "../src/imageStore";
 import {
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
@@ -22,7 +23,9 @@ describe("worksheet", () => {
       defaultRowHeight: DEFAULT_ROW_HEIGHT,
     });
 
-    const ws2 = new Worksheet("Sheet2", { defaultColWidth: 10 });
+    const ws2 = new Worksheet("Sheet2", new ImageStore(), {
+      defaultColWidth: 10,
+    });
     expect(ws2.props).toStrictEqual({
       defaultColWidth: 10,
       defaultRowHeight: DEFAULT_ROW_HEIGHT,

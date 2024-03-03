@@ -173,7 +173,7 @@ export class Worksheet {
 
   constructor(
     name: string,
-    imageStore: ImageStore,
+    imageStore?: ImageStore,
     props: WorksheetProps | undefined = {}
   ) {
     this._name = name;
@@ -183,7 +183,7 @@ export class Worksheet {
       defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
 
-    this._imageStore = imageStore;
+    this._imageStore = imageStore || new ImageStore();
   }
 
   get name() {

@@ -1,4 +1,5 @@
 import { DxfStyle } from "./dxf";
+import { ImageStore } from "./imageStore";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
 import { expandRange } from "./utils";
 
@@ -139,6 +140,7 @@ export type ConditionalFormatting =
 
 export type Image = {
   displayName: string;
+  fileBasename: string;
   from: {
     col: number;
     row: number;
@@ -167,14 +169,21 @@ export class Worksheet {
   private _freezePane: FreezePane | null = null;
   private _conditionalFormattings: ConditionalFormatting[] = [];
   private _images: Image[] = [];
+  private _imageStore: ImageStore;
 
-  constructor(name: string, props: WorksheetProps | undefined = {}) {
+  constructor(
+    name: string,
+    imageStore?: ImageStore,
+    props: WorksheetProps | undefined = {}
+  ) {
     this._name = name;
 
     this._props = {
       defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
       defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
+
+    this._imageStore = imageStore || new ImageStore();
   }
 
   get name() {
@@ -215,6 +224,10 @@ export class Worksheet {
 
   get images() {
     return this._images;
+  }
+
+  get imageStore() {
+    return this._imageStore;
   }
 
   private getCell(rowIndex: number, colIndex: number): NullableCell {
@@ -286,7 +299,11 @@ export class Worksheet {
     this._conditionalFormattings.push(conditionalFormatting);
   }
 
-  setImage(image: Image) {
-    this._images.push(image);
+  async setImage(image: Omit<Image, "fileBasename">) {
+    const fileBasename = await this._imageStore.addImage(
+      image.data,
+      image.extension
+    );
+    this._images.push({ ...image, fileBasename });
   }
 }

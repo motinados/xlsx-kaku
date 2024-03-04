@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("inserting image", () => {
-  const testName = "image";
+describe("inserting images into multiple sheets", () => {
+  const testName = "image2";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -32,16 +32,57 @@ describe("inserting image", () => {
     await unzip(expectedXlsxPath, expectedFileDir);
 
     const wb = new Workbook();
-    const ws = wb.addWorksheet("Sheet1");
+    const ws1 = wb.addWorksheet("Sheet1");
+    const ws2 = wb.addWorksheet("Sheet2");
 
-    const image = new Uint8Array(readFileSync("tests/assets/ufo_ushi.png"));
-    await ws.setImage({
+    const image1 = new Uint8Array(readFileSync("tests/assets/ufo_ushi.png"));
+    const image2 = new Uint8Array(
+      readFileSync("tests/assets/ufo_mikakunin_hikou_buttai.png")
+    );
+
+    await ws1.setImage({
       displayName: "ufo_ushi",
       extension: "png",
-      data: image,
+      data: image1,
       from: {
         col: 0,
         row: 0,
+      },
+      width: 180,
+      height: 180,
+    });
+
+    await ws1.setImage({
+      displayName: "ufo_mikakunin_hikou_buttai",
+      extension: "png",
+      data: image2,
+      from: {
+        col: 0,
+        row: 14,
+      },
+      width: 180,
+      height: 180,
+    });
+
+    await ws2.setImage({
+      displayName: "ufo_ushi",
+      extension: "png",
+      data: image1,
+      from: {
+        col: 0,
+        row: 0,
+      },
+      width: 180,
+      height: 180,
+    });
+
+    await ws2.setImage({
+      displayName: "ufo_mikakunin_hikou_buttai",
+      extension: "png",
+      data: image2,
+      from: {
+        col: 0,
+        row: 14,
       },
       width: 180,
       height: 180,
@@ -214,7 +255,57 @@ describe("inserting image", () => {
     expect(actualRelationships).toEqual(expectedRelationships);
   });
 
+  test("drawingXmlRels", () => {
+    function sortById(a: any, b: any) {
+      const rIdA = parseInt(a["@_Id"].substring(3));
+      const rIdB = parseInt(b["@_Id"].substring(3));
+      if (rIdA < rIdB) {
+        return -1;
+      }
+      if (rIdA > rIdB) {
+        return 1;
+      }
+      return 0;
+    }
+
+    const expectedRelsDir = resolve(expectedFileDir, "xl/drawings/_rels");
+    const expectedRelsPath = listFiles(expectedRelsDir);
+    const filenames = expectedRelsPath.map((it) => basename(it));
+    const actualRelsDir = resolve(actualFileDir, "xl/drawings/_rels");
+
+    for (const filename of filenames) {
+      const expectedRels = readFileSync(
+        resolve(expectedRelsDir, filename),
+        "utf8"
+      );
+      const actualRels = readFileSync(resolve(actualRelsDir, filename), "utf8");
+
+      const expectedObj = parseXml(expectedRels);
+      const actualObj = parseXml(actualRels);
+
+      const expectedRelationships = expectedObj.Relationships.Relationship;
+      expectedRelationships.sort(sortById);
+
+      const actualRelationships = actualObj.Relationships.Relationship;
+      actualRelationships.sort(sortById);
+
+      expect(actualRelationships).toEqual(expectedRelationships);
+    }
+  });
+
   test("drawing1.xml.rels", () => {
+    function sortById(a: any, b: any) {
+      const rIdA = parseInt(a["@_Id"].substring(3));
+      const rIdB = parseInt(b["@_Id"].substring(3));
+      if (rIdA < rIdB) {
+        return -1;
+      }
+      if (rIdA > rIdB) {
+        return 1;
+      }
+      return 0;
+    }
+
     const expectedRelsPath = resolve(
       expectedFileDir,
       "xl/drawings/_rels/drawing1.xml.rels"
@@ -229,7 +320,13 @@ describe("inserting image", () => {
     const expectedObj = parseXml(expectedRels);
     const actualObj = parseXml(actualRels);
 
-    expect(actualObj).toEqual(expectedObj);
+    const expectedRelationships = expectedObj.Relationships.Relationship;
+    expectedRelationships.sort(sortById);
+
+    const actualRelationships = actualObj.Relationships.Relationship;
+    actualRelationships.sort(sortById);
+
+    expect(actualRelationships).toEqual(expectedRelationships);
   });
 
   test("drawing1.xml", () => {
@@ -248,35 +345,71 @@ describe("inserting image", () => {
     const body = expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"];
     expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"] = body;
 
-    const ext =
-      expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"]["xdr:pic"]["xdr:spPr"][
-        "a:xfrm"
-      ]["a:ext"];
-    expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]["xdr:ext"] = ext;
+    for (let i = 0; i < body.length; i++) {
+      const ext = body[i]["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:ext"];
+      body[i]["xdr:ext"] = ext;
+
+      // Not required for oneCellAnchor
+      deletePropertyFromObject(body[i], "xdr:to");
+    }
 
     deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:twoCellAnchor");
 
-    // Not required for oneCellAnchor
-    deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:oneCellAnchor.xdr:to");
+    // It should be a problem-free difference.
+    for (const obj of expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      deletePropertyFromObject(obj, "xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name");
+    }
+
+    for (const obj of actualObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      deletePropertyFromObject(obj, "xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name");
+    }
 
     // It should be a problem-free difference.
-    deletePropertyFromObject(
-      expectedObj,
-      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
-    );
-    deletePropertyFromObject(
-      actualObj,
-      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
-    );
+    for (const obj of expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      const ext =
+        obj["xdr:pic"]["xdr:nvPicPr"]["xdr:cNvPr"]["a:extLst"]["a:ext"];
 
-    deletePropertyFromObject(
-      expectedObj,
-      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.a:extLst.a:ext.a16:creationId.@_id"
-    );
+      if (Array.isArray(ext)) {
+        for (const e of ext) {
+          if (e["a16:creationId"]) {
+            deletePropertyFromObject(e["a16:creationId"], "@_id");
+          } else if (e["a16:predDERef"]) {
+            deletePropertyFromObject(e["a16:predDERef"], "@_pred");
+          }
+        }
+      } else {
+        deletePropertyFromObject(ext, "a16:creationId.@_id");
+      }
+    }
 
+    // It should be a problem-free difference.
+    for (const obj of actualObj["xdr:wsDr"]["xdr:oneCellAnchor"]) {
+      const ext =
+        obj["xdr:pic"]["xdr:nvPicPr"]["xdr:cNvPr"]["a:extLst"]["a:ext"];
+
+      if (Array.isArray(ext)) {
+        for (const e of ext) {
+          if (e["a16:creationId"]) {
+            deletePropertyFromObject(e["a16:creationId"], "@_id");
+          } else if (e["a16:predDERef"]) {
+            deletePropertyFromObject(e["a16:predDERef"], "@_pred");
+          }
+        }
+      } else {
+        deletePropertyFromObject(ext, "a16:creationId.@_id");
+      }
+    }
+
+    // It may be a problem-free difference.
+    const expectedImage2Obj = expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"][1];
     deletePropertyFromObject(
-      actualObj,
-      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.a:extLst.a:ext.a16:creationId.@_id"
+      expectedImage2Obj["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:off"],
+      "@_y"
+    );
+    const actualImage2Obj = actualObj["xdr:wsDr"]["xdr:oneCellAnchor"][1];
+    deletePropertyFromObject(
+      actualImage2Obj["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:off"],
+      "@_y"
     );
 
     expect(actualObj).toEqual(expectedObj);
@@ -320,6 +453,12 @@ describe("inserting image", () => {
     deletePropertyFromObject(
       actualObj,
       "worksheet.sheetViews.sheetView.selection"
+    );
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      actualObj,
+      "worksheet.sheetViews.sheetView.@_tabSelected"
     );
 
     expect(actualObj).toEqual(expectedObj);

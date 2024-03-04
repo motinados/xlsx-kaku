@@ -316,7 +316,7 @@ writeFileSync("test.xlsx", xlsx);
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
-const imgageData = new Uint8Array(readFileSync("assets/ufo_ushi.png"));
+const imageData = new Uint8Array(readFileSync("assets/ufo_ushi.png"));
 await ws.insertImage({
   displayName: "ufo_ushi",
   extension: "png",

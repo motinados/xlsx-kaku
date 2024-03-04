@@ -309,3 +309,26 @@ ws.setConditionalFormatting({
 const xlsx = wb.generateXlsxSync();
 writeFileSync("test.xlsx", xlsx);
 ```
+
+### Inserting image
+
+```ts
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
+
+const imgageData = new Uint8Array(readFileSync("assets/ufo_ushi.png"));
+await ws.insertImage({
+  displayName: "ufo_ushi",
+  extension: "png",
+  data: imageData,
+  from: {
+    col: 0,
+    row: 0,
+  },
+  width: 180,
+  height: 180,
+});
+
+const xlsx = wb.generateXlsxSync();
+writeFileSync("test.xlsx", xlsx);
+```

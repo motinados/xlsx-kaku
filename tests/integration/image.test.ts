@@ -35,7 +35,7 @@ describe("inserting image", () => {
     const ws = wb.addWorksheet("Sheet1");
 
     const image = new Uint8Array(readFileSync("tests/assets/ufo_ushi.png"));
-    await ws.setImage({
+    await ws.insertImage({
       displayName: "ufo_ushi",
       extension: "png",
       data: image,

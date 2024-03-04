@@ -39,7 +39,7 @@ describe("inserting multiple image", () => {
       readFileSync("tests/assets/ufo_mikakunin_hikou_buttai.png")
     );
 
-    await ws.setImage({
+    await ws.insertImage({
       displayName: "ufo_ushi",
       extension: "png",
       data: image1,
@@ -51,7 +51,7 @@ describe("inserting multiple image", () => {
       height: 180,
     });
 
-    await ws.setImage({
+    await ws.insertImage({
       displayName: "ufo_mikakunin_hikou_buttai",
       extension: "png",
       data: image2,

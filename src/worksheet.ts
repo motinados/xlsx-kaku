@@ -299,7 +299,7 @@ export class Worksheet {
     this._conditionalFormattings.push(conditionalFormatting);
   }
 
-  async setImage(image: Omit<Image, "fileBasename">) {
+  async insertImage(image: Omit<Image, "fileBasename">) {
     const fileBasename = await this._imageStore.addImage(
       image.data,
       image.extension

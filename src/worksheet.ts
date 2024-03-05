@@ -230,7 +230,7 @@ export class Worksheet {
     return this._imageStore;
   }
 
-  private getCell(rowIndex: number, colIndex: number): NullableCell {
+  getCell(rowIndex: number, colIndex: number): NullableCell {
     const rows = this._sheetData[rowIndex];
     if (!rows) {
       return null;

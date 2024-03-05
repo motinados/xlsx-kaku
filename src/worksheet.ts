@@ -146,6 +146,7 @@ export type Image = {
   };
   // TODO: Support other image formats.
   extension: "png";
+  // FIXME: The data is also stored in the image store.
   data: Uint8Array;
   width: number;
   height: number;

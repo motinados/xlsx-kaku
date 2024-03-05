@@ -140,7 +140,6 @@ export type ConditionalFormatting =
 
 export type Image = {
   displayName: string;
-  fileBasename: string;
   from: {
     col: number;
     row: number;
@@ -300,10 +299,7 @@ export class Worksheet {
   }
 
   async insertImage(image: Omit<Image, "fileBasename">) {
-    const fileBasename = await this._imageStore.addImage(
-      image.data,
-      image.extension
-    );
-    this._images.push({ ...image, fileBasename });
+    await this._imageStore.addImage(image.data, image.extension);
+    this._images.push(image);
   }
 }

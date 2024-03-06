@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { FreezePane, MergeCell, Worksheet } from "..";
+import { FreezePane, MergeCell, Worksheet } from "../worksheet";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
 import {

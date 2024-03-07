@@ -1,10 +1,11 @@
-import { MergeCell, Worksheet } from ".";
+import { MergeCell } from "./worksheet";
 import { expandRange } from "./utils";
+import { WorksheetType } from "./worksheet";
 
 export type MergeCellsModule = {
   name: string;
   getMergeCells(): MergeCell[];
-  add(worksheet: Worksheet, mergeCell: MergeCell): void;
+  add(worksheet: WorksheetType, mergeCell: MergeCell): void;
   makeXmlElm(): string;
 };
 
@@ -15,7 +16,7 @@ export function mergeCellsModule(): MergeCellsModule {
     getMergeCells() {
       return mergeCells;
     },
-    add(worksheet: Worksheet, mergeCell: MergeCell) {
+    add(worksheet: WorksheetType, mergeCell: MergeCell) {
       // Within the range to be merged, cells are set with the type of "merged".
       const addresses = expandRange(mergeCell.ref);
       for (let i = 0; i < addresses.length; i++) {

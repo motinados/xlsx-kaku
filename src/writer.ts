@@ -9,7 +9,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Worksheet } from "./worksheet";
+import { WorksheetType } from "./worksheet";
 import { strToU8, zip, zipSync } from "fflate";
 import { makeWorksheetXml } from "./xml/worksheetXml";
 import { makeAppXml } from "./xml/appXml";
@@ -43,12 +43,15 @@ export type StyleMappers = {
   worksheetRels: WorksheetRels;
 };
 
-export function genXlsx(worksheets: Worksheet[], imageStore: ImageStore) {
+export function genXlsx(worksheets: WorksheetType[], imageStore: ImageStore) {
   const files = generateXMLs(worksheets, imageStore);
   return compressXMLs(files);
 }
 
-export function genXlsxSync(worksheets: Worksheet[], imageStore: ImageStore) {
+export function genXlsxSync(
+  worksheets: WorksheetType[],
+  imageStore: ImageStore
+) {
   const files = generateXMLs(worksheets, imageStore);
   return compressXMLsSync(files);
 }
@@ -90,7 +93,7 @@ function compressXMLsSync(files: CompressibleFile[]) {
   return zipSync(data);
 }
 
-function generateXMLs(worksheets: Worksheet[], imageStore: ImageStore) {
+function generateXMLs(worksheets: WorksheetType[], imageStore: ImageStore) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -168,7 +171,7 @@ function generateXMLs(worksheets: Worksheet[], imageStore: ImageStore) {
   return files;
 }
 
-function createExcelFiles(worksheets: Worksheet[]) {
+function createExcelFiles(worksheets: WorksheetType[]) {
   if (worksheets.length === 0) {
     throw new Error("worksheets is empty");
   }

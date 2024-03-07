@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
-import { Worksheet } from "../worksheet";
+import { WorksheetType } from "../worksheet";
 
-export function makeWorkbookXml(worksheets: Worksheet[]) {
+export function makeWorkbookXml(worksheets: WorksheetType[]) {
   const documentId = uuidv4();
 
   let result =

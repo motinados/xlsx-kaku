@@ -1,7 +1,7 @@
 import { DxfStyle } from "./dxf";
 import { ImageStore } from "./imageStore";
+import { MergeCellsModule, mergeCellsModule } from "./mergeCellsModule";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
-import { expandRange } from "./utils";
 
 /**
  * The value is the same as the one in files created with Online Excel.
@@ -159,13 +159,34 @@ export type WorksheetProps = {
 
 type RequiredWorksheetProps = Required<WorksheetProps>;
 
-export class Worksheet {
+export type WorksheetType = {
+  name: string;
+  props: RequiredWorksheetProps;
+  sheetData: SheetData;
+  cols: Map<number, ColProps>;
+  rows: Map<number, RowProps>;
+  mergeCells: MergeCell[];
+  freezePane: FreezePane | null;
+  mergeCellsModule: MergeCellsModule | null;
+  conditionalFormattings: ConditionalFormatting[];
+  images: Image[];
+  imageStore: ImageStore;
+  getCell(rowIndex: number, colIndex: number): NullableCell;
+  setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
+  setColProps(col: ColProps): void;
+  setRowProps(row: RowProps): void;
+  // setMergeCell(mergeCell: MergeCell): void;
+  setFreezePane(freezePane: FreezePane): void;
+};
+
+export class Worksheet implements WorksheetType {
   private _name: string;
   private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
   private _cols = new Map<number, ColProps>();
   private _rows = new Map<number, RowProps>();
-  private _mergeCells: MergeCell[] = [];
+  // private _mergeCells: MergeCell[] = [];
+  private _mergeCellsModule: MergeCellsModule = mergeCellsModule();
   private _freezePane: FreezePane | null = null;
   private _conditionalFormattings: ConditionalFormatting[] = [];
   private _images: Image[] = [];
@@ -211,7 +232,11 @@ export class Worksheet {
   }
 
   get mergeCells() {
-    return this._mergeCells;
+    return this._mergeCellsModule.getMergeCells();
+  }
+
+  get mergeCellsModule() {
+    return this._mergeCellsModule;
   }
 
   get freezePane() {
@@ -269,26 +294,7 @@ export class Worksheet {
   }
 
   setMergeCell(mergeCell: MergeCell) {
-    // Within the range to be merged, cells are set with the type of "merged".
-    const addresses = expandRange(mergeCell.ref);
-    for (let i = 0; i < addresses.length; i++) {
-      const address = addresses[i];
-      if (address) {
-        const [colIndex, rowIndex] = address;
-
-        // If the cell is not set, set it as empty string.
-        if (i === 0) {
-          const cell = this.getCell(rowIndex, colIndex);
-          if (!cell) {
-            this.setCell(rowIndex, colIndex, { type: "string", value: "" });
-          }
-        } else {
-          this.setCell(rowIndex, colIndex, { type: "merged" });
-        }
-      }
-    }
-
-    this._mergeCells.push(mergeCell);
+    this.mergeCellsModule.add(this, mergeCell);
   }
 
   setFreezePane(freezePane: FreezePane) {

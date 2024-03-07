@@ -12,7 +12,6 @@ import {
   getSpansFromSheetData,
   makeCellElm,
   makeColsElm,
-  makeMergeCellsElm,
   makeSheetDataElm,
   makeSheetViewsElm,
   makeRowElm,
@@ -38,7 +37,6 @@ import {
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
   FreezePane,
-  MergeCell,
 } from "../../src/worksheet";
 
 describe("Writer", () => {
@@ -445,18 +443,6 @@ describe("Writer", () => {
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
     expect(makeColsElm(groupedXlsxCols, DEFAULT_COL_WIDTH)).toBe(
       `<cols><col min="1" max="1" width="${DEFAULT_COL_WIDTH}" style="1"/><col min="2" max="3" width="25" customWidth="1" style="2"/></cols>`
-    );
-  });
-
-  test("makeMergeCellsXml", () => {
-    const mergeCells: MergeCell[] = [
-      { ref: "A1:B2" },
-      { ref: "C3:D4" },
-      { ref: "E5:F6" },
-    ];
-
-    expect(makeMergeCellsElm(mergeCells)).toBe(
-      `<mergeCells count="3"><mergeCell ref="A1:B2"/><mergeCell ref="C3:D4"/><mergeCell ref="E5:F6"/></mergeCells>`
     );
   });
 

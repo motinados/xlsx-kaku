@@ -140,13 +140,13 @@ export type ConditionalFormatting =
 
 export type Image = {
   displayName: string;
-  fileBasename: string;
   from: {
     col: number;
     row: number;
   };
   // TODO: Support other image formats.
   extension: "png";
+  // FIXME: The data is also stored in the image store.
   data: Uint8Array;
   width: number;
   height: number;
@@ -300,10 +300,7 @@ export class Worksheet {
   }
 
   async insertImage(image: Omit<Image, "fileBasename">) {
-    const fileBasename = await this._imageStore.addImage(
-      image.data,
-      image.extension
-    );
-    this._images.push({ ...image, fileBasename });
+    await this._imageStore.addImage(image.data, image.extension);
+    this._images.push(image);
   }
 }

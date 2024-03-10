@@ -1,9 +1,9 @@
 import { genXlsx, genXlsxSync } from "./writer";
-import { Worksheet, WorksheetProps } from "./worksheet";
+import { Worksheet, WorksheetProps, WorksheetType } from "./worksheet";
 import { ImageStore } from "./imageStore";
 
 export class Workbook {
-  private _worksheets: Worksheet[] = [];
+  private _worksheets: WorksheetType[] = [];
   private _imageStore: ImageStore = new ImageStore();
 
   addWorksheet(sheetName: string, props?: WorksheetProps) {

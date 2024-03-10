@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { FreezePane, MergeCell, Worksheet } from "../worksheet";
+import { FreezePane, WorksheetType } from "../worksheet";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import { StyleMappers } from "../writer";
 import {
@@ -251,7 +251,7 @@ export type XlsxImage = {
 };
 
 export function makeWorksheetXml(
-  worksheet: Worksheet,
+  worksheet: WorksheetType,
   styleMappers: StyleMappers,
   dxf: Dxf,
   drawingRels: DrawingRels,
@@ -284,7 +284,7 @@ export function makeWorksheetXml(
   const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
 
   const colsElm = makeColsElm(groupXlsxCols(xlsxCols), defaultColWidth);
-  const mergeCellsElm = makeMergeCellsElm(worksheet.mergeCells);
+  const mergeCellsElm = worksheet.mergeCellsModule?.makeXmlElm() || "";
 
   const xlsxConditionalFormattings = createXlsxConditionalFormatting(
     worksheet.conditionalFormattings,
@@ -787,20 +787,6 @@ export function makeColsElm(
     result += "/>";
   }
   result += "</cols>";
-
-  return result;
-}
-
-export function makeMergeCellsElm(mergeCells: MergeCell[]) {
-  if (mergeCells.length === 0) {
-    return "";
-  }
-
-  let result = `<mergeCells count="${mergeCells.length}">`;
-  for (const mergeCell of mergeCells) {
-    result += `<mergeCell ref="${mergeCell.ref}"/>`;
-  }
-  result += "</mergeCells>";
 
   return result;
 }

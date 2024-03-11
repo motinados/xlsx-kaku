@@ -1,3 +1,7 @@
+import {
+  ConditionalFormattingModule,
+  conditionalFormattingModule,
+} from "./conditionalFormattingModule";
 import { DxfStyle } from "./dxf";
 import { ImageStore } from "./imageStore";
 import { MergeCellsModule, mergeCellsModule } from "./mergeCellsModule";
@@ -168,14 +172,13 @@ export type WorksheetType = {
   mergeCells: MergeCell[];
   freezePane: FreezePane | null;
   mergeCellsModule: MergeCellsModule | null;
-  conditionalFormattings: ConditionalFormatting[];
+  conditionalFormattingModule: ConditionalFormattingModule | null;
   images: Image[];
   imageStore: ImageStore;
   getCell(rowIndex: number, colIndex: number): NullableCell;
   setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
   setColProps(col: ColProps): void;
   setRowProps(row: RowProps): void;
-  // setMergeCell(mergeCell: MergeCell): void;
   setFreezePane(freezePane: FreezePane): void;
 };
 
@@ -185,10 +188,11 @@ export class Worksheet implements WorksheetType {
   private _sheetData: SheetData = [];
   private _cols = new Map<number, ColProps>();
   private _rows = new Map<number, RowProps>();
-  // private _mergeCells: MergeCell[] = [];
   private _mergeCellsModule: MergeCellsModule = mergeCellsModule();
   private _freezePane: FreezePane | null = null;
-  private _conditionalFormattings: ConditionalFormatting[] = [];
+  private _conditionalFormattingModule: ConditionalFormattingModule =
+    conditionalFormattingModule();
+
   private _images: Image[] = [];
   private _imageStore: ImageStore;
 
@@ -244,7 +248,11 @@ export class Worksheet implements WorksheetType {
   }
 
   get conditionalFormattings() {
-    return this._conditionalFormattings;
+    return this._conditionalFormattingModule.getConditionalFormattings();
+  }
+
+  get conditionalFormattingModule() {
+    return this._conditionalFormattingModule;
   }
 
   get images() {
@@ -302,7 +310,9 @@ export class Worksheet implements WorksheetType {
   }
 
   setConditionalFormatting(conditionalFormatting: ConditionalFormatting) {
-    this._conditionalFormattings.push(conditionalFormatting);
+    this._conditionalFormattingModule.addConditionalFormatting(
+      conditionalFormatting
+    );
   }
 
   async insertImage(image: Omit<Image, "fileBasename">) {

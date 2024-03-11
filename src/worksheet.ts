@@ -310,9 +310,7 @@ export class Worksheet implements WorksheetType {
   }
 
   setConditionalFormatting(conditionalFormatting: ConditionalFormatting) {
-    this._conditionalFormattingModule.addConditionalFormatting(
-      conditionalFormatting
-    );
+    this._conditionalFormattingModule.add(conditionalFormatting);
   }
 
   async insertImage(image: Omit<Image, "fileBasename">) {

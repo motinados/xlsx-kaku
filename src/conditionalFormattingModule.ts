@@ -7,7 +7,7 @@ import { XlsxConditionalFormatting } from "./xml/worksheetXml";
 export type ConditionalFormattingModule = {
   name: string;
   getConditionalFormattings(): ConditionalFormatting[];
-  addConditionalFormatting(conditionalFormatting: ConditionalFormatting): void;
+  add(conditionalFormatting: ConditionalFormatting): void;
   createXlsxConditionalFormatting(
     conditionalFormattings: ConditionalFormatting[],
     dxf: Dxf
@@ -22,7 +22,7 @@ export function conditionalFormattingModule(): ConditionalFormattingModule {
     getConditionalFormattings() {
       return conditionalFormattings;
     },
-    addConditionalFormatting(conditionalFormatting: ConditionalFormatting) {
+    add(conditionalFormatting: ConditionalFormatting) {
       conditionalFormattings.push(conditionalFormatting);
     },
     createXlsxConditionalFormatting(

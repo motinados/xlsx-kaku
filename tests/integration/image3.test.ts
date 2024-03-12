@@ -34,10 +34,12 @@ describe("inserting jpg image", () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
 
-    const image = new Uint8Array(readFileSync("tests/assets/ufo_ushi.png"));
+    const image = new Uint8Array(
+      readFileSync("tests/assets/youkai_nurikabe.jpg")
+    );
     await ws.insertImage({
       displayName: "nurikabe",
-      extension: "jpg",
+      extension: "jpeg",
       data: image,
       from: {
         col: 0,
@@ -54,7 +56,7 @@ describe("inserting jpg image", () => {
   });
 
   afterAll(() => {
-    rmSync(outputDir, { recursive: true });
+    // rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
     rmSync(actualUnzippedDir, { recursive: true });
   });

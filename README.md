@@ -312,6 +312,8 @@ writeFileSync("test.xlsx", xlsx);
 
 ### Inserting image
 
+Currently, images can be placed over cells. The feature to place in cell is not yet supported.
+
 ```ts
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");

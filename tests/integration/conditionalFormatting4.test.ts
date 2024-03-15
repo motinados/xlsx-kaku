@@ -157,7 +157,7 @@ describe("conditional formatting to compare numbers", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
     rmSync(actualUnzippedDir, { recursive: true });
   });

@@ -63,7 +63,7 @@ describe("duplicate values conditional formatting", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
     rmSync(actualUnzippedDir, { recursive: true });
   });

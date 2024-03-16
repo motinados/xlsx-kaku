@@ -145,7 +145,9 @@ export type Image = {
     row: number;
   };
   // TODO: Support other image formats.
-  extension: "png";
+  // In online Excel, when a bmp is inserted, it is converted a jpeg.
+  // In online Excel, when a tiff is inserted, it is converted a png.
+  extension: "png" | "jpeg" | "gif";
   // FIXME: The data is also stored in the image store.
   data: Uint8Array;
   width: number;

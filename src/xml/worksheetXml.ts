@@ -9,7 +9,6 @@ import {
   ColProps,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
-  Image,
   RowProps,
 } from "../worksheet";
 import { Dxf } from "../dxf";
@@ -294,9 +293,15 @@ export function makeWorksheetXml(
     );
   }
 
-  const xlsxImages = worksheet.images.map((image) =>
-    createXlsxImage(image, drawingRels)
-  );
+  const xlsxImages: XlsxImage[] = [];
+  if (worksheet.imageModule) {
+    const images = worksheet.imageModule.getImages();
+    for (const image of images) {
+      xlsxImages.push(
+        worksheet.imageModule.createXlsxImage(image, drawingRels)
+      );
+    }
+  }
 
   let drawingRId: string | null = null;
   if (xlsxImages.length > 0) {
@@ -434,36 +439,6 @@ export function createXlsxRowFromRowProps(
     height: row.height ?? DEFAULT_ROW_HEIGHT,
     customHeight: row.height !== undefined && row.height !== DEFAULT_ROW_HEIGHT,
     cellXfId: cellXfId,
-  };
-}
-
-export function createXlsxImage(
-  image: Image,
-  drawingRels: DrawingRels
-): XlsxImage {
-  const num = drawingRels.length + 1;
-  const rId = drawingRels.addDrawingRel({
-    target: `../media/image${num}.png`,
-    relationshipType:
-      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
-  });
-
-  return {
-    rId,
-    // Files created in online Excel seem to start with a sequential number begginning from 2.
-    id: String(num + 1),
-    name: image.displayName,
-    editAs: "oneCell",
-    from: {
-      col: image.from.col,
-      colOff: 0,
-      row: image.from.row,
-      rowOff: 0,
-    },
-    ext: {
-      cx: (914400 / 96) * image.width,
-      cy: (914400 / 96) * image.height,
-    },
   };
 }
 

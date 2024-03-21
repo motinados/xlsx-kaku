@@ -212,8 +212,9 @@ function createExcelFiles(worksheets: WorksheetType[]) {
       drawingRelsList.push(drawingRelsXml);
     }
 
-    if (xlsxImages.length > 0) {
-      const drawingXml = makeDrawingXml(xlsxImages);
+    if (worksheet.imageModule && xlsxImages.length > 0) {
+      const drawingImageElm = worksheet.imageModule.makeXmlElm(xlsxImages);
+      const drawingXml = makeDrawingXml(drawingImageElm);
       drawingXmlList.push(drawingXml);
     }
 

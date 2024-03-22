@@ -3,6 +3,7 @@ import {
   conditionalFormattingModule,
 } from "./conditionalFormattingModule";
 import { DxfStyle } from "./dxf";
+import { ImageModule, imageModule } from "./imageModule";
 import { ImageStore } from "./imageStore";
 import { MergeCellsModule, mergeCellsModule } from "./mergeCellsModule";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
@@ -175,6 +176,7 @@ export type WorksheetType = {
   conditionalFormattingModule: ConditionalFormattingModule | null;
   images: Image[];
   imageStore: ImageStore;
+  imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
   setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
   setColProps(col: ColProps): void;
@@ -193,8 +195,8 @@ export class Worksheet implements WorksheetType {
   private _conditionalFormattingModule: ConditionalFormattingModule =
     conditionalFormattingModule();
 
-  private _images: Image[] = [];
   private _imageStore: ImageStore;
+  private _imageModule: ImageModule = imageModule();
 
   constructor(
     name: string,
@@ -256,7 +258,11 @@ export class Worksheet implements WorksheetType {
   }
 
   get images() {
-    return this._images;
+    return this._imageModule.getImages();
+  }
+
+  get imageModule() {
+    return this._imageModule;
   }
 
   get imageStore() {
@@ -315,6 +321,6 @@ export class Worksheet implements WorksheetType {
 
   async insertImage(image: Omit<Image, "fileBasename">) {
     await this._imageStore.addImage(image.data, image.extension);
-    this._images.push(image);
+    this._imageModule.add(image);
   }
 }

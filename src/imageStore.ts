@@ -11,6 +11,30 @@ export class ImageStore {
   private _hashFn: HashFn | null = null;
   private _initializationPromise: Promise<void> | null = null;
 
+  constructor() {}
+
+  private async initHashFn() {
+    this._hashFn = await this.createHashFn();
+  }
+
+  private async createHashFn() {
+    let crypto: any;
+    if (typeof window !== "undefined") {
+      crypto = window.crypto;
+    } else {
+      crypto = await import("node:crypto");
+    }
+
+    return async (data: Uint8Array) => {
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      return hashHex;
+    };
+  }
+
   async getHashFn(): Promise<HashFn> {
     if (this._hashFn) {
       return this._hashFn;
@@ -25,16 +49,6 @@ export class ImageStore {
     await this._initializationPromise;
     return this._hashFn!;
   }
-
-  get hashFn() {
-    if (!this._hashFn) {
-      throw new Error("Hash function not initialized");
-    }
-
-    return this._hashFn;
-  }
-
-  constructor() {}
 
   async addImage(data: Uint8Array, extension: string) {
     const hashFn = await this.getHashFn();
@@ -51,27 +65,5 @@ export class ImageStore {
 
   getAllImages() {
     return this.images;
-  }
-
-  async initHashFn() {
-    this._hashFn = await this.createHashFn();
-  }
-
-  async createHashFn() {
-    let crypto: any;
-    if (typeof window !== "undefined") {
-      crypto = window.crypto;
-    } else {
-      crypto = await import("node:crypto");
-    }
-
-    return async (data: Uint8Array) => {
-      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      return hashHex;
-    };
   }
 }

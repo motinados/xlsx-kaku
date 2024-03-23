@@ -10,8 +10,8 @@ import {
 } from "../helper/helper";
 import { Workbook } from "../../src";
 
-describe("duplicate values conditional formatting", () => {
-  const testName = "conditionalFormatting3";
+describe("inserting gif image", () => {
+  const testName = "image4";
 
   const xlsxDir = "tests/xlsx";
   const outputDir = `tests/temp/${testName}/output`;
@@ -34,26 +34,19 @@ describe("duplicate values conditional formatting", () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
 
-    ws.setCell(0, 0, { type: "number", value: 1 });
-    ws.setCell(1, 0, { type: "number", value: 2 });
-    ws.setCell(2, 0, { type: "number", value: 3 });
-    ws.setCell(3, 0, { type: "number", value: 4 });
-    ws.setCell(4, 0, { type: "number", value: 5 });
-    ws.setCell(5, 0, { type: "number", value: 1 });
-    ws.setCell(6, 0, { type: "number", value: 7 });
-    ws.setCell(7, 0, { type: "number", value: 1 });
-    ws.setCell(8, 0, { type: "number", value: 9 });
-    ws.setCell(9, 0, { type: "number", value: 10 });
-
-    ws.setConditionalFormatting({
-      // Fixme: "A:A" is not supported
-      sqref: "A1:A1048576",
-      type: "duplicateValues",
-      priority: 1,
-      style: {
-        font: { color: "FF9C0006" },
-        fill: { bgColor: "FFFFC7CE" },
+    const image = new Uint8Array(
+      readFileSync("tests/assets/youkai_nurikabe.gif")
+    );
+    await ws.insertImage({
+      displayName: "nurikabe",
+      extension: "gif",
+      data: image,
+      from: {
+        col: 0,
+        row: 0,
       },
+      width: 400,
+      height: 400,
     });
 
     const xlsx = await wb.generateXlsx();
@@ -63,7 +56,7 @@ describe("duplicate values conditional formatting", () => {
   });
 
   afterAll(() => {
-    rmSync(outputDir, { recursive: true });
+    // rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
     rmSync(actualUnzippedDir, { recursive: true });
   });
@@ -156,6 +149,8 @@ describe("duplicate values conditional formatting", () => {
 
     // Differences due to the default font
     deletePropertyFromObject(expectedObj, "styleSheet.fonts");
+    // It should be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "styleSheet.dxfs");
     // Differences due to the default font
     deletePropertyFromObject(actualObj, "styleSheet.fonts");
 
@@ -219,6 +214,88 @@ describe("duplicate values conditional formatting", () => {
     actualRelationships.sort(sortById);
 
     expect(actualRelationships).toEqual(expectedRelationships);
+  });
+
+  test("drawing1.xml.rels", () => {
+    const expectedRelsPath = resolve(
+      expectedFileDir,
+      "xl/drawings/_rels/drawing1.xml.rels"
+    );
+    const expectedRels = readFileSync(expectedRelsPath, "utf8");
+    const actualRelsPath = resolve(
+      actualFileDir,
+      "xl/drawings/_rels/drawing1.xml.rels"
+    );
+    const actualRels = readFileSync(actualRelsPath, "utf8");
+
+    const expectedObj = parseXml(expectedRels);
+    const actualObj = parseXml(actualRels);
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("drawing1.xml", () => {
+    const expectedXmlPath = resolve(
+      expectedFileDir,
+      "xl/drawings/drawing1.xml"
+    );
+    const expectedXml = readFileSync(expectedXmlPath, "utf8");
+    const actualXmlPath = resolve(actualFileDir, "xl/drawings/drawing1.xml");
+    const actualXml = readFileSync(actualXmlPath, "utf8");
+
+    const expectedObj = parseXml(expectedXml);
+    const actualObj = parseXml(actualXml);
+
+    // expectedObj is twoCellAnchor, but replace it with oneCellAnchor for testing.
+    const body = expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"];
+    expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"] = body;
+
+    const ext =
+      expectedObj["xdr:wsDr"]["xdr:twoCellAnchor"]["xdr:pic"]["xdr:spPr"][
+        "a:xfrm"
+      ]["a:ext"];
+    expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"]["xdr:ext"] = ext;
+
+    deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:twoCellAnchor");
+
+    // Not required for oneCellAnchor
+    deletePropertyFromObject(expectedObj, "xdr:wsDr.xdr:oneCellAnchor.xdr:to");
+
+    // It should be a problem-free difference.
+    deletePropertyFromObject(
+      expectedObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
+    );
+    deletePropertyFromObject(
+      actualObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.@_name"
+    );
+
+    deletePropertyFromObject(
+      expectedObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.a:extLst.a:ext.a16:creationId.@_id"
+    );
+
+    deletePropertyFromObject(
+      actualObj,
+      "xdr:wsDr.xdr:oneCellAnchor.xdr:pic.xdr:nvPicPr.xdr:cNvPr.a:extLst.a:ext.a16:creationId.@_id"
+    );
+
+    expect(actualObj).toEqual(expectedObj);
+  });
+
+  test("media", () => {
+    const expectedFiles = listFiles(resolve(expectedFileDir, "xl/media"));
+    const actualFiles = listFiles(resolve(actualFileDir, "xl/media"));
+
+    const expectedSubPaths = expectedFiles.map((it) =>
+      removeBasePath(it, expectedFileDir)
+    );
+    const actualSubPaths = actualFiles.map((it) =>
+      removeBasePath(it, actualFileDir)
+    );
+
+    expect(actualSubPaths).toEqual(expectedSubPaths);
   });
 
   test("worksheets", () => {

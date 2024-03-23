@@ -184,6 +184,9 @@ export type WorksheetType = {
   setFreezePane(freezePane: FreezePane): void;
 };
 
+/**
+ * Standard Worksheet class
+ */
 export class Worksheet implements WorksheetType {
   private _name: string;
   private _props: RequiredWorksheetProps;
@@ -322,5 +325,135 @@ export class Worksheet implements WorksheetType {
   async insertImage(image: Omit<Image, "fileBasename">) {
     await this._imageStore.addImage(image.data, image.extension);
     this._imageModule.add(image);
+  }
+}
+
+/**
+ * Simplified Worksheet class
+ */
+export class WorksheetS implements WorksheetType {
+  private _name: string;
+  private _props: RequiredWorksheetProps;
+  private _sheetData: SheetData = [];
+  private _cols = new Map<number, ColProps>();
+  private _rows = new Map<number, RowProps>();
+  private _mergeCellsModule = null;
+  private _freezePane: FreezePane | null = null;
+  private _conditionalFormattingModule = null;
+
+  private _imageStore: ImageStore;
+  private _imageModule = null;
+
+  constructor(
+    name: string,
+    imageStore?: ImageStore,
+    props: WorksheetProps | undefined = {}
+  ) {
+    this._name = name;
+
+    this._props = {
+      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    };
+
+    this._imageStore = imageStore || new ImageStore();
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  get props() {
+    return this._props;
+  }
+
+  set sheetData(sheetData: SheetData) {
+    this._sheetData = sheetData;
+  }
+
+  get sheetData() {
+    return this._sheetData;
+  }
+
+  get cols() {
+    return this._cols;
+  }
+
+  get rows() {
+    return this._rows;
+  }
+
+  get mergeCells() {
+    return [];
+  }
+
+  get mergeCellsModule() {
+    return this._mergeCellsModule;
+  }
+
+  get freezePane() {
+    return this._freezePane;
+  }
+
+  get conditionalFormattings() {
+    return [];
+  }
+
+  get conditionalFormattingModule() {
+    return this._conditionalFormattingModule;
+  }
+
+  get images() {
+    return [];
+  }
+
+  get imageModule() {
+    return this._imageModule;
+  }
+
+  get imageStore() {
+    return this._imageStore;
+  }
+
+  getCell(rowIndex: number, colIndex: number): NullableCell {
+    const rows = this._sheetData[rowIndex];
+    if (!rows) {
+      return null;
+    }
+
+    return rows[colIndex] || null;
+  }
+
+  // TODO: Cells that have been merged cannot be set.
+  setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
+    if (!this._sheetData[rowIndex]) {
+      const diff = rowIndex - this._sheetData.length + 1;
+      for (let i = 0; i < diff; i++) {
+        this._sheetData.push([]);
+      }
+    }
+
+    const rows = this._sheetData[rowIndex]!;
+
+    if (!rows[colIndex]) {
+      const diff = colIndex - rows.length + 1;
+      for (let i = 0; i < diff; i++) {
+        rows.push(null);
+      }
+    }
+
+    rows[colIndex] = cell;
+  }
+
+  setColProps(colProps: ColProps) {
+    this._cols.set(colProps.index, colProps);
+  }
+
+  setRowProps(row: RowProps) {
+    this._rows.set(row.index, row);
+  }
+
+  setFreezePane(freezePane: FreezePane) {
+    this._freezePane = freezePane;
   }
 }

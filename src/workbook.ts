@@ -42,14 +42,13 @@ export class Workbook {
  */
 export class WorkbookS {
   private _worksheets: WorksheetType[] = [];
-  private _imageStore: ImageStore = new ImageStore();
 
   addWorksheet(sheetName: string, props?: WorksheetProps) {
     if (this._worksheets.some((ws) => ws.name === sheetName)) {
       throw new Error(`Worksheet name "${sheetName}" is already used.`);
     }
 
-    const ws = new WorksheetS(sheetName, this._imageStore, props);
+    const ws = new WorksheetS(sheetName, props);
     this._worksheets.push(ws);
     return ws;
   }
@@ -59,10 +58,10 @@ export class WorkbookS {
   }
 
   generateXlsxSync() {
-    return genXlsxSync(this._worksheets, this._imageStore);
+    return genXlsxSync(this._worksheets, null);
   }
 
   generateXlsx() {
-    return genXlsx(this._worksheets, this._imageStore);
+    return genXlsx(this._worksheets, null);
   }
 }

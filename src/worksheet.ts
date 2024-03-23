@@ -175,7 +175,7 @@ export type WorksheetType = {
   mergeCellsModule: MergeCellsModule | null;
   conditionalFormattingModule: ConditionalFormattingModule | null;
   images: Image[];
-  imageStore: ImageStore;
+  imageStore: ImageStore | null;
   imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
   setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
@@ -341,22 +341,16 @@ export class WorksheetS implements WorksheetType {
   private _freezePane: FreezePane | null = null;
   private _conditionalFormattingModule = null;
 
-  private _imageStore: ImageStore;
+  private _imageStore = null;
   private _imageModule = null;
 
-  constructor(
-    name: string,
-    imageStore?: ImageStore,
-    props: WorksheetProps | undefined = {}
-  ) {
+  constructor(name: string, props: WorksheetProps | undefined = {}) {
     this._name = name;
 
     this._props = {
       defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
       defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
-
-    this._imageStore = imageStore || new ImageStore();
   }
 
   get name() {

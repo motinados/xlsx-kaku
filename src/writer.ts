@@ -9,7 +9,7 @@ import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
 import { Hyperlinks } from "./hyperlinks";
 import { WorksheetRels } from "./worksheetRels";
-import { Worksheet } from "./worksheet";
+import { WorksheetType } from "./worksheet";
 import { strToU8, zip, zipSync } from "fflate";
 import { makeWorksheetXml } from "./xml/worksheetXml";
 import { makeAppXml } from "./xml/appXml";
@@ -43,12 +43,18 @@ export type StyleMappers = {
   worksheetRels: WorksheetRels;
 };
 
-export function genXlsx(worksheets: Worksheet[], imageStore: ImageStore) {
+export function genXlsx(
+  worksheets: WorksheetType[],
+  imageStore: ImageStore | null
+) {
   const files = generateXMLs(worksheets, imageStore);
   return compressXMLs(files);
 }
 
-export function genXlsxSync(worksheets: Worksheet[], imageStore: ImageStore) {
+export function genXlsxSync(
+  worksheets: WorksheetType[],
+  imageStore: ImageStore | null
+) {
   const files = generateXMLs(worksheets, imageStore);
   return compressXMLsSync(files);
 }
@@ -90,7 +96,10 @@ function compressXMLsSync(files: CompressibleFile[]) {
   return zipSync(data);
 }
 
-function generateXMLs(worksheets: Worksheet[], imageStore: ImageStore) {
+function generateXMLs(
+  worksheets: WorksheetType[],
+  imageStore: ImageStore | null
+) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -156,19 +165,21 @@ function generateXMLs(worksheets: Worksheet[], imageStore: ImageStore) {
     });
   }
 
-  const images = imageStore.getAllImages();
+  if (imageStore !== null) {
+    const images = imageStore.getAllImages();
 
-  for (const [_, value] of images) {
-    files.push({
-      filename: `xl/media/${value.fileBasename}.${value.extension}`,
-      content: value.data,
-    });
+    for (const [_, value] of images) {
+      files.push({
+        filename: `xl/media/${value.fileBasename}.${value.extension}`,
+        content: value.data,
+      });
+    }
   }
 
   return files;
 }
 
-function createExcelFiles(worksheets: Worksheet[]) {
+function createExcelFiles(worksheets: WorksheetType[]) {
   if (worksheets.length === 0) {
     throw new Error("worksheets is empty");
   }
@@ -209,8 +220,9 @@ function createExcelFiles(worksheets: Worksheet[]) {
       drawingRelsList.push(drawingRelsXml);
     }
 
-    if (xlsxImages.length > 0) {
-      const drawingXml = makeDrawingXml(xlsxImages);
+    if (worksheet.imageModule && xlsxImages.length > 0) {
+      const drawingImageElm = worksheet.imageModule.makeXmlElm(xlsxImages);
+      const drawingXml = makeDrawingXml(drawingImageElm);
       drawingXmlList.push(drawingXml);
     }
 

@@ -1,7 +1,12 @@
+import {
+  ConditionalFormattingModule,
+  conditionalFormattingModule,
+} from "./conditionalFormattingModule";
 import { DxfStyle } from "./dxf";
+import { ImageModule, imageModule } from "./imageModule";
 import { ImageStore } from "./imageStore";
+import { MergeCellsModule, mergeCellsModule } from "./mergeCellsModule";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
-import { expandRange } from "./utils";
 
 /**
  * The value is the same as the one in files created with Online Excel.
@@ -161,17 +166,42 @@ export type WorksheetProps = {
 
 type RequiredWorksheetProps = Required<WorksheetProps>;
 
-export class Worksheet {
+export type WorksheetType = {
+  name: string;
+  props: RequiredWorksheetProps;
+  sheetData: SheetData;
+  cols: Map<number, ColProps>;
+  rows: Map<number, RowProps>;
+  mergeCells: MergeCell[];
+  freezePane: FreezePane | null;
+  mergeCellsModule: MergeCellsModule | null;
+  conditionalFormattingModule: ConditionalFormattingModule | null;
+  images: Image[];
+  imageStore: ImageStore | null;
+  imageModule: ImageModule | null;
+  getCell(rowIndex: number, colIndex: number): NullableCell;
+  setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
+  setColProps(col: ColProps): void;
+  setRowProps(row: RowProps): void;
+  setFreezePane(freezePane: FreezePane): void;
+};
+
+/**
+ * Standard Worksheet class
+ */
+export class Worksheet implements WorksheetType {
   private _name: string;
   private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
   private _cols = new Map<number, ColProps>();
   private _rows = new Map<number, RowProps>();
-  private _mergeCells: MergeCell[] = [];
+  private _mergeCellsModule: MergeCellsModule = mergeCellsModule();
   private _freezePane: FreezePane | null = null;
-  private _conditionalFormattings: ConditionalFormatting[] = [];
-  private _images: Image[] = [];
+  private _conditionalFormattingModule: ConditionalFormattingModule =
+    conditionalFormattingModule();
+
   private _imageStore: ImageStore;
+  private _imageModule: ImageModule = imageModule();
 
   constructor(
     name: string,
@@ -213,7 +243,11 @@ export class Worksheet {
   }
 
   get mergeCells() {
-    return this._mergeCells;
+    return this._mergeCellsModule.getMergeCells();
+  }
+
+  get mergeCellsModule() {
+    return this._mergeCellsModule;
   }
 
   get freezePane() {
@@ -221,18 +255,26 @@ export class Worksheet {
   }
 
   get conditionalFormattings() {
-    return this._conditionalFormattings;
+    return this._conditionalFormattingModule.getConditionalFormattings();
+  }
+
+  get conditionalFormattingModule() {
+    return this._conditionalFormattingModule;
   }
 
   get images() {
-    return this._images;
+    return this._imageModule.getImages();
+  }
+
+  get imageModule() {
+    return this._imageModule;
   }
 
   get imageStore() {
     return this._imageStore;
   }
 
-  private getCell(rowIndex: number, colIndex: number): NullableCell {
+  getCell(rowIndex: number, colIndex: number): NullableCell {
     const rows = this._sheetData[rowIndex];
     if (!rows) {
       return null;
@@ -271,26 +313,7 @@ export class Worksheet {
   }
 
   setMergeCell(mergeCell: MergeCell) {
-    // Within the range to be merged, cells are set with the type of "merged".
-    const addresses = expandRange(mergeCell.ref);
-    for (let i = 0; i < addresses.length; i++) {
-      const address = addresses[i];
-      if (address) {
-        const [colIndex, rowIndex] = address;
-
-        // If the cell is not set, set it as empty string.
-        if (i === 0) {
-          const cell = this.getCell(rowIndex, colIndex);
-          if (!cell) {
-            this.setCell(rowIndex, colIndex, { type: "string", value: "" });
-          }
-        } else {
-          this.setCell(rowIndex, colIndex, { type: "merged" });
-        }
-      }
-    }
-
-    this._mergeCells.push(mergeCell);
+    this.mergeCellsModule.add(this, mergeCell);
   }
 
   setFreezePane(freezePane: FreezePane) {
@@ -298,11 +321,135 @@ export class Worksheet {
   }
 
   setConditionalFormatting(conditionalFormatting: ConditionalFormatting) {
-    this._conditionalFormattings.push(conditionalFormatting);
+    this._conditionalFormattingModule.add(conditionalFormatting);
   }
 
   async insertImage(image: Omit<Image, "fileBasename">) {
     await this._imageStore.addImage(image.data, image.extension);
-    this._images.push(image);
+    this._imageModule.add(image);
+  }
+}
+
+/**
+ * Simplified Worksheet class
+ */
+export class WorksheetS implements WorksheetType {
+  private _name: string;
+  private _props: RequiredWorksheetProps;
+  private _sheetData: SheetData = [];
+  private _cols = new Map<number, ColProps>();
+  private _rows = new Map<number, RowProps>();
+  private _mergeCellsModule = null;
+  private _freezePane: FreezePane | null = null;
+  private _conditionalFormattingModule = null;
+
+  private _imageStore = null;
+  private _imageModule = null;
+
+  constructor(name: string, props: WorksheetProps | undefined = {}) {
+    this._name = name;
+
+    this._props = {
+      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    };
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  get props() {
+    return this._props;
+  }
+
+  set sheetData(sheetData: SheetData) {
+    this._sheetData = sheetData;
+  }
+
+  get sheetData() {
+    return this._sheetData;
+  }
+
+  get cols() {
+    return this._cols;
+  }
+
+  get rows() {
+    return this._rows;
+  }
+
+  get mergeCells() {
+    return [];
+  }
+
+  get mergeCellsModule() {
+    return this._mergeCellsModule;
+  }
+
+  get freezePane() {
+    return this._freezePane;
+  }
+
+  get conditionalFormattings() {
+    return [];
+  }
+
+  get conditionalFormattingModule() {
+    return this._conditionalFormattingModule;
+  }
+
+  get images() {
+    return [];
+  }
+
+  get imageModule() {
+    return this._imageModule;
+  }
+
+  get imageStore() {
+    return this._imageStore;
+  }
+
+  getCell(rowIndex: number, colIndex: number): NullableCell {
+    const rows = this._sheetData[rowIndex];
+    if (!rows) {
+      return null;
+    }
+
+    return rows[colIndex] || null;
+  }
+
+  // TODO: Cells that have been merged cannot be set.
+  setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
+    if (!this._sheetData[rowIndex]) {
+      const diff = rowIndex - this._sheetData.length + 1;
+      for (let i = 0; i < diff; i++) {
+        this._sheetData.push([]);
+      }
+    }
+
+    const rows = this._sheetData[rowIndex]!;
+
+    if (!rows[colIndex]) {
+      const diff = colIndex - rows.length + 1;
+      for (let i = 0; i < diff; i++) {
+        rows.push(null);
+      }
+    }
+
+    rows[colIndex] = cell;
+  }
+
+  setColProps(colProps: ColProps) {
+    this._cols.set(colProps.index, colProps);
+  }
+
+  setRowProps(row: RowProps) {
+    this._rows.set(row.index, row);
+  }
+
+  setFreezePane(freezePane: FreezePane) {
+    this._freezePane = freezePane;
   }
 }

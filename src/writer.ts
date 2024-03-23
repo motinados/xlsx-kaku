@@ -43,14 +43,17 @@ export type StyleMappers = {
   worksheetRels: WorksheetRels;
 };
 
-export function genXlsx(worksheets: WorksheetType[], imageStore: ImageStore) {
+export function genXlsx(
+  worksheets: WorksheetType[],
+  imageStore: ImageStore | null
+) {
   const files = generateXMLs(worksheets, imageStore);
   return compressXMLs(files);
 }
 
 export function genXlsxSync(
   worksheets: WorksheetType[],
-  imageStore: ImageStore
+  imageStore: ImageStore | null
 ) {
   const files = generateXMLs(worksheets, imageStore);
   return compressXMLsSync(files);
@@ -93,7 +96,10 @@ function compressXMLsSync(files: CompressibleFile[]) {
   return zipSync(data);
 }
 
-function generateXMLs(worksheets: WorksheetType[], imageStore: ImageStore) {
+function generateXMLs(
+  worksheets: WorksheetType[],
+  imageStore: ImageStore | null
+) {
   const {
     sharedStringsXml,
     workbookXml,
@@ -159,13 +165,15 @@ function generateXMLs(worksheets: WorksheetType[], imageStore: ImageStore) {
     });
   }
 
-  const images = imageStore.getAllImages();
+  if (imageStore !== null) {
+    const images = imageStore.getAllImages();
 
-  for (const [_, value] of images) {
-    files.push({
-      filename: `xl/media/${value.fileBasename}.${value.extension}`,
-      content: value.data,
-    });
+    for (const [_, value] of images) {
+      files.push({
+        filename: `xl/media/${value.fileBasename}.${value.extension}`,
+        content: value.data,
+      });
+    }
   }
 
   return files;

@@ -24,7 +24,7 @@ export function imageModule(): ImageModule {
     createXlsxImage(image: Image, drawingRels: DrawingRels): XlsxImage {
       const num = drawingRels.length + 1;
       const rId = drawingRels.addDrawingRel({
-        target: `../media/image${num}.png`,
+        target: `../media/image${num}.${image.extension}`,
         relationshipType:
           "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
       });

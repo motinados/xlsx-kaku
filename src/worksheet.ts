@@ -325,7 +325,7 @@ export class Worksheet implements WorksheetType {
     this._conditionalFormattingModule.add(conditionalFormatting);
   }
 
-  async insertImage(image: Omit<Image, "fileBasename">) {
+  async insertImage(image: Image) {
     await this._imageStore.addImage(image.data, image.extension);
     this._imageModule.add(image);
   }

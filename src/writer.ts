@@ -240,7 +240,7 @@ function createExcelFiles(worksheets: WorksheetType[]) {
   const imageExtensions = Array.from(
     new Set(
       worksheets.flatMap((worksheet) =>
-        worksheet.images.map((image) => image.extension)
+        worksheet.imageInfos.map((image) => image.extension)
       )
     )
   );

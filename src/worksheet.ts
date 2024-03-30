@@ -153,11 +153,12 @@ export type Image = {
   // In online Excel, when a bmp is inserted, it is converted a jpeg.
   // In online Excel, when a tiff is inserted, it is converted a png.
   extension: "png" | "jpeg" | "gif";
-  // FIXME: The data is also stored in the image store.
   data: Uint8Array;
   width: number;
   height: number;
 };
+
+export type ImageInfo = Omit<Image, "data">;
 
 export type WorksheetProps = {
   defaultColWidth?: number;
@@ -176,7 +177,7 @@ export type WorksheetType = {
   freezePane: FreezePane | null;
   mergeCellsModule: MergeCellsModule | null;
   conditionalFormattingModule: ConditionalFormattingModule | null;
-  images: Image[];
+  imageInfos: ImageInfo[];
   imageStore: ImageStore | null;
   imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
@@ -262,8 +263,8 @@ export class Worksheet implements WorksheetType {
     return this._conditionalFormattingModule;
   }
 
-  get images() {
-    return this._imageModule.getImages();
+  get imageInfos() {
+    return this._imageModule.getImageInfos();
   }
 
   get imageModule() {
@@ -399,7 +400,7 @@ export class WorksheetS implements WorksheetType {
     return this._conditionalFormattingModule;
   }
 
-  get images() {
+  get imageInfos() {
     return [];
   }
 

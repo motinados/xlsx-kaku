@@ -1,27 +1,34 @@
 import { v4 as uuidv4 } from "uuid";
 import { DrawingRels } from "./drawingRels";
-import { Image } from "./worksheet";
 import { XlsxImage } from "./xml/worksheetXml";
+import { ImageInfo } from "./worksheet";
 
 export type ImageModule = {
   name: string;
-  add(image: Image): void;
-  getImages(): Image[];
-  createXlsxImage(image: Image, drawingRels: DrawingRels): XlsxImage;
+  add(image: ImageInfo): void;
+  getImageInfos(): ImageInfo[];
+  createXlsxImage(image: ImageInfo, drawingRels: DrawingRels): XlsxImage;
   makeXmlElm(xlsxImages: XlsxImage[]): string;
 };
 
 export function imageModule(): ImageModule {
-  const images: Image[] = [];
+  // imageModule does not store image data.
+  const imageInfos: ImageInfo[] = [];
   return {
     name: "image",
-    add(image: Image) {
-      images.push(image);
+    add(image: ImageInfo) {
+      imageInfos.push({
+        displayName: image.displayName,
+        extension: image.extension,
+        from: image.from,
+        width: image.width,
+        height: image.height,
+      });
     },
-    getImages() {
-      return images;
+    getImageInfos() {
+      return imageInfos;
     },
-    createXlsxImage(image: Image, drawingRels: DrawingRels): XlsxImage {
+    createXlsxImage(image: ImageInfo, drawingRels: DrawingRels): XlsxImage {
       const num = drawingRels.length + 1;
       const rId = drawingRels.addDrawingRel({
         target: `../media/image${num}.${image.extension}`,

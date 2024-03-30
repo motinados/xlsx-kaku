@@ -1,11 +1,11 @@
 import { Worksheet } from "../src";
 
 describe("row", () => {
-  test("setRowProps", () => {
+  test("setRowOpts", () => {
     const ws = new Worksheet("Sheet1");
 
-    ws.setRowProps({ index: 0, height: 10 });
-    expect(ws.rows).toStrictEqual(
+    ws.setRowOpts({ index: 0, height: 10 });
+    expect(ws.rowOptsMap).toStrictEqual(
       new Map([
         [
           0,
@@ -17,8 +17,8 @@ describe("row", () => {
       ])
     );
 
-    ws.setRowProps({ index: 1, height: 20 });
-    expect(ws.rows).toStrictEqual(
+    ws.setRowOpts({ index: 1, height: 20 });
+    expect(ws.rowOptsMap).toStrictEqual(
       new Map([
         [
           0,
@@ -37,12 +37,12 @@ describe("row", () => {
       ])
     );
 
-    // setRowProps overwrite existing props
-    ws.setRowProps({
+    // setRowOpts overwrite existing props
+    ws.setRowOpts({
       index: 0,
       style: { alignment: { horizontal: "center" } },
     });
-    expect(ws.rows).toStrictEqual(
+    expect(ws.rowOptsMap).toStrictEqual(
       new Map([
         [
           0,
@@ -61,8 +61,8 @@ describe("row", () => {
       ])
     );
 
-    ws.setRowProps({ index: 1, style: { alignment: { vertical: "top" } } });
-    expect(ws.rows).toStrictEqual(
+    ws.setRowOpts({ index: 1, style: { alignment: { vertical: "top" } } });
+    expect(ws.rowOptsMap).toStrictEqual(
       new Map([
         [
           0,

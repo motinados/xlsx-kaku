@@ -9,7 +9,7 @@ import {
   ColOpts,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
-  RowProps,
+  RowOpts,
 } from "../worksheet";
 import { Dxf } from "../dxf";
 import { DrawingRels } from "../drawingRels";
@@ -266,8 +266,8 @@ export function makeWorksheetXml(
   }
 
   const xlsxRows = new Map<number, XlsxRow>();
-  for (const row of worksheet.rows.values()) {
-    const xlsxRow = createXlsxRowFromRowProps(row, styleMappers);
+  for (const row of worksheet.rowOptsMap.values()) {
+    const xlsxRow = createXlsxRow(row, styleMappers);
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
 
@@ -417,13 +417,13 @@ export function composeXlsxCellStyle(
   return null;
 }
 
-export function createXlsxRowFromRowProps(
-  row: RowProps,
+export function createXlsxRow(
+  rowOpts: RowOpts,
   styleMappers: StyleMappers
 ): XlsxRow {
   let cellXfId: number | null = null;
-  if (row.style) {
-    const style = composeXlsxCellStyle(row.style, styleMappers);
+  if (rowOpts.style) {
+    const style = composeXlsxCellStyle(rowOpts.style, styleMappers);
     if (style === null) {
       throw new Error("style is null");
     }
@@ -431,9 +431,10 @@ export function createXlsxRowFromRowProps(
   }
 
   return {
-    index: row.index,
-    height: row.height ?? DEFAULT_ROW_HEIGHT,
-    customHeight: row.height !== undefined && row.height !== DEFAULT_ROW_HEIGHT,
+    index: rowOpts.index,
+    height: rowOpts.height ?? DEFAULT_ROW_HEIGHT,
+    customHeight:
+      rowOpts.height !== undefined && rowOpts.height !== DEFAULT_ROW_HEIGHT,
     cellXfId: cellXfId,
   };
 }

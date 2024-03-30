@@ -4,7 +4,7 @@ import {
   convertCellToXlsxCell,
   convertIsoStringToSerialValue,
   createXlsxCol,
-  createXlsxRowFromRowProps,
+  createXlsxRow,
   findFirstNonNullCell,
   findLastNonNullCell,
   getDimension,
@@ -254,10 +254,7 @@ describe("Writer", () => {
   test("makeRowXml with height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
-    const xlsxRow = createXlsxRowFromRowProps(
-      { index: 0, height: 30 },
-      styleMappers
-    );
+    const xlsxRow = createXlsxRow({ index: 0, height: 30 }, styleMappers);
     const result = makeRowElm(
       row,
       0,
@@ -275,7 +272,7 @@ describe("Writer", () => {
   test("makeRowXml with style", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
-    const xlsxRow = createXlsxRowFromRowProps(
+    const xlsxRow = createXlsxRow(
       { index: 0, style: { alignment: { horizontal: "center" } } },
       styleMappers
     );
@@ -296,7 +293,7 @@ describe("Writer", () => {
   test("makeRowXml with style and height", () => {
     const styleMappers = getStyleMappers();
     const row: RowData = [{ type: "number", value: 10 }];
-    const xlsxRow = createXlsxRowFromRowProps(
+    const xlsxRow = createXlsxRow(
       {
         index: 0,
         height: 30,

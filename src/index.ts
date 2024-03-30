@@ -10,7 +10,7 @@ import {
   WorksheetS,
   MergeCell,
   FreezePane,
-  RowProps,
+  RowOpts,
   ConditionalFormatting,
 } from "./worksheet";
 import { genXlsx, genXlsxSync } from "./writer";
@@ -27,7 +27,7 @@ export {
   WorksheetS,
   MergeCell,
   FreezePane,
-  RowProps,
+  RowOpts,
   ConditionalFormatting,
 };
 export { genXlsx, genXlsxSync };

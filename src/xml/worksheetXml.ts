@@ -6,7 +6,7 @@ import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
 import {
-  ColProps,
+  ColOpts,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
   RowProps,
@@ -260,12 +260,8 @@ export function makeWorksheetXml(
   const sheetData = worksheet.sheetData;
 
   const xlsxCols = new Map<number, XlsxCol>();
-  for (const col of worksheet.cols.values()) {
-    const xlsxCol = createXlsxColFromColProps(
-      col,
-      styleMappers,
-      defaultColWidth
-    );
+  for (const col of worksheet.colOptsMap.values()) {
+    const xlsxCol = createXlsxCol(col, styleMappers, defaultColWidth);
     xlsxCols.set(xlsxCol.index, xlsxCol);
   }
 
@@ -375,14 +371,14 @@ export function makeWorksheetXml(
   };
 }
 
-export function createXlsxColFromColProps(
-  col: ColProps,
+export function createXlsxCol(
+  colOpts: ColOpts,
   mappers: StyleMappers,
   defaultWidth: number
 ): XlsxCol {
   let cellXfId: number | null = null;
-  if (col.style) {
-    const style = composeXlsxCellStyle(col.style, mappers);
+  if (colOpts.style) {
+    const style = composeXlsxCellStyle(colOpts.style, mappers);
     if (style === null) {
       throw new Error("style is null");
     }
@@ -390,9 +386,9 @@ export function createXlsxColFromColProps(
   }
 
   return {
-    index: col.index,
-    width: col.width ?? defaultWidth,
-    customWidth: col.width !== undefined && col.width !== defaultWidth,
+    index: colOpts.index,
+    width: colOpts.width ?? defaultWidth,
+    customWidth: colOpts.width !== undefined && colOpts.width !== defaultWidth,
     cellXfId: cellXfId,
   };
 }

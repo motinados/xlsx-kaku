@@ -152,7 +152,7 @@ import { Workbook } from "xlsx-kaku";
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
-ws.setColProps({
+ws.setColOpts({
   index: 0,
   width: 12,
   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },

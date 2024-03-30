@@ -15,7 +15,7 @@ import { CellStyle, NullableCell, SheetData } from "./sheetData";
 export const DEFAULT_COL_WIDTH = 9;
 export const DEFAULT_ROW_HEIGHT = 13.5;
 
-export type ColProps = {
+export type ColOpts = {
   index: number;
   width?: number;
   style?: CellStyle;
@@ -170,7 +170,7 @@ export type WorksheetType = {
   name: string;
   props: RequiredWorksheetProps;
   sheetData: SheetData;
-  cols: Map<number, ColProps>;
+  colOptsMap: Map<number, ColOpts>;
   rows: Map<number, RowProps>;
   mergeCells: MergeCell[];
   freezePane: FreezePane | null;
@@ -181,7 +181,7 @@ export type WorksheetType = {
   imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
   setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
-  setColProps(col: ColProps): void;
+  setColOpts(col: ColOpts): void;
   setRowProps(row: RowProps): void;
   setFreezePane(freezePane: FreezePane): void;
 };
@@ -193,7 +193,7 @@ export class Worksheet implements WorksheetType {
   private _name: string;
   private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
-  private _cols = new Map<number, ColProps>();
+  private _colOptsMap = new Map<number, ColOpts>();
   private _rows = new Map<number, RowProps>();
   private _mergeCellsModule: MergeCellsModule = mergeCellsModule();
   private _freezePane: FreezePane | null = null;
@@ -234,8 +234,8 @@ export class Worksheet implements WorksheetType {
     return this._sheetData;
   }
 
-  get cols() {
-    return this._cols;
+  get colOptsMap() {
+    return this._colOptsMap;
   }
 
   get rows() {
@@ -304,8 +304,8 @@ export class Worksheet implements WorksheetType {
     rows[colIndex] = cell;
   }
 
-  setColProps(colProps: ColProps) {
-    this._cols.set(colProps.index, colProps);
+  setColOpts(colOpts: ColOpts) {
+    this._colOptsMap.set(colOpts.index, colOpts);
   }
 
   setRowProps(row: RowProps) {
@@ -337,7 +337,7 @@ export class WorksheetS implements WorksheetType {
   private _name: string;
   private _props: RequiredWorksheetProps;
   private _sheetData: SheetData = [];
-  private _cols = new Map<number, ColProps>();
+  private _colOptsMap = new Map<number, ColOpts>();
   private _rows = new Map<number, RowProps>();
   private _mergeCellsModule = null;
   private _freezePane: FreezePane | null = null;
@@ -371,8 +371,8 @@ export class WorksheetS implements WorksheetType {
     return this._sheetData;
   }
 
-  get cols() {
-    return this._cols;
+  get colOptsMap() {
+    return this._colOptsMap;
   }
 
   get rows() {
@@ -441,8 +441,8 @@ export class WorksheetS implements WorksheetType {
     rows[colIndex] = cell;
   }
 
-  setColProps(colProps: ColProps) {
-    this._cols.set(colProps.index, colProps);
+  setColOpts(colOpts: ColOpts) {
+    this._colOptsMap.set(colOpts.index, colOpts);
   }
 
   setRowProps(row: RowProps) {

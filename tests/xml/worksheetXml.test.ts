@@ -3,7 +3,7 @@ import { SharedStrings } from "../../src/sharedStrings";
 import {
   convertCellToXlsxCell,
   convertIsoStringToSerialValue,
-  createXlsxColFromColProps,
+  createXlsxCol,
   createXlsxRowFromRowProps,
   findFirstNonNullCell,
   findLastNonNullCell,
@@ -31,7 +31,7 @@ import { CellStyles } from "../../src/cellStyles";
 import { Hyperlinks } from "../../src/hyperlinks";
 import { WorksheetRels } from "../../src/worksheetRels";
 import {
-  ColProps,
+  ColOpts,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
   FreezePane,
@@ -367,7 +367,7 @@ describe("Writer", () => {
 
   test("makeColsXml for width", () => {
     const styleMappers = getStyleMappers();
-    const cols: ColProps[] = [
+    const cols: ColOpts[] = [
       { index: 0, width: 10 },
       { index: 1, width: 75 },
       { index: 2, width: 25 },
@@ -380,7 +380,7 @@ describe("Writer", () => {
     cols.forEach((col) => {
       xlsxCols.set(
         col.index,
-        createXlsxColFromColProps(col, styleMappers, DEFAULT_COL_WIDTH)
+        createXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
@@ -391,13 +391,13 @@ describe("Writer", () => {
 
   test("makeColsXml for default width", () => {
     const styleMappers = getStyleMappers();
-    const cols: ColProps[] = [{ index: 0, width: DEFAULT_COL_WIDTH }];
+    const cols: ColOpts[] = [{ index: 0, width: DEFAULT_COL_WIDTH }];
 
     const xlsxCols = new Map<number, XlsxCol>();
     cols.forEach((col) => {
       xlsxCols.set(
         col.index,
-        createXlsxColFromColProps(col, styleMappers, DEFAULT_COL_WIDTH)
+        createXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);
@@ -410,7 +410,7 @@ describe("Writer", () => {
 
   test("makeColsXml for style", () => {
     const styleMappers = getStyleMappers();
-    const cols: ColProps[] = [
+    const cols: ColOpts[] = [
       {
         index: 0,
         style: { alignment: { horizontal: "center" } },
@@ -435,7 +435,7 @@ describe("Writer", () => {
     cols.forEach((col) => {
       xlsxCols.set(
         col.index,
-        createXlsxColFromColProps(col, styleMappers, DEFAULT_COL_WIDTH)
+        createXlsxCol(col, styleMappers, DEFAULT_COL_WIDTH)
       );
     });
     const groupedXlsxCols = groupXlsxCols(xlsxCols);

@@ -152,7 +152,7 @@ import { Workbook } from "xlsx-kaku";
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
-ws.setColProps({
+ws.setColOpts({
   index: 0,
   width: 12,
   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },
@@ -169,9 +169,9 @@ import { Workbook } from "xlsx-kaku";
 const wb = new Workbook();
 const ws = wb.addWorksheet("Sheet1");
 
-// Currently, RowProps do not work without a value in the cell.
+// Currently, RowOpts do not work without a value in the cell.
 ws.setCell(0, 0, { type: "number", value: 1 });
-ws.setRowProps({
+ws.setRowOpts({
   index: 0,
   height: 20,
   style: { fill: { patternType: "solid", fgColor: "FFFFFF00" } },

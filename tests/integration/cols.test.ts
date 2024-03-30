@@ -40,19 +40,19 @@ describe("cols", () => {
     ws.setCell(0, 4, { type: "number", value: 5 });
     ws.setCell(0, 5, { type: "number", value: 6 });
 
-    ws.setColProps({
+    ws.setColOpts({
       index: 1,
       width: 25.625,
     });
-    ws.setColProps({
+    ws.setColOpts({
       index: 2,
       width: 6.625,
     });
-    ws.setColProps({
+    ws.setColOpts({
       index: 3,
       width: 6.625,
     });
-    ws.setColProps({
+    ws.setColOpts({
       index: 4,
       width: 6.625,
     });

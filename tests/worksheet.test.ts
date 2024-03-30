@@ -16,9 +16,9 @@ describe("worksheet", () => {
     expect(ws.name).toBe("Sheet1");
   });
 
-  test("get props", () => {
+  test("get opts", () => {
     const ws = new Worksheet("Sheet1");
-    expect(ws.props).toStrictEqual({
+    expect(ws.opts).toStrictEqual({
       defaultColWidth: DEFAULT_COL_WIDTH,
       defaultRowHeight: DEFAULT_ROW_HEIGHT,
     });
@@ -26,7 +26,7 @@ describe("worksheet", () => {
     const ws2 = new Worksheet("Sheet2", new ImageStore(), {
       defaultColWidth: 10,
     });
-    expect(ws2.props).toStrictEqual({
+    expect(ws2.opts).toStrictEqual({
       defaultColWidth: 10,
       defaultRowHeight: DEFAULT_ROW_HEIGHT,
     });

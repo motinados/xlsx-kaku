@@ -1,7 +1,7 @@
 import { genXlsx, genXlsxSync } from "./writer";
 import {
   Worksheet,
-  WorksheetProps,
+  WorksheetOpts,
   WorksheetS,
   WorksheetType,
 } from "./worksheet";
@@ -14,12 +14,12 @@ export class Workbook {
   private _worksheets: WorksheetType[] = [];
   private _imageStore: ImageStore = new ImageStore();
 
-  addWorksheet(sheetName: string, props?: WorksheetProps) {
+  addWorksheet(sheetName: string, opts?: WorksheetOpts) {
     if (this._worksheets.some((ws) => ws.name === sheetName)) {
       throw new Error(`Worksheet name "${sheetName}" is already used.`);
     }
 
-    const ws = new Worksheet(sheetName, this._imageStore, props);
+    const ws = new Worksheet(sheetName, this._imageStore, opts);
     this._worksheets.push(ws);
     return ws;
   }
@@ -43,12 +43,12 @@ export class Workbook {
 export class WorkbookS {
   private _worksheets: WorksheetType[] = [];
 
-  addWorksheet(sheetName: string, props?: WorksheetProps) {
+  addWorksheet(sheetName: string, opts?: WorksheetOpts) {
     if (this._worksheets.some((ws) => ws.name === sheetName)) {
       throw new Error(`Worksheet name "${sheetName}" is already used.`);
     }
 
-    const ws = new WorksheetS(sheetName, props);
+    const ws = new WorksheetS(sheetName, opts);
     this._worksheets.push(ws);
     return ws;
   }

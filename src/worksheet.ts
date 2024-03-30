@@ -15,13 +15,13 @@ import { CellStyle, NullableCell, SheetData } from "./sheetData";
 export const DEFAULT_COL_WIDTH = 9;
 export const DEFAULT_ROW_HEIGHT = 13.5;
 
-export type ColProps = {
+export type ColOpts = {
   index: number;
   width?: number;
   style?: CellStyle;
 };
 
-export type RowProps = {
+export type RowOpts = {
   index: number;
   height?: number;
   style?: CellStyle;
@@ -159,19 +159,19 @@ export type Image = {
 
 export type ImageInfo = Omit<Image, "data">;
 
-export type WorksheetProps = {
+export type WorksheetOpts = {
   defaultColWidth?: number;
   defaultRowHeight?: number;
 };
 
-type RequiredWorksheetProps = Required<WorksheetProps>;
+type RequiredWorksheetOpts = Required<WorksheetOpts>;
 
 export type WorksheetType = {
   name: string;
-  props: RequiredWorksheetProps;
+  opts: RequiredWorksheetOpts;
   sheetData: SheetData;
-  cols: Map<number, ColProps>;
-  rows: Map<number, RowProps>;
+  colOptsMap: Map<number, ColOpts>;
+  rowOptsMap: Map<number, RowOpts>;
   mergeCells: MergeCell[];
   freezePane: FreezePane | null;
   mergeCellsModule: MergeCellsModule | null;
@@ -181,8 +181,8 @@ export type WorksheetType = {
   imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
   setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
-  setColProps(col: ColProps): void;
-  setRowProps(row: RowProps): void;
+  setColOpts(col: ColOpts): void;
+  setRowOpts(row: RowOpts): void;
   setFreezePane(freezePane: FreezePane): void;
 };
 
@@ -191,10 +191,10 @@ export type WorksheetType = {
  */
 export class Worksheet implements WorksheetType {
   private _name: string;
-  private _props: RequiredWorksheetProps;
+  private _opts: RequiredWorksheetOpts;
   private _sheetData: SheetData = [];
-  private _cols = new Map<number, ColProps>();
-  private _rows = new Map<number, RowProps>();
+  private _colOptsMap = new Map<number, ColOpts>();
+  private _rowOptsMap = new Map<number, RowOpts>();
   private _mergeCellsModule: MergeCellsModule = mergeCellsModule();
   private _freezePane: FreezePane | null = null;
   private _conditionalFormattingModule: ConditionalFormattingModule =
@@ -206,13 +206,13 @@ export class Worksheet implements WorksheetType {
   constructor(
     name: string,
     imageStore?: ImageStore,
-    props: WorksheetProps | undefined = {}
+    opts: WorksheetOpts | undefined = {}
   ) {
     this._name = name;
 
-    this._props = {
-      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
-      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    this._opts = {
+      defaultColWidth: opts.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: opts.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
 
     this._imageStore = imageStore || new ImageStore();
@@ -222,8 +222,8 @@ export class Worksheet implements WorksheetType {
     return this._name;
   }
 
-  get props() {
-    return this._props;
+  get opts() {
+    return this._opts;
   }
 
   set sheetData(sheetData: SheetData) {
@@ -234,12 +234,12 @@ export class Worksheet implements WorksheetType {
     return this._sheetData;
   }
 
-  get cols() {
-    return this._cols;
+  get colOptsMap() {
+    return this._colOptsMap;
   }
 
-  get rows() {
-    return this._rows;
+  get rowOptsMap() {
+    return this._rowOptsMap;
   }
 
   get mergeCells() {
@@ -304,12 +304,12 @@ export class Worksheet implements WorksheetType {
     rows[colIndex] = cell;
   }
 
-  setColProps(colProps: ColProps) {
-    this._cols.set(colProps.index, colProps);
+  setColOpts(colOpts: ColOpts) {
+    this._colOptsMap.set(colOpts.index, colOpts);
   }
 
-  setRowProps(row: RowProps) {
-    this._rows.set(row.index, row);
+  setRowOpts(rowOpts: RowOpts) {
+    this._rowOptsMap.set(rowOpts.index, rowOpts);
   }
 
   setMergeCell(mergeCell: MergeCell) {
@@ -335,10 +335,10 @@ export class Worksheet implements WorksheetType {
  */
 export class WorksheetS implements WorksheetType {
   private _name: string;
-  private _props: RequiredWorksheetProps;
+  private _opts: RequiredWorksheetOpts;
   private _sheetData: SheetData = [];
-  private _cols = new Map<number, ColProps>();
-  private _rows = new Map<number, RowProps>();
+  private _colOptsMap = new Map<number, ColOpts>();
+  private _rowOptsMap = new Map<number, RowOpts>();
   private _mergeCellsModule = null;
   private _freezePane: FreezePane | null = null;
   private _conditionalFormattingModule = null;
@@ -346,12 +346,12 @@ export class WorksheetS implements WorksheetType {
   private _imageStore = null;
   private _imageModule = null;
 
-  constructor(name: string, props: WorksheetProps | undefined = {}) {
+  constructor(name: string, opts: WorksheetOpts | undefined = {}) {
     this._name = name;
 
-    this._props = {
-      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
-      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    this._opts = {
+      defaultColWidth: opts.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: opts.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
   }
 
@@ -359,8 +359,8 @@ export class WorksheetS implements WorksheetType {
     return this._name;
   }
 
-  get props() {
-    return this._props;
+  get opts() {
+    return this._opts;
   }
 
   set sheetData(sheetData: SheetData) {
@@ -371,12 +371,12 @@ export class WorksheetS implements WorksheetType {
     return this._sheetData;
   }
 
-  get cols() {
-    return this._cols;
+  get colOptsMap() {
+    return this._colOptsMap;
   }
 
-  get rows() {
-    return this._rows;
+  get rowOptsMap() {
+    return this._rowOptsMap;
   }
 
   get mergeCells() {
@@ -441,12 +441,12 @@ export class WorksheetS implements WorksheetType {
     rows[colIndex] = cell;
   }
 
-  setColProps(colProps: ColProps) {
-    this._cols.set(colProps.index, colProps);
+  setColOpts(colOpts: ColOpts) {
+    this._colOptsMap.set(colOpts.index, colOpts);
   }
 
-  setRowProps(row: RowProps) {
-    this._rows.set(row.index, row);
+  setRowOpts(rowOpts: RowOpts) {
+    this._rowOptsMap.set(rowOpts.index, rowOpts);
   }
 
   setFreezePane(freezePane: FreezePane) {

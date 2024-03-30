@@ -279,7 +279,7 @@ describe("conditional formatting for date", () => {
 
     // FIXME: bgColors are different
     for (let i = 0; i < 10; i++) {
-      ws.setColProps({
+      ws.setColOpts({
         index: i,
         width: 11,
       });

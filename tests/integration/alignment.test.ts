@@ -101,10 +101,10 @@ describe("alignment", () => {
       },
     });
 
-    ws.setRowProps({ index: 0, height: 39.75 });
-    ws.setRowProps({ index: 1, height: 39.75 });
-    ws.setRowProps({ index: 2, height: 39.75 });
-    ws.setRowProps({ index: 3, height: 39.75 });
+    ws.setRowOpts({ index: 0, height: 39.75 });
+    ws.setRowOpts({ index: 1, height: 39.75 });
+    ws.setRowOpts({ index: 2, height: 39.75 });
+    ws.setRowOpts({ index: 3, height: 39.75 });
 
     const xlsx = await wb.generateXlsx();
     writeFile(actualXlsxPath, xlsx);

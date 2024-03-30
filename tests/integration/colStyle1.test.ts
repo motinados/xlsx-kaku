@@ -34,13 +34,13 @@ describe("col style with cell value", () => {
     const wb = new Workbook();
     const ws = wb.addWorksheet("Sheet1");
 
-    ws.setColProps({
+    ws.setColOpts({
       index: 0,
       style: {
         fill: { patternType: "solid", fgColor: "FFFFFF00" },
       },
     });
-    ws.setColProps({
+    ws.setColOpts({
       index: 2,
       style: {
         fill: { patternType: "solid", fgColor: "FFFF0000" },

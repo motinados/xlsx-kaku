@@ -5,12 +5,12 @@ import { NumberFormat } from "./numberFormats";
 import { Cell, NullableCell, RowData, SheetData } from "./sheetData";
 import { Workbook, WorkbookS } from "./workbook";
 import {
-  ColProps,
+  ColOpts,
   Worksheet,
   WorksheetS,
   MergeCell,
   FreezePane,
-  RowProps,
+  RowOpts,
   ConditionalFormatting,
 } from "./worksheet";
 import { genXlsx, genXlsxSync } from "./writer";
@@ -22,12 +22,12 @@ export { NumberFormat };
 export { Cell, NullableCell, RowData, SheetData };
 export { Workbook, WorkbookS };
 export {
-  ColProps,
+  ColOpts,
   Worksheet,
   WorksheetS,
   MergeCell,
   FreezePane,
-  RowProps,
+  RowOpts,
   ConditionalFormatting,
 };
 export { genXlsx, genXlsxSync };

@@ -6,10 +6,10 @@ import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
 import {
-  ColProps,
+  ColOpts,
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
-  RowProps,
+  RowOpts,
 } from "../worksheet";
 import { Dxf } from "../dxf";
 import { DrawingRels } from "../drawingRels";
@@ -255,23 +255,19 @@ export function makeWorksheetXml(
   styleMappers.worksheetRels.reset();
   drawingRels.reset();
 
-  const defaultColWidth = worksheet.props.defaultColWidth;
-  const defaultRowHeight = worksheet.props.defaultRowHeight;
+  const defaultColWidth = worksheet.opts.defaultColWidth;
+  const defaultRowHeight = worksheet.opts.defaultRowHeight;
   const sheetData = worksheet.sheetData;
 
   const xlsxCols = new Map<number, XlsxCol>();
-  for (const col of worksheet.cols.values()) {
-    const xlsxCol = createXlsxColFromColProps(
-      col,
-      styleMappers,
-      defaultColWidth
-    );
+  for (const col of worksheet.colOptsMap.values()) {
+    const xlsxCol = createXlsxCol(col, styleMappers, defaultColWidth);
     xlsxCols.set(xlsxCol.index, xlsxCol);
   }
 
   const xlsxRows = new Map<number, XlsxRow>();
-  for (const row of worksheet.rows.values()) {
-    const xlsxRow = createXlsxRowFromRowProps(row, styleMappers);
+  for (const row of worksheet.rowOptsMap.values()) {
+    const xlsxRow = createXlsxRow(row, styleMappers);
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
 
@@ -375,14 +371,14 @@ export function makeWorksheetXml(
   };
 }
 
-export function createXlsxColFromColProps(
-  col: ColProps,
+export function createXlsxCol(
+  colOpts: ColOpts,
   mappers: StyleMappers,
   defaultWidth: number
 ): XlsxCol {
   let cellXfId: number | null = null;
-  if (col.style) {
-    const style = composeXlsxCellStyle(col.style, mappers);
+  if (colOpts.style) {
+    const style = composeXlsxCellStyle(colOpts.style, mappers);
     if (style === null) {
       throw new Error("style is null");
     }
@@ -390,9 +386,9 @@ export function createXlsxColFromColProps(
   }
 
   return {
-    index: col.index,
-    width: col.width ?? defaultWidth,
-    customWidth: col.width !== undefined && col.width !== defaultWidth,
+    index: colOpts.index,
+    width: colOpts.width ?? defaultWidth,
+    customWidth: colOpts.width !== undefined && colOpts.width !== defaultWidth,
     cellXfId: cellXfId,
   };
 }
@@ -421,13 +417,13 @@ export function composeXlsxCellStyle(
   return null;
 }
 
-export function createXlsxRowFromRowProps(
-  row: RowProps,
+export function createXlsxRow(
+  rowOpts: RowOpts,
   styleMappers: StyleMappers
 ): XlsxRow {
   let cellXfId: number | null = null;
-  if (row.style) {
-    const style = composeXlsxCellStyle(row.style, styleMappers);
+  if (rowOpts.style) {
+    const style = composeXlsxCellStyle(rowOpts.style, styleMappers);
     if (style === null) {
       throw new Error("style is null");
     }
@@ -435,9 +431,10 @@ export function createXlsxRowFromRowProps(
   }
 
   return {
-    index: row.index,
-    height: row.height ?? DEFAULT_ROW_HEIGHT,
-    customHeight: row.height !== undefined && row.height !== DEFAULT_ROW_HEIGHT,
+    index: rowOpts.index,
+    height: rowOpts.height ?? DEFAULT_ROW_HEIGHT,
+    customHeight:
+      rowOpts.height !== undefined && rowOpts.height !== DEFAULT_ROW_HEIGHT,
     cellXfId: cellXfId,
   };
 }

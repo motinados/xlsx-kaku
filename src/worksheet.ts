@@ -149,7 +149,6 @@ export type Image = {
     col: number;
     row: number;
   };
-  // TODO: Support other image formats.
   // In online Excel, when a bmp is inserted, it is converted a jpeg.
   // In online Excel, when a tiff is inserted, it is converted a png.
   extension: "png" | "jpeg" | "gif";

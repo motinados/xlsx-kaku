@@ -295,7 +295,7 @@ export function makeWorksheetXml(
 
   const xlsxImages: XlsxImage[] = [];
   if (worksheet.imageModule) {
-    const images = worksheet.imageModule.getImages();
+    const images = worksheet.imageModule.getImageInfos();
     for (const image of images) {
       xlsxImages.push(
         worksheet.imageModule.createXlsxImage(image, drawingRels)

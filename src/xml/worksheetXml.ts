@@ -255,8 +255,8 @@ export function makeWorksheetXml(
   styleMappers.worksheetRels.reset();
   drawingRels.reset();
 
-  const defaultColWidth = worksheet.props.defaultColWidth;
-  const defaultRowHeight = worksheet.props.defaultRowHeight;
+  const defaultColWidth = worksheet.opts.defaultColWidth;
+  const defaultRowHeight = worksheet.opts.defaultRowHeight;
   const sheetData = worksheet.sheetData;
 
   const xlsxCols = new Map<number, XlsxCol>();

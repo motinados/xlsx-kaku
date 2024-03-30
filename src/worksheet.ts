@@ -159,16 +159,16 @@ export type Image = {
 
 export type ImageInfo = Omit<Image, "data">;
 
-export type WorksheetProps = {
+export type WorksheetOpts = {
   defaultColWidth?: number;
   defaultRowHeight?: number;
 };
 
-type RequiredWorksheetProps = Required<WorksheetProps>;
+type RequiredWorksheetOpts = Required<WorksheetOpts>;
 
 export type WorksheetType = {
   name: string;
-  props: RequiredWorksheetProps;
+  opts: RequiredWorksheetOpts;
   sheetData: SheetData;
   colOptsMap: Map<number, ColOpts>;
   rowOptsMap: Map<number, RowOpts>;
@@ -191,7 +191,7 @@ export type WorksheetType = {
  */
 export class Worksheet implements WorksheetType {
   private _name: string;
-  private _props: RequiredWorksheetProps;
+  private _opts: RequiredWorksheetOpts;
   private _sheetData: SheetData = [];
   private _colOptsMap = new Map<number, ColOpts>();
   private _rowOptsMap = new Map<number, RowOpts>();
@@ -206,13 +206,13 @@ export class Worksheet implements WorksheetType {
   constructor(
     name: string,
     imageStore?: ImageStore,
-    props: WorksheetProps | undefined = {}
+    opts: WorksheetOpts | undefined = {}
   ) {
     this._name = name;
 
-    this._props = {
-      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
-      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    this._opts = {
+      defaultColWidth: opts.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: opts.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
 
     this._imageStore = imageStore || new ImageStore();
@@ -222,8 +222,8 @@ export class Worksheet implements WorksheetType {
     return this._name;
   }
 
-  get props() {
-    return this._props;
+  get opts() {
+    return this._opts;
   }
 
   set sheetData(sheetData: SheetData) {
@@ -335,7 +335,7 @@ export class Worksheet implements WorksheetType {
  */
 export class WorksheetS implements WorksheetType {
   private _name: string;
-  private _props: RequiredWorksheetProps;
+  private _opts: RequiredWorksheetOpts;
   private _sheetData: SheetData = [];
   private _colOptsMap = new Map<number, ColOpts>();
   private _rowOptsMap = new Map<number, RowOpts>();
@@ -346,12 +346,12 @@ export class WorksheetS implements WorksheetType {
   private _imageStore = null;
   private _imageModule = null;
 
-  constructor(name: string, props: WorksheetProps | undefined = {}) {
+  constructor(name: string, opts: WorksheetOpts | undefined = {}) {
     this._name = name;
 
-    this._props = {
-      defaultColWidth: props.defaultColWidth ?? DEFAULT_COL_WIDTH,
-      defaultRowHeight: props.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
+    this._opts = {
+      defaultColWidth: opts.defaultColWidth ?? DEFAULT_COL_WIDTH,
+      defaultRowHeight: opts.defaultRowHeight ?? DEFAULT_ROW_HEIGHT,
     };
   }
 
@@ -359,8 +359,8 @@ export class WorksheetS implements WorksheetType {
     return this._name;
   }
 
-  get props() {
-    return this._props;
+  get opts() {
+    return this._opts;
   }
 
   set sheetData(sheetData: SheetData) {

@@ -37,7 +37,7 @@ describe("row", () => {
       ])
     );
 
-    // setRowOpts overwrite existing props
+    // setRowOpts overwrite existing opts
     ws.setRowOpts({
       index: 0,
       style: { alignment: { horizontal: "center" } },

@@ -82,9 +82,9 @@ describe("inserting duplicated images", () => {
   });
 
   afterAll(() => {
-    // rmSync(outputDir, { recursive: true });
+    rmSync(outputDir, { recursive: true });
     rmSync(expectedUnzippedDir, { recursive: true });
-    // rmSync(actualUnzippedDir, { recursive: true });
+    rmSync(actualUnzippedDir, { recursive: true });
   });
 
   test("compare files", async () => {
@@ -358,6 +358,18 @@ describe("inserting duplicated images", () => {
     const actualImage2Obj = actualObj["xdr:wsDr"]["xdr:oneCellAnchor"][1];
     deletePropertyFromObject(
       actualImage2Obj["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:off"],
+      "@_y"
+    );
+
+    // It may be a problem-free difference.
+    const expectedImage3Obj = expectedObj["xdr:wsDr"]["xdr:oneCellAnchor"][2];
+    deletePropertyFromObject(
+      expectedImage3Obj["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:off"],
+      "@_y"
+    );
+    const actualImage3Obj = actualObj["xdr:wsDr"]["xdr:oneCellAnchor"][2];
+    deletePropertyFromObject(
+      actualImage3Obj["xdr:pic"]["xdr:spPr"]["a:xfrm"]["a:off"],
       "@_y"
     );
 

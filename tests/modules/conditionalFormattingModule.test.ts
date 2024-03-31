@@ -1,5 +1,5 @@
-import { conditionalFormattingModule } from "../src/conditionalFormattingModule";
-import { XlsxConditionalFormatting } from "../src/xml/worksheetXml";
+import { conditionalFormattingModule } from "../../src/modules/conditionalFormattingModule";
+import { XlsxConditionalFormatting } from "../../src/xml/worksheetXml";
 
 describe("conditionalFormattingModule", () => {
   const module = conditionalFormattingModule();

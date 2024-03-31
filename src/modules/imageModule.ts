@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
-import { DrawingRels } from "./drawingRels";
-import { XlsxImage } from "./xml/worksheetXml";
-import { ImageInfo } from "./worksheet";
+import { DrawingRels } from "../drawingRels";
+import { XlsxImage } from "../xml/worksheetXml";
+import { ImageInfo } from "../worksheet";
 
 export type ImageModule = {
   name: string;

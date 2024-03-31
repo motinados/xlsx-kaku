@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { Dxf } from "./dxf";
-import { getFirstAddress } from "./utils";
-import { ConditionalFormatting } from "./worksheet";
-import { XlsxConditionalFormatting } from "./xml/worksheetXml";
+import { Dxf } from "../dxf";
+import { getFirstAddress } from "../utils";
+import { ConditionalFormatting } from "../worksheet";
+import { XlsxConditionalFormatting } from "../xml/worksheetXml";
 
 export type ConditionalFormattingModule = {
   name: string;

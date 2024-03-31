@@ -1,5 +1,5 @@
-import { Worksheet } from "../src";
-import { mergeCellsModule } from "../src/mergeCellsModule";
+import { Worksheet } from "../../src";
+import { mergeCellsModule } from "../../src/modules/mergeCellsModule";
 
 describe("mergeCellsModule", () => {
   test("getMergeCells", () => {

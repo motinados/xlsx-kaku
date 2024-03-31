@@ -23,6 +23,7 @@ export function imageModule(): ImageModule {
         from: image.from,
         width: image.width,
         height: image.height,
+        fileBasename: image.fileBasename,
       });
     },
     getImageInfos() {
@@ -31,7 +32,7 @@ export function imageModule(): ImageModule {
     createXlsxImage(image: ImageInfo, drawingRels: DrawingRels): XlsxImage {
       const num = drawingRels.length + 1;
       const rId = drawingRels.addDrawingRel({
-        target: `../media/image${num}.${image.extension}`,
+        target: `../media/${image.fileBasename}.${image.extension}`,
         relationshipType:
           "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image",
       });

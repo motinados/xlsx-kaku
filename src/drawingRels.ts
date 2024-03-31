@@ -22,6 +22,11 @@ export class DrawingRels {
     target: string;
     relationshipType: string;
   }): string {
+    const found = this._rels.find((rel) => rel.target === target);
+    if (found) {
+      return found.id;
+    }
+
     const id = "rId" + (this._rels.length + 1);
     const drawingRel: DrawingRel = {
       id,

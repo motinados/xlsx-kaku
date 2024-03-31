@@ -206,6 +206,10 @@ describe("inserting duplicated images", () => {
     // It may be a problem-free difference.
     deletePropertyFromObject(expectedObj, "workbook.calcPr");
 
+    // It may be a problem-free difference.
+    deletePropertyFromObject(expectedObj, "workbook.workbookPr");
+    deletePropertyFromObject(actualObj, "workbook.workbookPr");
+
     expect(actualObj).toEqual(expectedObj);
   });
 

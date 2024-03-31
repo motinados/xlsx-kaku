@@ -1,6 +1,6 @@
-import { MergeCell } from "./worksheet";
-import { expandRange } from "./utils";
-import { WorksheetType } from "./worksheet";
+import { MergeCell } from "../worksheet";
+import { expandRange } from "../utils";
+import { WorksheetType } from "../worksheet";
 
 export type MergeCellsModule = {
   name: string;

@@ -1,11 +1,11 @@
 import {
   ConditionalFormattingModule,
   conditionalFormattingModule,
-} from "./conditionalFormattingModule";
+} from "./modules/conditionalFormattingModule";
 import { DxfStyle } from "./dxf";
-import { ImageModule, imageModule } from "./imageModule";
+import { ImageModule, imageModule } from "./modules/imageModule";
 import { ImageStore } from "./imageStore";
-import { MergeCellsModule, mergeCellsModule } from "./mergeCellsModule";
+import { MergeCellsModule, mergeCellsModule } from "./modules/mergeCellsModule";
 import { CellStyle, NullableCell, SheetData } from "./sheetData";
 
 /**

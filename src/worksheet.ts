@@ -157,7 +157,7 @@ export type Image = {
   height: number;
 };
 
-export type ImageInfo = Omit<Image, "data">;
+export type ImageInfo = Omit<Image, "data"> & { fileBasename: string };
 
 export type WorksheetOpts = {
   defaultColWidth?: number;
@@ -325,8 +325,11 @@ export class Worksheet implements WorksheetType {
   }
 
   async insertImage(image: Image) {
-    await this._imageStore.addImage(image.data, image.extension);
-    this._imageModule.add(image);
+    const fileBasename = await this._imageStore.addImage(
+      image.data,
+      image.extension
+    );
+    this._imageModule.add({ ...image, fileBasename });
   }
 }
 

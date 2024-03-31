@@ -57,7 +57,7 @@ describe("inserting duplicated images", () => {
       data: image2,
       from: {
         col: 0,
-        row: 15,
+        row: 14,
       },
       width: 180,
       height: 180,
@@ -69,7 +69,7 @@ describe("inserting duplicated images", () => {
       data: image1,
       from: {
         col: 0,
-        row: 30,
+        row: 29,
       },
       width: 180,
       height: 180,

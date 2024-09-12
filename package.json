@@ -45,7 +45,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "fflate": "^0.8.1",
+    "fflate": "^0.8.2",
     "uuid": "^9.0.1"
   }
 }

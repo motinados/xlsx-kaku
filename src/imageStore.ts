@@ -40,12 +40,10 @@ export class ImageStore {
       return this._hashFn;
     }
 
-    if (this._initializationPromise) {
-      await this._initializationPromise;
-      return this._hashFn!;
+    if (!this._initializationPromise) {
+      this._initializationPromise = this.initHashFn();
     }
 
-    this._initializationPromise = this.initHashFn();
     await this._initializationPromise;
     return this._hashFn!;
   }

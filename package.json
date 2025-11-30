@@ -22,7 +22,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup ./src",
-    "test": "jest"
+    "test": "vitest"
   },
   "keywords": [
     "excel",
@@ -42,7 +42,8 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^4.0.14"
   },
   "dependencies": {
     "fflate": "^0.8.2",

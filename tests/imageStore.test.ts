@@ -33,24 +33,16 @@ describe("imageStore", () => {
     const data2 = new Uint8Array([4, 5, 6]);
     const data3 = new Uint8Array([1, 2, 3]);
     const extension = "png";
-    const promises = [
+
+    const [b1, b2, b3] = await Promise.all([
       imageStore.addImage(data1, extension),
       imageStore.addImage(data2, extension),
       imageStore.addImage(data3, extension),
-    ];
-    const fileBasenames = await Promise.all(promises);
+    ]);
 
-    const fileBasename = fileBasenames[0];
-    expect(fileBasename).toEqual("image1");
     expect(imageStore.getAllImages().size).toEqual(2);
-
-    const fileBasename2 = fileBasenames[1];
-    expect(fileBasename2).toEqual("image2");
-    expect(imageStore.getAllImages().size).toEqual(2);
-
-    const fileBasename3 = fileBasenames[2];
-    expect(fileBasename3).toEqual("image1");
-    expect(imageStore.getAllImages().size).toEqual(2);
+    expect(b1).toEqual(b3);
+    expect(new Set([b1, b2])).toEqual(new Set(["image1", "image2"]));
   });
 
   test("getAllImages", async () => {

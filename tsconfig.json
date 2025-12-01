@@ -10,7 +10,7 @@
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "outDir": "dist",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals", "node"]
   },
   "include": ["src", "tests"]
 }

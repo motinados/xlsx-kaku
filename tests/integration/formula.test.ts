@@ -222,7 +222,7 @@ describe("formula", () => {
 
     // It may be a problem-free difference.
     // Not supported calcChain.xml
-    delete expectedRelationships[3];
+    expectedRelationships.splice(3, 1);
 
     expect(actualRelationships).toEqual(expectedRelationships);
   });

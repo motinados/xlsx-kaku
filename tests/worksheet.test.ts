@@ -75,6 +75,31 @@ describe("worksheet", () => {
     ]);
   });
 
+  test("getCell returns null for empty sheet", () => {
+    const ws = new Worksheet("Sheet1");
+    expect(ws.getCell(0, 0)).toBeNull();
+  });
+
+  test("getCell returns null if row does not exist", () => {
+    const ws = new Worksheet("Sheet1");
+    ws.setCell(1, 1, { type: "string", value: "Hello" });
+    expect(ws.getCell(0, 0)).toBeNull();
+    expect(ws.getCell(0, 1)).toBeNull();
+  });
+
+  test("getCell returns null if col does not exist", () => {
+    const ws = new Worksheet("Sheet1");
+    ws.setCell(0, 0, { type: "string", value: "Hello" });
+    expect(ws.getCell(0, 1)).toBeNull();
+  });
+
+  test("getCell returns set value", () => {
+    const ws = new Worksheet("Sheet1");
+    const cell = { type: "string", value: "Hello" } as const;
+    ws.setCell(0, 0, cell);
+    expect(ws.getCell(0, 0)).toStrictEqual(cell);
+  });
+
   test("set sheetData and setCell", () => {
     const ws = new Worksheet("Sheet1");
     ws.sheetData = [[{ type: "string", value: "Hello" }]];

@@ -6,7 +6,12 @@ import { DxfStyle } from "./dxf";
 import { ImageModule, imageModule } from "./modules/imageModule";
 import { ImageStore } from "./imageStore";
 import { MergeCellsModule, mergeCellsModule } from "./modules/mergeCellsModule";
-import { CellStyle, NullableCell, SheetData } from "./sheetData";
+import {
+  CellStyle,
+  NullableCell,
+  SettableNullableCell,
+  SheetData,
+} from "./sheetData";
 
 /**
  * The value is the same as the one in files created with Online Excel.
@@ -180,7 +185,7 @@ export type WorksheetType = {
   imageStore: ImageStore | null;
   imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
+  setCell(rowIndex: number, colIndex: number, cell: SettableNullableCell): void;
   setColOpts(col: ColOpts): void;
   setRowOpts(row: RowOpts): void;
   setFreezePane(freezePane: FreezePane): void;
@@ -284,7 +289,14 @@ export class Worksheet implements WorksheetType {
   }
 
   // TODO: Cells that have been merged cannot be set.
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
+  setCell(rowIndex: number, colIndex: number, cell: SettableNullableCell) {
+    // Runtime guard for JS users / unsafe casts.
+    if ((cell as any)?.type === "merged") {
+      throw new Error(
+        '`type: "merged"` is managed internally by mergeCellsModule. Use `setMergeCell()` instead.'
+      );
+    }
+
     if (!this._sheetData[rowIndex]) {
       const diff = rowIndex - this._sheetData.length + 1;
       for (let i = 0; i < diff; i++) {
@@ -424,7 +436,14 @@ export class WorksheetS implements WorksheetType {
   }
 
   // TODO: Cells that have been merged cannot be set.
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
+  setCell(rowIndex: number, colIndex: number, cell: SettableNullableCell) {
+    // Runtime guard for JS users / unsafe casts.
+    if ((cell as any)?.type === "merged") {
+      throw new Error(
+        '`type: "merged"` is managed internally by mergeCellsModule. Use `setMergeCell()` instead.'
+      );
+    }
+
     if (!this._sheetData[rowIndex]) {
       const diff = rowIndex - this._sheetData.length + 1;
       for (let i = 0; i < diff; i++) {

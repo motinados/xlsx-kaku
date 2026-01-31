@@ -34,7 +34,19 @@ export function mergeCellsModule(): MergeCellsModule {
               });
             }
           } else {
-            worksheet.setCell(rowIndex, colIndex, { type: "merged" });
+            // `type: "merged"` is an internal marker cell and must not be set
+            // via the public `setCell` API.
+            const sheetData = worksheet.sheetData;
+            while (sheetData.length <= rowIndex) {
+              sheetData.push([]);
+            }
+
+            const row = sheetData[rowIndex]!;
+            while (row.length <= colIndex) {
+              row.push(null);
+            }
+
+            row[colIndex] = { type: "merged" };
           }
         }
       }

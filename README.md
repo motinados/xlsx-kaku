@@ -206,6 +206,8 @@ const xlsx = wb.generateXlsxSync();
 
 ### Merge cells
 
+Note: `type: "merged"` is managed internally; use `setMergeCell()`.
+
 ```ts
 import { Workbook } from "xlsx-kaku";
 

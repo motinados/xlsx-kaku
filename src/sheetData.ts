@@ -61,8 +61,6 @@ export type Cell =
  */
 export type SettableCell = Exclude<Cell, { type: "merged" }>;
 
-export type SettableNullableCell = SettableCell | null;
-
 export type NullableCell = Cell | null;
 
 export type RowData = NullableCell[];

@@ -6,12 +6,7 @@ import { DxfStyle } from "./dxf";
 import { ImageModule, imageModule } from "./modules/imageModule";
 import { ImageStore } from "./imageStore";
 import { MergeCellsModule, mergeCellsModule } from "./modules/mergeCellsModule";
-import {
-  CellStyle,
-  NullableCell,
-  SettableNullableCell,
-  SheetData,
-} from "./sheetData";
+import { CellStyle, NullableCell, SettableCell, SheetData } from "./sheetData";
 
 /**
  * The value is the same as the one in files created with Online Excel.
@@ -185,7 +180,7 @@ export type WorksheetType = {
   imageStore: ImageStore | null;
   imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
-  setCell(rowIndex: number, colIndex: number, cell: SettableNullableCell): void;
+  setCell(rowIndex: number, colIndex: number, cell: SettableCell | null): void;
   setColOpts(col: ColOpts): void;
   setRowOpts(row: RowOpts): void;
   setFreezePane(freezePane: FreezePane): void;
@@ -289,7 +284,7 @@ export class Worksheet implements WorksheetType {
   }
 
   // TODO: Cells that have been merged cannot be set.
-  setCell(rowIndex: number, colIndex: number, cell: SettableNullableCell) {
+  setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
     // Runtime guard for JS users / unsafe casts.
     if ((cell as any)?.type === "merged") {
       throw new Error(
@@ -436,7 +431,7 @@ export class WorksheetS implements WorksheetType {
   }
 
   // TODO: Cells that have been merged cannot be set.
-  setCell(rowIndex: number, colIndex: number, cell: SettableNullableCell) {
+  setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
     // Runtime guard for JS users / unsafe casts.
     if ((cell as any)?.type === "merged") {
       throw new Error(

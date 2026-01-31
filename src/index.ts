@@ -8,7 +8,6 @@ import {
   RowData,
   SheetData,
   SettableCell,
-  SettableNullableCell,
 } from "./sheetData";
 import { Workbook, WorkbookS } from "./workbook";
 import {
@@ -26,14 +25,7 @@ export { Border };
 export { Fill };
 export { Font };
 export { NumberFormat };
-export {
-  Cell,
-  NullableCell,
-  RowData,
-  SheetData,
-  SettableCell,
-  SettableNullableCell,
-};
+export { Cell, NullableCell, RowData, SheetData, SettableCell };
 export { Workbook, WorkbookS };
 export {
   ColOpts,

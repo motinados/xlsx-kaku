@@ -283,7 +283,8 @@ export class Worksheet implements WorksheetType {
     return rows[colIndex] || null;
   }
 
-  // TODO: Cells that have been merged cannot be set.
+  // NOTE: `type: "merged"` is managed internally (blocked by setCell).
+  // TODO: Prevent setting non-anchor cells inside merged ranges.
   setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
     // Runtime guard for JS users / unsafe casts.
     if ((cell as any)?.type === "merged") {
@@ -430,7 +431,8 @@ export class WorksheetS implements WorksheetType {
     return rows[colIndex] || null;
   }
 
-  // TODO: Cells that have been merged cannot be set.
+  // NOTE: `type: "merged"` is managed internally (blocked by setCell).
+  // TODO: Prevent setting non-anchor cells inside merged ranges.
   setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
     // Runtime guard for JS users / unsafe casts.
     if ((cell as any)?.type === "merged") {

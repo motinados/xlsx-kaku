@@ -54,6 +54,13 @@ export type Cell =
       style?: CellStyle;
     };
 
+/**
+ * Cell types that are safe for users to set via `Worksheet.setCell`.
+ *
+ * `type: "merged"` is reserved for internal use (managed by mergeCellsModule).
+ */
+export type SettableCell = Exclude<Cell, { type: "merged" }>;
+
 export type NullableCell = Cell | null;
 
 export type RowData = NullableCell[];

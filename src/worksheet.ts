@@ -6,7 +6,7 @@ import { DxfStyle } from "./dxf";
 import { ImageModule, imageModule } from "./modules/imageModule";
 import { ImageStore } from "./imageStore";
 import { MergeCellsModule, mergeCellsModule } from "./modules/mergeCellsModule";
-import { CellStyle, NullableCell, SheetData } from "./sheetData";
+import { CellStyle, NullableCell, SettableCell, SheetData } from "./sheetData";
 
 /**
  * The value is the same as the one in files created with Online Excel.
@@ -180,7 +180,7 @@ export type WorksheetType = {
   imageStore: ImageStore | null;
   imageModule: ImageModule | null;
   getCell(rowIndex: number, colIndex: number): NullableCell;
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell): void;
+  setCell(rowIndex: number, colIndex: number, cell: SettableCell | null): void;
   setColOpts(col: ColOpts): void;
   setRowOpts(row: RowOpts): void;
   setFreezePane(freezePane: FreezePane): void;
@@ -283,8 +283,16 @@ export class Worksheet implements WorksheetType {
     return rows[colIndex] || null;
   }
 
-  // TODO: Cells that have been merged cannot be set.
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
+  // NOTE: `type: "merged"` is managed internally (blocked by setCell).
+  // TODO: Prevent setting non-anchor cells inside merged ranges.
+  setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
+    // Runtime guard for JS users / unsafe casts.
+    if ((cell as any)?.type === "merged") {
+      throw new Error(
+        '`type: "merged"` is managed internally by mergeCellsModule. Use `setMergeCell()` instead.'
+      );
+    }
+
     if (!this._sheetData[rowIndex]) {
       const diff = rowIndex - this._sheetData.length + 1;
       for (let i = 0; i < diff; i++) {
@@ -423,8 +431,16 @@ export class WorksheetS implements WorksheetType {
     return rows[colIndex] || null;
   }
 
-  // TODO: Cells that have been merged cannot be set.
-  setCell(rowIndex: number, colIndex: number, cell: NullableCell) {
+  // NOTE: `type: "merged"` is managed internally (blocked by setCell).
+  // TODO: Prevent setting non-anchor cells inside merged ranges.
+  setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
+    // Runtime guard for JS users / unsafe casts.
+    if ((cell as any)?.type === "merged") {
+      throw new Error(
+        '`type: "merged"` is managed internally by mergeCellsModule. Use `setMergeCell()` instead.'
+      );
+    }
+
     if (!this._sheetData[rowIndex]) {
       const diff = rowIndex - this._sheetData.length + 1;
       for (let i = 0; i < diff; i++) {

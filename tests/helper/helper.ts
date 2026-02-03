@@ -51,7 +51,7 @@ export function unzip(xlsxFilePath: string, outputDir: string): Promise<void> {
 
             // When unzipping a file created with xlsx-kaku, some filenames with size 0 are included.
             if (fileContent.length > 0) {
-              writeFileSync(filepath, Buffer.from(fileContent));
+              writeFileSync(filepath, fileContent);
             }
           } catch (dirErr) {
             console.error(dirErr);

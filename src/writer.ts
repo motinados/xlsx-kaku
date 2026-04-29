@@ -30,6 +30,11 @@ type CompressibleFile = {
   content: string | Uint8Array;
 };
 
+type IndexedXmlFile = {
+  sheetIndex: number;
+  content: string;
+};
+
 export type StyleMappers = {
   fills: Fills;
   fonts: Fonts;
@@ -144,24 +149,28 @@ function generateXMLs(
     });
   }
 
-  for (let i = 0; i < worksheetRelsList.length; i++) {
+  for (const worksheetRels of worksheetRelsList) {
     files.push({
-      filename: `xl/worksheets/_rels/sheet${i + 1}.xml.rels`,
-      content: worksheetRelsList[i]!,
+      filename: `xl/worksheets/_rels/sheet${
+        worksheetRels.sheetIndex + 1
+      }.xml.rels`,
+      content: worksheetRels.content,
     });
   }
 
-  for (let i = 0; i < drawingRelsList.length; i++) {
+  for (const drawingRels of drawingRelsList) {
     files.push({
-      filename: `xl/drawings/_rels/drawing${i + 1}.xml.rels`,
-      content: drawingRelsList[i]!,
+      filename: `xl/drawings/_rels/drawing${
+        drawingRels.sheetIndex + 1
+      }.xml.rels`,
+      content: drawingRels.content,
     });
   }
 
-  for (let i = 0; i < drawingXmlList.length; i++) {
+  for (const drawingXml of drawingXmlList) {
     files.push({
-      filename: `xl/drawings/drawing${i + 1}.xml`,
-      content: drawingXmlList[i]!,
+      filename: `xl/drawings/drawing${drawingXml.sheetIndex + 1}.xml`,
+      content: drawingXml.content,
     });
   }
 
@@ -201,10 +210,10 @@ function createExcelFiles(worksheets: WorksheetType[]) {
   const drawingRels = new DrawingRels();
 
   const sheetXmlList: string[] = [];
-  const worksheetRelsList: string[] = [];
+  const worksheetRelsList: IndexedXmlFile[] = [];
   const worksheetsLength = worksheets.length;
-  const drawingRelsList: string[] = [];
-  const drawingXmlList: string[] = [];
+  const drawingRelsList: IndexedXmlFile[] = [];
+  const drawingXmlList: IndexedXmlFile[] = [];
 
   let count = 0;
   for (const worksheet of worksheets) {
@@ -213,17 +222,17 @@ function createExcelFiles(worksheets: WorksheetType[]) {
 
     sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {
-      worksheetRelsList.push(worksheetRels);
+      worksheetRelsList.push({ sheetIndex: count, content: worksheetRels });
     }
 
     if (drawingRelsXml !== null) {
-      drawingRelsList.push(drawingRelsXml);
+      drawingRelsList.push({ sheetIndex: count, content: drawingRelsXml });
     }
 
     if (worksheet.imageModule && xlsxImages.length > 0) {
       const drawingImageElm = worksheet.imageModule.makeXmlElm(xlsxImages);
       const drawingXml = makeDrawingXml(drawingImageElm);
-      drawingXmlList.push(drawingXml);
+      drawingXmlList.push({ sheetIndex: count, content: drawingXml });
     }
 
     count++;

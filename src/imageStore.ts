@@ -17,6 +17,12 @@ export class ImageStore {
     this._hashFn = await this.createHashFn();
   }
 
+  private toArrayBuffer(data: Uint8Array): ArrayBuffer {
+    const buffer = new ArrayBuffer(data.byteLength);
+    new Uint8Array(buffer).set(data);
+    return buffer;
+  }
+
   private async createHashFn(): Promise<HashFn> {
     const cryptoObj = globalThis.crypto;
 
@@ -27,7 +33,10 @@ export class ImageStore {
     }
 
     return async (data: Uint8Array) => {
-      const hashBuffer = await cryptoObj.subtle.digest("SHA-256", data);
+      const hashBuffer = await cryptoObj.subtle.digest(
+        "SHA-256",
+        this.toArrayBuffer(data)
+      );
       const hashArray = Array.from(new Uint8Array(hashBuffer));
 
       return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");

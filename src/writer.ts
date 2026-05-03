@@ -254,7 +254,8 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     drawingXmlList.length
   );
 
-  const stylesXml = makeStylesXml(styleMappers, dxf);
+  const workbookStyleMappers: WorkbookStyleMappers = styleMappers;
+  const stylesXml = makeStylesXml(workbookStyleMappers, dxf);
   const relsFile = makeRelsFile();
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();

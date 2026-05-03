@@ -1,7 +1,7 @@
 import { Dxf } from "../dxf";
-import type { StyleMappers } from "../styleMappers";
+import type { WorkbookStyleMappers } from "../styleMappers";
 
-export function makeStylesXml(styleMappers: StyleMappers, dxf: Dxf) {
+export function makeStylesXml(styleMappers: WorkbookStyleMappers, dxf: Dxf) {
   let result =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
     '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="x14ac x16r2 xr" xmlns:x14ac="http://schemas.microsoft.com/office/spreadsheetml/2009/9/ac" xmlns:x16r2="http://schemas.microsoft.com/office/spreadsheetml/2015/02/main" xmlns:xr="http://schemas.microsoft.com/office/spreadsheetml/2014/revision">' +

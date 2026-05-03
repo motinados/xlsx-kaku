@@ -2,10 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 import { FreezePane, WorksheetType } from "../worksheet";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import type {
-  StyleMappers,
-  WorkbookStyleMappers,
-  WorksheetStyleMappers,
-} from "../styleMappers";
+  WorkbookBuildContext,
+  WorksheetBuildContext,
+} from "../buildContext";
 import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
@@ -248,17 +247,19 @@ export type XlsxImage = {
   };
 };
 
+type WorksheetXmlBuildContext = WorkbookBuildContext & WorksheetBuildContext;
+
 export function makeWorksheetXml(
   worksheet: WorksheetType,
-  workbookStyleMappers: WorkbookStyleMappers,
+  workbookContext: WorkbookBuildContext,
   dxf: Dxf,
-  worksheetStyleMappers: WorksheetStyleMappers,
+  worksheetContext: WorksheetBuildContext,
   drawingRels: DrawingRels,
   sheetCnt: number
 ) {
-  const styleMappers: StyleMappers = {
-    ...workbookStyleMappers,
-    ...worksheetStyleMappers,
+  const buildContext: WorksheetXmlBuildContext = {
+    ...workbookContext,
+    ...worksheetContext,
   };
 
   const defaultColWidth = worksheet.opts.defaultColWidth;
@@ -267,13 +268,13 @@ export function makeWorksheetXml(
 
   const xlsxCols = new Map<number, XlsxCol>();
   for (const col of worksheet.colOptsMap.values()) {
-    const xlsxCol = createXlsxCol(col, styleMappers, defaultColWidth);
+    const xlsxCol = createXlsxCol(col, buildContext, defaultColWidth);
     xlsxCols.set(xlsxCol.index, xlsxCol);
   }
 
   const xlsxRows = new Map<number, XlsxRow>();
   for (const row of worksheet.rowOptsMap.values()) {
-    const xlsxRow = createXlsxRow(row, styleMappers);
+    const xlsxRow = createXlsxRow(row, buildContext);
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
 
@@ -307,7 +308,7 @@ export function makeWorksheetXml(
 
   let drawingRId: string | null = null;
   if (xlsxImages.length > 0) {
-    drawingRId = styleMappers.worksheetRels.addWorksheetRel({
+    drawingRId = buildContext.worksheetRels.addWorksheetRel({
       target: `../drawings/drawing${sheetCnt + 1}.xml`,
       targetMode: null,
       relationshipType:
@@ -319,7 +320,7 @@ export function makeWorksheetXml(
     sheetData,
     spanStartNumber,
     spanEndNumber,
-    styleMappers,
+    buildContext,
     xlsxCols,
     xlsxRows
   );
@@ -352,12 +353,12 @@ export function makeWorksheetXml(
     extLstElm,
     drawingElm,
     dimension,
-    styleMappers.hyperlinks
+    buildContext.hyperlinks
   );
 
   let worksheetRels;
-  if (styleMappers.worksheetRels.relsLength > 0) {
-    worksheetRels = styleMappers.worksheetRels.makeXML();
+  if (buildContext.worksheetRels.relsLength > 0) {
+    worksheetRels = buildContext.worksheetRels.makeXML();
   } else {
     worksheetRels = null;
   }
@@ -379,7 +380,7 @@ export function makeWorksheetXml(
 
 export function createXlsxCol(
   colOpts: ColOpts,
-  mappers: StyleMappers,
+  mappers: WorksheetXmlBuildContext,
   defaultWidth: number
 ): XlsxCol {
   let cellXfId: number | null = null;
@@ -401,7 +402,7 @@ export function createXlsxCol(
 
 export function composeXlsxCellStyle(
   style: CellStyle | undefined,
-  mappers: StyleMappers
+  mappers: WorksheetXmlBuildContext
 ): XlsxCellStyle | null {
   if (style) {
     const _style: XlsxCellStyle = {
@@ -425,7 +426,7 @@ export function composeXlsxCellStyle(
 
 export function createXlsxRow(
   rowOpts: RowOpts,
-  styleMappers: StyleMappers
+  styleMappers: WorksheetXmlBuildContext
 ): XlsxRow {
   let cellXfId: number | null = null;
   if (rowOpts.style) {
@@ -531,7 +532,7 @@ export function makeSheetDataElm(
   sheetData: SheetData,
   spanStartNumber: number,
   spanEndNumber: number,
-  styleMappers: StyleMappers,
+  styleMappers: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRows: Map<number, XlsxRow>
 ) {
@@ -622,7 +623,7 @@ export function makeRowElm(
   rowIndex: number,
   spanStartNumber: number,
   spanEndNumber: number,
-  styleMappers: StyleMappers,
+  styleMappers: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRows: Map<number, XlsxRow>
 ): string {
@@ -725,7 +726,7 @@ export function convertCellToXlsxCell(
   cell: Cell,
   columnIndex: number,
   rowIndex: number,
-  styleMappers: StyleMappers,
+  styleMappers: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRow: XlsxRow | undefined
 ): XlsxCell {
@@ -910,7 +911,7 @@ export function convertCellToXlsxCell(
 function getCellXfId(
   cell: Cell,
   colName: string,
-  styleMappers: StyleMappers,
+  styleMappers: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   foundRow: XlsxRow | undefined
 ) {

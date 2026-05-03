@@ -1,7 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import { FreezePane, WorksheetType } from "../worksheet";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
-import type { StyleMappers } from "../styleMappers";
+import type {
+  StyleMappers,
+  WorkbookStyleMappers,
+  WorksheetStyleMappers,
+} from "../styleMappers";
 import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
@@ -246,11 +250,17 @@ export type XlsxImage = {
 
 export function makeWorksheetXml(
   worksheet: WorksheetType,
-  styleMappers: StyleMappers,
+  workbookStyleMappers: WorkbookStyleMappers,
   dxf: Dxf,
+  worksheetStyleMappers: WorksheetStyleMappers,
   drawingRels: DrawingRels,
   sheetCnt: number
 ) {
+  const styleMappers: StyleMappers = {
+    ...workbookStyleMappers,
+    ...worksheetStyleMappers,
+  };
+
   const defaultColWidth = worksheet.opts.defaultColWidth;
   const defaultRowHeight = worksheet.opts.defaultRowHeight;
   const sheetData = worksheet.sheetData;

@@ -212,14 +212,17 @@ function createExcelFiles(worksheets: WorksheetType[]) {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };
-    const styleMappers: StyleMappers = {
-      ...workbookStyleMappers,
-      ...worksheetStyleMappers,
-    };
     const drawingRels = new DrawingRels();
 
     const { sheetXml, worksheetRels, drawingRelsXml, xlsxImages } =
-      makeWorksheetXml(worksheet, styleMappers, dxf, drawingRels, count);
+      makeWorksheetXml(
+        worksheet,
+        workbookStyleMappers,
+        dxf,
+        worksheetStyleMappers,
+        drawingRels,
+        count
+      );
 
     sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {

@@ -6,6 +6,12 @@ type ImageData = {
   data: Uint8Array;
 };
 
+function toArrayBuffer(data: Uint8Array): ArrayBuffer {
+  const buffer = new ArrayBuffer(data.byteLength);
+  new Uint8Array(buffer).set(data);
+  return buffer;
+}
+
 export class ImageStore {
   private images: Map<string, ImageData> = new Map();
   private _hashFn: HashFn | null = null;
@@ -17,21 +23,23 @@ export class ImageStore {
     this._hashFn = await this.createHashFn();
   }
 
-  private async createHashFn() {
-    let crypto: any;
-    if (typeof window !== "undefined") {
-      crypto = window.crypto;
-    } else {
-      crypto = await import("node:crypto");
+  private async createHashFn(): Promise<HashFn> {
+    const cryptoObj = globalThis.crypto;
+
+    if (!cryptoObj?.subtle) {
+      throw new Error(
+        "ImageStore requires Web Crypto API: globalThis.crypto.subtle is not available."
+      );
     }
 
     return async (data: Uint8Array) => {
-      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashBuffer = await cryptoObj.subtle.digest(
+        "SHA-256",
+        toArrayBuffer(data)
+      );
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-      return hashHex;
+
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     };
   }
 

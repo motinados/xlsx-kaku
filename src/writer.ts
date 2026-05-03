@@ -187,7 +187,7 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     throw new Error("worksheets is empty");
   }
 
-  const styleMappers: StyleMappers = {
+  const workbookStyleMappers: WorkbookStyleMappers = {
     fills: new Fills(),
     fonts: new Fonts(),
     borders: new Borders(),
@@ -196,12 +196,9 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     cellStyleXfs: new CellStyleXfs(),
     cellXfs: new CellXfs(),
     cellStyles: new CellStyles(),
-    hyperlinks: new Hyperlinks(),
-    worksheetRels: new WorksheetRels(),
   };
 
   const dxf = new Dxf();
-  const drawingRels = new DrawingRels();
 
   const sheetXmlList: string[] = [];
   const worksheetRelsList: IndexedXmlFile[] = [];
@@ -211,6 +208,16 @@ function createExcelFiles(worksheets: WorksheetType[]) {
 
   let count = 0;
   for (const worksheet of worksheets) {
+    const worksheetStyleMappers: WorksheetStyleMappers = {
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
+    };
+    const styleMappers: StyleMappers = {
+      ...workbookStyleMappers,
+      ...worksheetStyleMappers,
+    };
+    const drawingRels = new DrawingRels();
+
     const { sheetXml, worksheetRels, drawingRelsXml, xlsxImages } =
       makeWorksheetXml(worksheet, styleMappers, dxf, drawingRels, count);
 
@@ -232,7 +239,9 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     count++;
   }
 
-  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
+  const sharedStringsXml = makeSharedStringsXml(
+    workbookStyleMappers.sharedStrings
+  );
   const hasSharedStrings = sharedStringsXml !== null;
   const workbookXml = makeWorkbookXml(worksheets);
   const workbookXmlRels = makeWorkbookXmlRels(
@@ -254,7 +263,6 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     drawingXmlList.length
   );
 
-  const workbookStyleMappers: WorkbookStyleMappers = styleMappers;
   const stylesXml = makeStylesXml(workbookStyleMappers, dxf);
   const relsFile = makeRelsFile();
   const themeXml = makeThemeXml();

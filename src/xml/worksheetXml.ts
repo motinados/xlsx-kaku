@@ -251,10 +251,6 @@ export function makeWorksheetXml(
   drawingRels: DrawingRels,
   sheetCnt: number
 ) {
-  styleMappers.hyperlinks.reset();
-  styleMappers.worksheetRels.reset();
-  drawingRels.reset();
-
   const defaultColWidth = worksheet.opts.defaultColWidth;
   const defaultRowHeight = worksheet.opts.defaultRowHeight;
   const sheetData = worksheet.sheetData;

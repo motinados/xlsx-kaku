@@ -1,5 +1,5 @@
 import { Dxf } from "../dxf";
-import { StyleMappers } from "../writer";
+import type { StyleMappers } from "../styleMappers";
 
 export function makeStylesXml(styleMappers: StyleMappers, dxf: Dxf) {
   let result =

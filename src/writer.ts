@@ -24,6 +24,11 @@ import { Dxf } from "./dxf";
 import { DrawingRels } from "./drawingRels";
 import { makeDrawingXml } from "./xml/drawingXml";
 import { ImageStore } from "./imageStore";
+import type {
+  StyleMappers,
+  WorkbookStyleMappers,
+  WorksheetStyleMappers,
+} from "./styleMappers";
 
 type CompressibleFile = {
   filename: string;
@@ -35,18 +40,7 @@ type IndexedXmlFile = {
   content: string;
 };
 
-export type StyleMappers = {
-  fills: Fills;
-  fonts: Fonts;
-  borders: Borders;
-  numberFormats: NumberFormats;
-  sharedStrings: SharedStrings;
-  cellStyleXfs: CellStyleXfs;
-  cellXfs: CellXfs;
-  cellStyles: CellStyles;
-  hyperlinks: Hyperlinks;
-  worksheetRels: WorksheetRels;
-};
+export type { StyleMappers, WorkbookStyleMappers, WorksheetStyleMappers };
 
 export function genXlsx(
   worksheets: WorksheetType[],
@@ -193,7 +187,7 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     throw new Error("worksheets is empty");
   }
 
-  const styleMappers = {
+  const styleMappers: StyleMappers = {
     fills: new Fills(),
     fonts: new Fonts(),
     borders: new Borders(),

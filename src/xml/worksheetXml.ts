@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { FreezePane, WorksheetType } from "../worksheet";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
-import { StyleMappers } from "../writer";
+import type { StyleMappers } from "../styleMappers";
 import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";

@@ -1,7 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import { FreezePane, WorksheetType } from "../worksheet";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
-import { StyleMappers } from "../writer";
+import type {
+  WorkbookBuildContext,
+  WorksheetBuildContext,
+} from "../buildContext";
 import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { Hyperlinks } from "../hyperlinks";
@@ -244,16 +247,20 @@ export type XlsxImage = {
   };
 };
 
+type WorksheetXmlBuildContext = WorkbookBuildContext & WorksheetBuildContext;
+
 export function makeWorksheetXml(
   worksheet: WorksheetType,
-  styleMappers: StyleMappers,
+  workbookContext: WorkbookBuildContext,
   dxf: Dxf,
+  worksheetContext: WorksheetBuildContext,
   drawingRels: DrawingRels,
   sheetCnt: number
 ) {
-  styleMappers.hyperlinks.reset();
-  styleMappers.worksheetRels.reset();
-  drawingRels.reset();
+  const buildContext: WorksheetXmlBuildContext = {
+    ...workbookContext,
+    ...worksheetContext,
+  };
 
   const defaultColWidth = worksheet.opts.defaultColWidth;
   const defaultRowHeight = worksheet.opts.defaultRowHeight;
@@ -261,13 +268,13 @@ export function makeWorksheetXml(
 
   const xlsxCols = new Map<number, XlsxCol>();
   for (const col of worksheet.colOptsMap.values()) {
-    const xlsxCol = createXlsxCol(col, styleMappers, defaultColWidth);
+    const xlsxCol = createXlsxCol(col, buildContext, defaultColWidth);
     xlsxCols.set(xlsxCol.index, xlsxCol);
   }
 
   const xlsxRows = new Map<number, XlsxRow>();
   for (const row of worksheet.rowOptsMap.values()) {
-    const xlsxRow = createXlsxRow(row, styleMappers);
+    const xlsxRow = createXlsxRow(row, buildContext);
     xlsxRows.set(xlsxRow.index, xlsxRow);
   }
 
@@ -301,7 +308,7 @@ export function makeWorksheetXml(
 
   let drawingRId: string | null = null;
   if (xlsxImages.length > 0) {
-    drawingRId = styleMappers.worksheetRels.addWorksheetRel({
+    drawingRId = buildContext.worksheetRels.addWorksheetRel({
       target: `../drawings/drawing${sheetCnt + 1}.xml`,
       targetMode: null,
       relationshipType:
@@ -313,7 +320,7 @@ export function makeWorksheetXml(
     sheetData,
     spanStartNumber,
     spanEndNumber,
-    styleMappers,
+    buildContext,
     xlsxCols,
     xlsxRows
   );
@@ -346,12 +353,12 @@ export function makeWorksheetXml(
     extLstElm,
     drawingElm,
     dimension,
-    styleMappers.hyperlinks
+    buildContext.hyperlinks
   );
 
   let worksheetRels;
-  if (styleMappers.worksheetRels.relsLength > 0) {
-    worksheetRels = styleMappers.worksheetRels.makeXML();
+  if (buildContext.worksheetRels.relsLength > 0) {
+    worksheetRels = buildContext.worksheetRels.makeXML();
   } else {
     worksheetRels = null;
   }
@@ -373,16 +380,16 @@ export function makeWorksheetXml(
 
 export function createXlsxCol(
   colOpts: ColOpts,
-  mappers: StyleMappers,
+  buildContext: WorksheetXmlBuildContext,
   defaultWidth: number
 ): XlsxCol {
   let cellXfId: number | null = null;
   if (colOpts.style) {
-    const style = composeXlsxCellStyle(colOpts.style, mappers);
+    const style = composeXlsxCellStyle(colOpts.style, buildContext);
     if (style === null) {
       throw new Error("style is null");
     }
-    cellXfId = mappers.cellXfs.getCellXfId(style);
+    cellXfId = buildContext.cellXfs.getCellXfId(style);
   }
 
   return {
@@ -395,15 +402,17 @@ export function createXlsxCol(
 
 export function composeXlsxCellStyle(
   style: CellStyle | undefined,
-  mappers: StyleMappers
+  buildContext: WorksheetXmlBuildContext
 ): XlsxCellStyle | null {
   if (style) {
     const _style: XlsxCellStyle = {
-      fillId: style.fill ? mappers.fills.getFillId(style.fill) : 0,
-      fontId: style.font ? mappers.fonts.getFontId(style.font) : 0,
-      borderId: style.border ? mappers.borders.getBorderId(style.border) : 0,
+      fillId: style.fill ? buildContext.fills.getFillId(style.fill) : 0,
+      fontId: style.font ? buildContext.fonts.getFontId(style.font) : 0,
+      borderId: style.border
+        ? buildContext.borders.getBorderId(style.border)
+        : 0,
       numFmtId: style.numberFormat
-        ? mappers.numberFormats.getNumFmtId(style.numberFormat.formatCode)
+        ? buildContext.numberFormats.getNumFmtId(style.numberFormat.formatCode)
         : 0,
     };
 
@@ -419,15 +428,15 @@ export function composeXlsxCellStyle(
 
 export function createXlsxRow(
   rowOpts: RowOpts,
-  styleMappers: StyleMappers
+  buildContext: WorksheetXmlBuildContext
 ): XlsxRow {
   let cellXfId: number | null = null;
   if (rowOpts.style) {
-    const style = composeXlsxCellStyle(rowOpts.style, styleMappers);
+    const style = composeXlsxCellStyle(rowOpts.style, buildContext);
     if (style === null) {
       throw new Error("style is null");
     }
-    cellXfId = styleMappers.cellXfs.getCellXfId(style);
+    cellXfId = buildContext.cellXfs.getCellXfId(style);
   }
 
   return {
@@ -525,7 +534,7 @@ export function makeSheetDataElm(
   sheetData: SheetData,
   spanStartNumber: number,
   spanEndNumber: number,
-  styleMappers: StyleMappers,
+  buildContext: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRows: Map<number, XlsxRow>
 ) {
@@ -537,7 +546,7 @@ export function makeSheetDataElm(
       rowIndex,
       spanStartNumber,
       spanEndNumber,
-      styleMappers,
+      buildContext,
       xlsxCols,
       xlsxRows
     );
@@ -616,7 +625,7 @@ export function makeRowElm(
   rowIndex: number,
   spanStartNumber: number,
   spanEndNumber: number,
-  styleMappers: StyleMappers,
+  buildContext: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRows: Map<number, XlsxRow>
 ): string {
@@ -648,7 +657,7 @@ export function makeRowElm(
           cell,
           columnIndex,
           rowIndex,
-          styleMappers,
+          buildContext,
           xlsxCols,
           xlsxRow
         )
@@ -719,7 +728,7 @@ export function convertCellToXlsxCell(
   cell: Cell,
   columnIndex: number,
   rowIndex: number,
-  styleMappers: StyleMappers,
+  buildContext: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   xlsxRow: XlsxRow | undefined
 ): XlsxCell {
@@ -731,7 +740,7 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        styleMappers,
+        buildContext,
         xlsxCols,
         xlsxRow
       );
@@ -747,11 +756,11 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        styleMappers,
+        buildContext,
         xlsxCols,
         xlsxRow
       );
-      const sharedStringId = styleMappers.sharedStrings.getIndex(cell.value);
+      const sharedStringId = buildContext.sharedStrings.getIndex(cell.value);
       return {
         type: "string",
         colName: colName,
@@ -766,7 +775,7 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        styleMappers,
+        buildContext,
         xlsxCols,
         xlsxRow
       );
@@ -780,11 +789,11 @@ export function convertCellToXlsxCell(
     }
     case "hyperlink": {
       assignHyperlinkStyleIfUndefined(cell);
-      const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
+      const composedStyle = composeXlsxCellStyle(cell.style, buildContext);
       if (composedStyle === null) {
         throw new Error("composedStyle is null for hyperlink");
       }
-      const xfId = styleMappers.cellStyleXfs.getCellStyleXfId(composedStyle);
+      const xfId = buildContext.cellStyleXfs.getCellStyleXfId(composedStyle);
       if (xfId === null) {
         throw new Error("xfId is null for hyperlink");
       }
@@ -793,30 +802,30 @@ export function convertCellToXlsxCell(
         xfId: xfId,
         ...composedStyle,
       };
-      const cellXfId = styleMappers.cellXfs.getCellXfId(cellXf);
-      const sharedStringId = styleMappers.sharedStrings.getIndex(cell.text);
+      const cellXfId = buildContext.cellXfs.getCellXfId(cellXf);
+      const sharedStringId = buildContext.sharedStrings.getIndex(cell.text);
 
-      styleMappers.cellStyles.getCellStyleId({
+      buildContext.cellStyles.getCellStyleId({
         name: "Hyperlink",
         xfId: xfId,
         uid: "{00000000-000B-0000-0000-000008000000}",
       });
 
       if (cell.linkType === "external") {
-        const rid = styleMappers.worksheetRels.addWorksheetRel({
+        const rid = buildContext.worksheetRels.addWorksheetRel({
           target: cell.value,
           targetMode: "External",
           relationshipType:
             "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
         });
-        styleMappers.hyperlinks.addHyperlink({
+        buildContext.hyperlinks.addHyperlink({
           linkType: "external",
           ref: `${colName}${rowNumber}`,
           rid: rid,
           uuid: uuidv4(),
         });
       } else if (cell.linkType === "internal") {
-        styleMappers.hyperlinks.addHyperlink({
+        buildContext.hyperlinks.addHyperlink({
           linkType: "internal",
           ref: `${colName}${rowNumber}`,
           location: cell.value,
@@ -824,13 +833,13 @@ export function convertCellToXlsxCell(
           uuid: uuidv4(),
         });
       } else if (cell.linkType === "email") {
-        const rid = styleMappers.worksheetRels.addWorksheetRel({
+        const rid = buildContext.worksheetRels.addWorksheetRel({
           target: `mailto:${cell.value}`,
           targetMode: "External",
           relationshipType:
             "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
         });
-        styleMappers.hyperlinks.addHyperlink({
+        buildContext.hyperlinks.addHyperlink({
           linkType: "email",
           ref: `${colName}${rowNumber}`,
           rid: rid,
@@ -851,7 +860,7 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        styleMappers,
+        buildContext,
         xlsxCols,
         xlsxRow
       );
@@ -867,7 +876,7 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        styleMappers,
+        buildContext,
         xlsxCols,
         xlsxRow
       );
@@ -883,7 +892,7 @@ export function convertCellToXlsxCell(
       const cellXfId = getCellXfId(
         cell,
         colName,
-        styleMappers,
+        buildContext,
         xlsxCols,
         xlsxRow
       );
@@ -904,13 +913,13 @@ export function convertCellToXlsxCell(
 function getCellXfId(
   cell: Cell,
   colName: string,
-  styleMappers: StyleMappers,
+  buildContext: WorksheetXmlBuildContext,
   xlsxCols: Map<number, XlsxCol>,
   foundRow: XlsxRow | undefined
 ) {
-  const composedStyle = composeXlsxCellStyle(cell.style, styleMappers);
+  const composedStyle = composeXlsxCellStyle(cell.style, buildContext);
   if (composedStyle) {
-    return styleMappers.cellXfs.getCellXfId(composedStyle);
+    return buildContext.cellXfs.getCellXfId(composedStyle);
   }
 
   const foundCol = xlsxCols.get(convColNameToColIndex(colName));

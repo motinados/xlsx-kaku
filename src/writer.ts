@@ -24,6 +24,10 @@ import { Dxf } from "./dxf";
 import { DrawingRels } from "./drawingRels";
 import { makeDrawingXml } from "./xml/drawingXml";
 import { ImageStore } from "./imageStore";
+import type {
+  WorkbookBuildContext,
+  WorksheetBuildContext,
+} from "./buildContext";
 
 type CompressibleFile = {
   filename: string;
@@ -35,18 +39,7 @@ type IndexedXmlFile = {
   content: string;
 };
 
-export type StyleMappers = {
-  fills: Fills;
-  fonts: Fonts;
-  borders: Borders;
-  numberFormats: NumberFormats;
-  sharedStrings: SharedStrings;
-  cellStyleXfs: CellStyleXfs;
-  cellXfs: CellXfs;
-  cellStyles: CellStyles;
-  hyperlinks: Hyperlinks;
-  worksheetRels: WorksheetRels;
-};
+export type { WorkbookBuildContext, WorksheetBuildContext };
 
 export function genXlsx(
   worksheets: WorksheetType[],
@@ -193,7 +186,7 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     throw new Error("worksheets is empty");
   }
 
-  const styleMappers = {
+  const workbookContext: WorkbookBuildContext = {
     fills: new Fills(),
     fonts: new Fonts(),
     borders: new Borders(),
@@ -202,12 +195,9 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     cellStyleXfs: new CellStyleXfs(),
     cellXfs: new CellXfs(),
     cellStyles: new CellStyles(),
-    hyperlinks: new Hyperlinks(),
-    worksheetRels: new WorksheetRels(),
   };
 
   const dxf = new Dxf();
-  const drawingRels = new DrawingRels();
 
   const sheetXmlList: string[] = [];
   const worksheetRelsList: IndexedXmlFile[] = [];
@@ -217,8 +207,21 @@ function createExcelFiles(worksheets: WorksheetType[]) {
 
   let count = 0;
   for (const worksheet of worksheets) {
+    const worksheetContext: WorksheetBuildContext = {
+      hyperlinks: new Hyperlinks(),
+      worksheetRels: new WorksheetRels(),
+    };
+    const drawingRels = new DrawingRels();
+
     const { sheetXml, worksheetRels, drawingRelsXml, xlsxImages } =
-      makeWorksheetXml(worksheet, styleMappers, dxf, drawingRels, count);
+      makeWorksheetXml(
+        worksheet,
+        workbookContext,
+        dxf,
+        worksheetContext,
+        drawingRels,
+        count
+      );
 
     sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {
@@ -238,7 +241,7 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     count++;
   }
 
-  const sharedStringsXml = makeSharedStringsXml(styleMappers.sharedStrings);
+  const sharedStringsXml = makeSharedStringsXml(workbookContext.sharedStrings);
   const hasSharedStrings = sharedStringsXml !== null;
   const workbookXml = makeWorkbookXml(worksheets);
   const workbookXmlRels = makeWorkbookXmlRels(
@@ -260,7 +263,7 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     drawingXmlList.length
   );
 
-  const stylesXml = makeStylesXml(styleMappers, dxf);
+  const stylesXml = makeStylesXml(workbookContext, dxf);
   const relsFile = makeRelsFile();
   const themeXml = makeThemeXml();
   const appXml = makeAppXml();

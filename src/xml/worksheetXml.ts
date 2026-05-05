@@ -7,7 +7,9 @@ import type {
 } from "../buildContext";
 import { convColIndexToColName, convColNameToColIndex } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
+import { DrawingRels } from "../drawingRels";
 import { Hyperlinks } from "../hyperlinks";
+import { WorksheetRels } from "../worksheetRels";
 import {
   ColOpts,
   DEFAULT_COL_WIDTH,
@@ -252,9 +254,14 @@ export function makeWorksheetXml(
   worksheet: WorksheetType,
   workbookContext: WorkbookBuildContext,
   dxf: Dxf,
-  worksheetContext: WorksheetBuildContext,
   sheetCnt: number
 ) {
+  const worksheetContext: WorksheetBuildContext = {
+    hyperlinks: new Hyperlinks(),
+    worksheetRels: new WorksheetRels(),
+    drawingRels: new DrawingRels(),
+  };
+
   const buildContext: WorksheetXmlBuildContext = {
     ...workbookContext,
     ...worksheetContext,

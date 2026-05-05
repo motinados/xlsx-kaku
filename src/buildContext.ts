@@ -7,6 +7,7 @@ import type { Fonts } from "./fonts";
 import type { Hyperlinks } from "./hyperlinks";
 import type { NumberFormats } from "./numberFormats";
 import type { SharedStrings } from "./sharedStrings";
+import type { DrawingRels } from "./drawingRels";
 import type { WorksheetRels } from "./worksheetRels";
 
 export type WorkbookBuildContext = {
@@ -23,4 +24,5 @@ export type WorkbookBuildContext = {
 export type WorksheetBuildContext = {
   hyperlinks: Hyperlinks;
   worksheetRels: WorksheetRels;
+  drawingRels: DrawingRels;
 };

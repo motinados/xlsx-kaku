@@ -7,8 +7,6 @@ import { Borders } from "./borders";
 import { NumberFormats } from "./numberFormats";
 import { CellStyles } from "./cellStyles";
 import { CellStyleXfs } from "./cellStyleXfs";
-import { Hyperlinks } from "./hyperlinks";
-import { WorksheetRels } from "./worksheetRels";
 import { WorksheetType } from "./worksheet";
 import { strToU8, zip, zipSync } from "fflate";
 import { makeWorksheetXml } from "./xml/worksheetXml";
@@ -21,13 +19,9 @@ import { makeWorkbookXml } from "./xml/workbookXml";
 import { makeRelsFile } from "./xml/rels";
 import { makeContentTypesXml } from "./xml/contentTypesXml";
 import { Dxf } from "./dxf";
-import { DrawingRels } from "./drawingRels";
 import { makeDrawingXml } from "./xml/drawingXml";
 import { ImageStore } from "./imageStore";
-import type {
-  WorkbookBuildContext,
-  WorksheetBuildContext,
-} from "./buildContext";
+import type { WorkbookBuildContext } from "./buildContext";
 
 type CompressibleFile = {
   filename: string;
@@ -39,7 +33,7 @@ type IndexedXmlFile = {
   content: string;
 };
 
-export type { WorkbookBuildContext, WorksheetBuildContext };
+export type { WorkbookBuildContext };
 
 export function genXlsx(
   worksheets: WorksheetType[],
@@ -207,20 +201,8 @@ function createExcelFiles(worksheets: WorksheetType[]) {
 
   let count = 0;
   for (const worksheet of worksheets) {
-    const worksheetContext: WorksheetBuildContext = {
-      hyperlinks: new Hyperlinks(),
-      worksheetRels: new WorksheetRels(),
-      drawingRels: new DrawingRels(),
-    };
-
     const { sheetXml, worksheetRels, drawingRelsXml, xlsxImages } =
-      makeWorksheetXml(
-        worksheet,
-        workbookContext,
-        dxf,
-        worksheetContext,
-        count
-      );
+      makeWorksheetXml(worksheet, workbookContext, dxf, count);
 
     sheetXmlList.push(sheetXml);
     if (worksheetRels !== null) {

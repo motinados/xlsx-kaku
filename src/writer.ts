@@ -210,8 +210,8 @@ function createExcelFiles(worksheets: WorksheetType[]) {
     const worksheetContext: WorksheetBuildContext = {
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
+      drawingRels: new DrawingRels(),
     };
-    const drawingRels = new DrawingRels();
 
     const { sheetXml, worksheetRels, drawingRelsXml, xlsxImages } =
       makeWorksheetXml(
@@ -219,7 +219,6 @@ function createExcelFiles(worksheets: WorksheetType[]) {
         workbookContext,
         dxf,
         worksheetContext,
-        drawingRels,
         count
       );
 

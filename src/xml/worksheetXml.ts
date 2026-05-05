@@ -15,7 +15,6 @@ import {
   RowOpts,
 } from "../worksheet";
 import { Dxf } from "../dxf";
-import { DrawingRels } from "../drawingRels";
 
 export type XlsxCol = {
   /** e.g. column A is 0 */
@@ -254,7 +253,6 @@ export function makeWorksheetXml(
   workbookContext: WorkbookBuildContext,
   dxf: Dxf,
   worksheetContext: WorksheetBuildContext,
-  drawingRels: DrawingRels,
   sheetCnt: number
 ) {
   const buildContext: WorksheetXmlBuildContext = {
@@ -301,7 +299,7 @@ export function makeWorksheetXml(
     const images = worksheet.imageModule.getImageInfos();
     for (const image of images) {
       xlsxImages.push(
-        worksheet.imageModule.createXlsxImage(image, drawingRels)
+        worksheet.imageModule.createXlsxImage(image, buildContext.drawingRels)
       );
     }
   }
@@ -364,8 +362,8 @@ export function makeWorksheetXml(
   }
 
   let drawingRelsXml;
-  if (drawingRels.rels.length > 0) {
-    drawingRelsXml = drawingRels.makeXml();
+  if (buildContext.drawingRels.rels.length > 0) {
+    drawingRelsXml = buildContext.drawingRels.makeXml();
   } else {
     drawingRelsXml = null;
   }

@@ -7,6 +7,17 @@ describe("workbook", () => {
     expect(() => wb.addWorksheet("Sheet1")).toThrow();
   });
 
+  test("invalid worksheet names cause an error", () => {
+    const wb = new Workbook();
+    const tooLongName = "a".repeat(32);
+
+    expect(() => wb.addWorksheet("")).toThrow("must not be empty");
+    expect(() => wb.addWorksheet(tooLongName)).toThrow(
+      "must not be longer than 31 characters"
+    );
+    expect(() => wb.addWorksheet("Sheet/1")).toThrow("must not contain");
+  });
+
   test("getWorksheet should return the correct worksheet", () => {
     const wb = new Workbook();
     const sheetName = "Sheet1";

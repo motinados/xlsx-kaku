@@ -11,6 +11,16 @@ describe("worksheet", () => {
     expect(ws).toBeInstanceOf(Worksheet);
   });
 
+  test("invalid worksheet names cause an error", () => {
+    const tooLongName = "a".repeat(32);
+
+    expect(() => new Worksheet("")).toThrow("must not be empty");
+    expect(() => new Worksheet(tooLongName)).toThrow(
+      "must not be longer than 31 characters"
+    );
+    expect(() => new Worksheet("Sheet[1]")).toThrow("must not contain");
+  });
+
   test("get name", () => {
     const ws = new Worksheet("Sheet1");
     expect(ws.name).toBe("Sheet1");

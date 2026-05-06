@@ -15,6 +15,24 @@ import { CellStyle, NullableCell, SettableCell, SheetData } from "./sheetData";
 export const DEFAULT_COL_WIDTH = 9;
 export const DEFAULT_ROW_HEIGHT = 13.5;
 
+const INVALID_WORKSHEET_NAME_CHARS = /[\\/?*:\[\]]/;
+
+function validateWorksheetName(name: string) {
+  if (name.length === 0) {
+    throw new Error("Worksheet name must not be empty.");
+  }
+
+  if (Array.from(name).length > 31) {
+    throw new Error("Worksheet name must not be longer than 31 characters.");
+  }
+
+  if (INVALID_WORKSHEET_NAME_CHARS.test(name)) {
+    throw new Error(
+      "Worksheet name must not contain any of the following characters: / \\ ? * : [ ]."
+    );
+  }
+}
+
 export type ColOpts = {
   index: number;
   width?: number;
@@ -208,6 +226,7 @@ export class Worksheet implements WorksheetType {
     imageStore?: ImageStore,
     opts: WorksheetOpts | undefined = {}
   ) {
+    validateWorksheetName(name);
     this._name = name;
 
     this._opts = {
@@ -358,6 +377,7 @@ export class WorksheetS implements WorksheetType {
   private _imageModule = null;
 
   constructor(name: string, opts: WorksheetOpts | undefined = {}) {
+    validateWorksheetName(name);
     this._name = name;
 
     this._opts = {

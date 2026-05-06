@@ -7,6 +7,41 @@ describe("workbook", () => {
     expect(() => wb.addWorksheet("Sheet1")).toThrow();
   });
 
+  test("worksheet name with 31 characters is allowed", () => {
+    const wb = new Workbook();
+    const name = "a".repeat(31);
+
+    const ws = wb.addWorksheet(name);
+
+    expect(ws.name).toBe(name);
+  });
+
+  test("worksheet name with 32 characters causes an error", () => {
+    const wb = new Workbook();
+    const name = "a".repeat(32);
+
+    expect(() => wb.addWorksheet(name)).toThrow(
+      "must not be longer than 31 characters"
+    );
+  });
+
+  test("empty worksheet name causes an error", () => {
+    const wb = new Workbook();
+
+    expect(() => wb.addWorksheet("")).toThrow("must not be empty");
+  });
+
+  test.each(["/", "\\", "?", "*", ":", "[", "]"])(
+    "invalid worksheet name containing %s causes an error",
+    (invalidChar) => {
+      const wb = new Workbook();
+
+      expect(() => wb.addWorksheet(`Sheet${invalidChar}1`)).toThrow(
+        "must not contain"
+      );
+    }
+  );
+
   test("getWorksheet should return the correct worksheet", () => {
     const wb = new Workbook();
     const sheetName = "Sheet1";

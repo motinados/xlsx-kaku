@@ -7,16 +7,40 @@ describe("workbook", () => {
     expect(() => wb.addWorksheet("Sheet1")).toThrow();
   });
 
-  test("invalid worksheet names cause an error", () => {
+  test("worksheet name with 31 characters is allowed", () => {
     const wb = new Workbook();
-    const tooLongName = "a".repeat(32);
+    const name = "a".repeat(31);
 
-    expect(() => wb.addWorksheet("")).toThrow("must not be empty");
-    expect(() => wb.addWorksheet(tooLongName)).toThrow(
+    const ws = wb.addWorksheet(name);
+
+    expect(ws.name).toBe(name);
+  });
+
+  test("worksheet name with 32 characters causes an error", () => {
+    const wb = new Workbook();
+    const name = "a".repeat(32);
+
+    expect(() => wb.addWorksheet(name)).toThrow(
       "must not be longer than 31 characters"
     );
-    expect(() => wb.addWorksheet("Sheet/1")).toThrow("must not contain");
   });
+
+  test("empty worksheet name causes an error", () => {
+    const wb = new Workbook();
+
+    expect(() => wb.addWorksheet("")).toThrow("must not be empty");
+  });
+
+  test.each(["/", "\\", "?", "*", ":", "[", "]"])(
+    "invalid worksheet name containing %s causes an error",
+    (invalidChar) => {
+      const wb = new Workbook();
+
+      expect(() => wb.addWorksheet(`Sheet${invalidChar}1`)).toThrow(
+        "must not contain"
+      );
+    }
+  );
 
   test("getWorksheet should return the correct worksheet", () => {
     const wb = new Workbook();

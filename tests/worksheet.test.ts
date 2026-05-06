@@ -11,15 +11,34 @@ describe("worksheet", () => {
     expect(ws).toBeInstanceOf(Worksheet);
   });
 
-  test("invalid worksheet names cause an error", () => {
-    const tooLongName = "a".repeat(32);
+  test("worksheet name with 31 characters is allowed", () => {
+    const name = "a".repeat(31);
 
-    expect(() => new Worksheet("")).toThrow("must not be empty");
-    expect(() => new Worksheet(tooLongName)).toThrow(
+    const ws = new Worksheet(name);
+
+    expect(ws.name).toBe(name);
+  });
+
+  test("worksheet name with 32 characters causes an error", () => {
+    const name = "a".repeat(32);
+
+    expect(() => new Worksheet(name)).toThrow(
       "must not be longer than 31 characters"
     );
-    expect(() => new Worksheet("Sheet[1]")).toThrow("must not contain");
   });
+
+  test("empty worksheet name causes an error", () => {
+    expect(() => new Worksheet("")).toThrow("must not be empty");
+  });
+
+  test.each(["/", "\\", "?", "*", ":", "[", "]"])(
+    "invalid worksheet name containing %s causes an error",
+    (invalidChar) => {
+      expect(() => new Worksheet(`Sheet${invalidChar}1`)).toThrow(
+        "must not contain"
+      );
+    }
+  );
 
   test("get name", () => {
     const ws = new Worksheet("Sheet1");

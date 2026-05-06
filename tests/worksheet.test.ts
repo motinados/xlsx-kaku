@@ -60,6 +60,15 @@ describe("worksheet", () => {
     ]);
   });
 
+  test("setCell overwrites existing cell", () => {
+    const ws = new Worksheet("Sheet1");
+
+    ws.setCell(0, 0, { type: "string", value: "Hello" });
+    ws.setCell(0, 0, { type: "string", value: "World" });
+
+    expect(ws.sheetData).toStrictEqual([[{ type: "string", value: "World" }]]);
+  });
+
   test("setCell with empty", () => {
     const ws = new Worksheet("Sheet1");
     ws.setCell(0, 1, { type: "string", value: "Hello" });
@@ -75,8 +84,25 @@ describe("worksheet", () => {
     ]);
   });
 
+  test("setCell fills missing columns with null in existing row", () => {
+    const ws = new Worksheet("Sheet1");
+
+    ws.setCell(0, 0, { type: "string", value: "A" });
+    ws.setCell(0, 2, { type: "string", value: "C" });
+
+    expect(ws.sheetData).toStrictEqual([
+      [{ type: "string", value: "A" }, null, { type: "string", value: "C" }],
+    ]);
+  });
+
   test("getCell returns null for empty sheet", () => {
     const ws = new Worksheet("Sheet1");
+    expect(ws.getCell(0, 0)).toBeNull();
+  });
+
+  test("getCell returns null for explicitly empty cell", () => {
+    const ws = new Worksheet("Sheet1");
+    ws.setCell(0, 1, { type: "string", value: "Hello" });
     expect(ws.getCell(0, 0)).toBeNull();
   });
 

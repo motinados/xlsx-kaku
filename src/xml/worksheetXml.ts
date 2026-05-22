@@ -1,11 +1,14 @@
-import { v4 as uuidv4 } from "uuid";
 import { FreezePane, WorksheetType } from "../worksheet";
 import { Cell, CellStyle, RowData, SheetData } from "../sheetData";
 import type {
   WorkbookBuildContext,
   WorksheetBuildContext,
 } from "../buildContext";
-import { convColIndexToColName, convColNameToColIndex } from "../utils";
+import {
+  convColIndexToColName,
+  convColNameToColIndex,
+  createUuid,
+} from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { DrawingRels } from "../drawingRels";
 import { Hyperlinks } from "../hyperlinks";
@@ -346,7 +349,7 @@ export function makeWorksheetXml(
   // Perhaps passing a UUID to every sheet won't cause any issues,
   // but for the sake of integration testing, only the first sheet is given specific UUID.
   const uuid =
-    sheetCnt === 0 ? "00000000-0001-0000-0000-000000000000" : uuidv4();
+    sheetCnt === 0 ? "00000000-0001-0000-0000-000000000000" : createUuid();
   const sheetXml = composeSheetXml(
     uuid,
     colsElm,
@@ -827,7 +830,7 @@ export function convertCellToXlsxCell(
           linkType: "external",
           ref: `${colName}${rowNumber}`,
           rid: rid,
-          uuid: uuidv4(),
+          uuid: createUuid(),
         });
       } else if (cell.linkType === "internal") {
         buildContext.hyperlinks.addHyperlink({
@@ -835,7 +838,7 @@ export function convertCellToXlsxCell(
           ref: `${colName}${rowNumber}`,
           location: cell.value,
           display: cell.text,
-          uuid: uuidv4(),
+          uuid: createUuid(),
         });
       } else if (cell.linkType === "email") {
         const rid = buildContext.worksheetRels.addWorksheetRel({
@@ -848,7 +851,7 @@ export function convertCellToXlsxCell(
           linkType: "email",
           ref: `${colName}${rowNumber}`,
           rid: rid,
-          uuid: uuidv4(),
+          uuid: createUuid(),
         });
       }
 

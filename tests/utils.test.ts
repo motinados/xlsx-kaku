@@ -1,6 +1,7 @@
 import {
   convColNameToColIndex,
   convColIndexToColName,
+  createUuid,
   devideAddress,
   expandRange,
   isInRange,
@@ -85,5 +86,11 @@ describe("utils", () => {
   test("getFirstAddress", () => {
     expect(getFirstAddress("A1:B2")).toBe("A1");
     expect(getFirstAddress("B2")).toBe("B2");
+  });
+
+  test("createUuid", () => {
+    expect(createUuid()).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    );
   });
 });

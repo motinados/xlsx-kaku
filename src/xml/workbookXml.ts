@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from "uuid";
 import { WorksheetType } from "../worksheet";
+import { createUuid } from "../utils";
 
 export function makeWorkbookXml(worksheets: WorksheetType[]) {
-  const documentId = uuidv4();
+  const documentId = createUuid();
 
   let result =
     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +

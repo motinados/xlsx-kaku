@@ -1,6 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
 import { Dxf } from "../dxf";
-import { getFirstAddress } from "../utils";
+import { createUuid, getFirstAddress } from "../utils";
 import { ConditionalFormatting } from "../worksheet";
 import { XlsxConditionalFormatting } from "../xml/worksheetXml";
 
@@ -17,7 +16,7 @@ export function createXlsxConditionalFormattings(
           sqref: cf.sqref,
           priority: cf.priority,
           color: cf.color,
-          x14Id: uuidv4(),
+          x14Id: createUuid(),
           border: cf.border,
           gradient: cf.gradient,
           negativeBarBorderColorSameAsPositive:

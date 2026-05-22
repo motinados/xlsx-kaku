@@ -1,7 +1,7 @@
-import { v4 as uuidv4 } from "uuid";
 import { DrawingRels } from "../drawingRels";
 import { XlsxImage } from "../xml/worksheetXml";
 import { ImageInfo } from "../worksheet";
+import { createUuid } from "../utils";
 
 export type ImageModule = {
   name: string;
@@ -60,7 +60,7 @@ export function imageModule(): ImageModule {
 
       let prevId: string | null = null;
       for (const xlsxImage of xlsxImages) {
-        const id = uuidv4();
+        const id = createUuid();
         xml += '<xdr:oneCellAnchor editAs="oneCell">';
         xml += "<xdr:from>";
         xml += `<xdr:col>${xlsxImage.from.col}</xdr:col>`;

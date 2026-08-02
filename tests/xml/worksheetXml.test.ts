@@ -28,6 +28,7 @@ import { Borders } from "../../src/borders";
 import { NumberFormats } from "../../src/numberFormats";
 import { CellStyleXfs } from "../../src/cellStyleXfs";
 import { CellStyles } from "../../src/cellStyles";
+import { DrawingRels } from "../../src/drawingRels";
 import { Hyperlinks } from "../../src/hyperlinks";
 import { WorksheetRels } from "../../src/worksheetRels";
 import {
@@ -48,6 +49,7 @@ describe("Writer", () => {
       cellStyleXfs: new CellStyleXfs(),
       cellXfs: new CellXfs(),
       cellStyles: new CellStyles(),
+      drawingRels: new DrawingRels(),
       hyperlinks: new Hyperlinks(),
       worksheetRels: new WorksheetRels(),
     };

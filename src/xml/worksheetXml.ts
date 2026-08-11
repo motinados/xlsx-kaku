@@ -289,6 +289,7 @@ export function makeWorksheetXml(
   const { spanStartNumber, spanEndNumber } = getSpansFromSheetData(sheetData);
 
   const colsElm = makeColsElm(groupXlsxCols(xlsxCols), defaultColWidth);
+  const autoFilterElm = worksheet.autoFilterModule?.makeXmlElm() || "";
   const mergeCellsElm = worksheet.mergeCellsModule?.makeXmlElm() || "";
 
   let conditionalFormattingElm = "";
@@ -356,6 +357,7 @@ export function makeWorksheetXml(
     sheetViewsElm,
     sheetFormatPrElm,
     sheetDataElm,
+    autoFilterElm,
     mergeCellsElm,
     conditionalFormattingElm,
     extLstElm,
@@ -1153,6 +1155,7 @@ export function composeSheetXml(
   sheetViewsElm: string,
   sheetFormatPrElm: string,
   sheetDataString: string,
+  autoFilterElm: string,
   mergeCellsElm: string,
   conditionalFormattingElm: string,
   extLstElm: string,
@@ -1167,7 +1170,9 @@ export function composeSheetXml(
     sheetViewsElm +
     sheetFormatPrElm +
     colsElm +
-    sheetDataString;
+    sheetDataString +
+    // In the schema of a worksheet, autoFilter comes right after sheetData.
+    autoFilterElm;
 
   if (hyperlinks.getHyperlinks().length > 0) {
     result += hyperlinks.makeXML();

@@ -15,14 +15,24 @@ export function makeWorkbookXml(worksheets: WorksheetType[]) {
     "</bookViews>" +
     "<sheets>";
 
+  // A defined name refers to a sheet by its index in <sheets>.
+  let definedNamesElm = "";
+
   let sheetId = 1;
   for (const sheet of worksheets) {
     result += `<sheet name="${sheet.name}" sheetId="${sheetId}" r:id="rId${sheetId}"/>`;
+    definedNamesElm +=
+      sheet.autoFilterModule?.makeDefinedNameElm(sheet.name, sheetId - 1) || "";
     sheetId++;
   }
 
+  result += "</sheets>";
+
+  if (definedNamesElm !== "") {
+    result += `<definedNames>${definedNamesElm}</definedNames>`;
+  }
+
   result +=
-    "</sheets>" +
     "<extLst>" +
     '<ext uri="{140A7094-0E35-4892-8432-C4D2E57EDEB5}" xmlns:x15="http://schemas.microsoft.com/office/spreadsheetml/2010/11/main">' +
     '<x15:workbookPr chartTrackingRefBase="1"/>' +

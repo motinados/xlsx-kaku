@@ -1,3 +1,4 @@
+import { AutoFilterModule, autoFilterModule } from "./modules/autoFilterModule";
 import {
   ConditionalFormattingModule,
   conditionalFormattingModule,
@@ -55,6 +56,14 @@ export type MergeCell = {
 export type FreezePane = {
   target: "column" | "row";
   split: number;
+};
+
+export type AutoFilter = {
+  /**
+   * The range the filter is applied to, including the header row.
+   * e.g. "A1:C10"
+   */
+  ref: string;
 };
 
 export type ConditionalFormatting =
@@ -192,7 +201,9 @@ export type WorksheetType = {
   rowOptsMap: Map<number, RowOpts>;
   mergeCells: MergeCell[];
   freezePane: FreezePane | null;
+  autoFilter: AutoFilter | null;
   mergeCellsModule: MergeCellsModule | null;
+  autoFilterModule: AutoFilterModule | null;
   conditionalFormattingModule: ConditionalFormattingModule | null;
   imageInfos: ImageInfo[];
   imageStore: ImageStore | null;
@@ -215,6 +226,7 @@ export class Worksheet implements WorksheetType {
   private _rowOptsMap = new Map<number, RowOpts>();
   private _mergeCellsModule: MergeCellsModule = mergeCellsModule();
   private _freezePane: FreezePane | null = null;
+  private _autoFilterModule: AutoFilterModule = autoFilterModule();
   private _conditionalFormattingModule: ConditionalFormattingModule =
     conditionalFormattingModule();
 
@@ -271,6 +283,14 @@ export class Worksheet implements WorksheetType {
 
   get freezePane() {
     return this._freezePane;
+  }
+
+  get autoFilter() {
+    return this._autoFilterModule.getAutoFilter();
+  }
+
+  get autoFilterModule() {
+    return this._autoFilterModule;
   }
 
   get conditionalFormattings() {
@@ -347,6 +367,14 @@ export class Worksheet implements WorksheetType {
     this._freezePane = freezePane;
   }
 
+  /**
+   * A worksheet can have at most one auto filter,
+   * so calling this again replaces the previous one.
+   */
+  setAutoFilter(autoFilter: AutoFilter) {
+    this._autoFilterModule.set(autoFilter);
+  }
+
   setConditionalFormatting(conditionalFormatting: ConditionalFormatting) {
     this._conditionalFormattingModule.add(conditionalFormatting);
   }
@@ -371,6 +399,7 @@ export class WorksheetS implements WorksheetType {
   private _rowOptsMap = new Map<number, RowOpts>();
   private _mergeCellsModule = null;
   private _freezePane: FreezePane | null = null;
+  private _autoFilterModule = null;
   private _conditionalFormattingModule = null;
 
   private _imageStore = null;
@@ -420,6 +449,14 @@ export class WorksheetS implements WorksheetType {
 
   get freezePane() {
     return this._freezePane;
+  }
+
+  get autoFilter() {
+    return null;
+  }
+
+  get autoFilterModule() {
+    return this._autoFilterModule;
   }
 
   get conditionalFormattings() {

@@ -142,3 +142,33 @@ export function getFirstAddress(address: string): string {
 export function isRange(address: string): boolean {
   return address.indexOf(":") !== -1;
 }
+
+/**
+ * Escapes the characters that must be escaped in an XML text node.
+ * Note that an attribute value additionally needs its quotes escaped.
+ */
+export function escapeXmlText(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/**
+ * A sheet name can be used as-is in a reference only when it looks like an
+ * identifier. Otherwise Excel wraps it in single quotes and doubles the single
+ * quotes it contains.
+ *
+ * e.g. "Sheet1" => "Sheet1". e.g. "My Sheet" => "'My Sheet'"
+ */
+export function quoteSheetName(sheetName: string): string {
+  const isIdentifier = /^[A-Za-z_][A-Za-z0-9_.]*$/.test(sheetName);
+  // A name such as "A1" would be ambiguous with a cell reference.
+  const looksLikeCellReference = /^[A-Za-z]{1,3}[0-9]{1,7}$/.test(sheetName);
+
+  if (isIdentifier && !looksLikeCellReference) {
+    return sheetName;
+  }
+
+  return `'${sheetName.replace(/'/g, "''")}'`;
+}

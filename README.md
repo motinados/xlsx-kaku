@@ -244,6 +244,30 @@ ws.setFreezePane({ target: "row", split: 1 });
 const xlsx = wb.generateXlsxSync();
 ```
 
+### Auto filter
+
+```ts
+import { Workbook } from "xlsx-kaku";
+
+const wb = new Workbook();
+const ws = wb.addWorksheet("Sheet1");
+
+ws.setCell(0, 0, { type: "string", value: "name" });
+ws.setCell(0, 1, { type: "string", value: "score" });
+ws.setCell(1, 0, { type: "string", value: "Alice" });
+ws.setCell(1, 1, { type: "number", value: 80 });
+ws.setCell(2, 0, { type: "string", value: "Bob" });
+ws.setCell(2, 1, { type: "number", value: 65 });
+
+// The range includes the header row.
+ws.setAutoFilter({ ref: "A1:B3" });
+
+const xlsx = wb.generateXlsxSync();
+```
+
+A worksheet can have at most one auto filter,
+so calling `setAutoFilter` again replaces the previous one.
+
 ### Conditional Formatting
 
 Besides the conditional formatting introduced here, it also supports "timePeriod", "dataBar", "colorScale" and "iconSet".

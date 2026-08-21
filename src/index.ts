@@ -11,6 +11,7 @@ import {
 } from "./sheetData";
 import { Workbook, WorkbookS } from "./workbook";
 import {
+  AutoFilter,
   ColOpts,
   Worksheet,
   WorksheetS,
@@ -28,6 +29,7 @@ export { NumberFormat };
 export { Cell, NullableCell, RowData, SheetData, SettableCell };
 export { Workbook, WorkbookS };
 export {
+  AutoFilter,
   ColOpts,
   Worksheet,
   WorksheetS,

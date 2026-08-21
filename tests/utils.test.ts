@@ -3,11 +3,13 @@ import {
   convColIndexToColName,
   createUuid,
   devideAddress,
+  escapeXmlText,
   expandRange,
   isInRange,
   hasSheetName,
   getFirstAddress,
   isRange,
+  quoteSheetName,
 } from "../src/utils";
 
 describe("utils", () => {
@@ -92,5 +94,34 @@ describe("utils", () => {
     expect(createUuid()).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
     );
+  });
+
+  test("escapeXmlText", () => {
+    expect(escapeXmlText("Sheet1")).toBe("Sheet1");
+    expect(escapeXmlText("a & b")).toBe("a &amp; b");
+    expect(escapeXmlText("<tag>")).toBe("&lt;tag&gt;");
+    // Quotes do not need to be escaped in a text node.
+    expect(escapeXmlText(`"quoted"`)).toBe(`"quoted"`);
+    expect(escapeXmlText("it's")).toBe("it's");
+    // The ampersand must not be escaped twice.
+    expect(escapeXmlText("&lt;")).toBe("&amp;lt;");
+  });
+
+  test("quoteSheetName", () => {
+    expect(quoteSheetName("Sheet1")).toBe("Sheet1");
+    expect(quoteSheetName("_sheet")).toBe("_sheet");
+    expect(quoteSheetName("my.sheet")).toBe("my.sheet");
+
+    expect(quoteSheetName("My Sheet")).toBe("'My Sheet'");
+    expect(quoteSheetName("2024")).toBe("'2024'");
+    expect(quoteSheetName("sales-2024")).toBe("'sales-2024'");
+    expect(quoteSheetName("A&B")).toBe("'A&B'");
+
+    // A name that would be ambiguous with a cell reference.
+    expect(quoteSheetName("A1")).toBe("'A1'");
+    expect(quoteSheetName("XFD1048576")).toBe("'XFD1048576'");
+
+    // A single quote in the name is doubled.
+    expect(quoteSheetName("Bob's")).toBe("'Bob''s'");
   });
 });

@@ -6,11 +6,30 @@ xlsx-kaku is a library for Node.js that outputs Excel xlsx files.
 It is exclusively for outputting xlsx files and cannot read them.
 
 It currently supports basic functionality.
-Please also see our [Roadmap](https://github.com/motinados/xlsx-kaku/issues/1).
+See [Feature support](#feature-support) for the current support status.
 
 > This library is currently in the early stages of development.
 > We are constantly working to improve and optimize our codebase, which may lead to some breaking changes.
 > We recommend regularly checking the latest release logs and documentation.
+
+## Feature support
+
+The table below updates the feature list from [Issue #1](https://github.com/motinados/xlsx-kaku/issues/1) to match the current public API. Status values are `Supported`, `Partial`, and `Not supported`.
+
+| Feature | Status | Notes or related issue |
+| --- | --- | --- |
+| Workbook / XLSX generation | Supported | Create and retrieve worksheets, then generate a `Uint8Array` with the synchronous or asynchronous API. |
+| Worksheet | Supported | Multiple worksheets and default column width / row height are supported. |
+| Cell | Supported | String, number, date, boolean, formula, and external / internal / email hyperlink cells are supported. |
+| Cell styles | Supported | Font, fill, border, and number-format styles are supported. |
+| Column | Supported | Per-column width and style are supported. |
+| Row | Partial | Per-row height and style are supported, but row options are emitted only when that row contains a cell value. |
+| Alignment | Partial | Horizontal alignment is limited to left / center / right; vertical alignment to top / center / bottom. Text rotation and word wrapping are also supported. |
+| Merge cells | Supported | Rectangular ranges can be merged with `setMergeCell()`; merged cells are managed internally. |
+| Freeze pane | Partial | A row split or a column split can be frozen, but not both axes at the same time. |
+| Auto filter | Partial | A worksheet supports one filtered range. Filter criteria and sorting are not supported. See [#119](https://github.com/motinados/xlsx-kaku/issues/119). |
+| Conditional Formatting | Partial | Supports top / bottom, averages, duplicate values, comparisons, text rules, time periods, data bars, color scales, and selected icon sets; custom formulas and other rule types are not supported. |
+| Inserting image | Partial | PNG, JPEG, and GIF images can be positioned over cells. Images placed inside cells are not supported. |
 
 ## Installation
 

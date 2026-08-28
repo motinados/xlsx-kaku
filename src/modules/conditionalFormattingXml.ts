@@ -1,4 +1,5 @@
 import { XlsxConditionalFormatting } from "../xml/worksheetXml";
+import { escapeXmlAttribute, escapeXmlText } from "../utils";
 
 export function makeConditionalFormattingXml(
   formattings: XlsxConditionalFormatting[]
@@ -37,9 +38,11 @@ export function makeConditionalFormattingXml(
       case "cellIs": {
         let formula: string;
         if (formatting.operator === "between") {
-          formula = `<formula>${formatting.formulaA}</formula><formula>${formatting.formulaB}</formula>`;
+          formula =
+            `<formula>${escapeXmlText(formatting.formulaA)}</formula>` +
+            `<formula>${escapeXmlText(formatting.formulaB)}</formula>`;
         } else {
-          formula = `<formula>${formatting.formula}</formula>`;
+          formula = `<formula>${escapeXmlText(formatting.formula)}</formula>`;
         }
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
@@ -55,8 +58,10 @@ export function makeConditionalFormattingXml(
       case "endsWith": {
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
-          `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${formatting.text}">` +
-          `<formula>${formatting.formula}</formula>` +
+          `<cfRule type="${formatting.type}" dxfId="${formatting.dxfId}" priority="${formatting.priority}" operator="${formatting.operator}" text="${escapeXmlAttribute(
+            formatting.text
+          )}">` +
+          `<formula>${escapeXmlText(formatting.formula)}</formula>` +
           `</cfRule>` +
           "</conditionalFormatting>";
         break;
@@ -65,7 +70,7 @@ export function makeConditionalFormattingXml(
         xml +=
           `<conditionalFormatting sqref="${formatting.sqref}">` +
           `<cfRule type="timePeriod" dxfId="${formatting.dxfId}" priority="${formatting.priority}" timePeriod="${formatting.timePeriod}">` +
-          `<formula>${formatting.formula}</formula>` +
+          `<formula>${escapeXmlText(formatting.formula)}</formula>` +
           "</cfRule>" +
           "</conditionalFormatting>";
         break;

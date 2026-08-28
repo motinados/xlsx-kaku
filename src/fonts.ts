@@ -1,4 +1,4 @@
-import { stringifySorted } from "./utils";
+import { escapeXmlAttribute, stringifySorted } from "./utils";
 
 export type Font = {
   name?: string;
@@ -52,7 +52,7 @@ export function makeFontXml(font: Font | undefined) {
   }
 
   if (font.name) {
-    xml += `<name val="${font.name}"/>`;
+    xml += `<name val="${escapeXmlAttribute(font.name)}"/>`;
   }
 
   if (font.family) {

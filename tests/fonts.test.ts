@@ -134,4 +134,13 @@ describe("Fonts", () => {
         "</fonts>"
     );
   });
+
+  test("makeXml escapes the characters reserved in xml", () => {
+    const fonts = new Fonts();
+    fonts.getFontId({ name: 'A&B "Gothic"' });
+
+    expect(fonts.makeXml()).toContain(
+      `<name val="A&amp;B &quot;Gothic&quot;"/>`
+    );
+  });
 });

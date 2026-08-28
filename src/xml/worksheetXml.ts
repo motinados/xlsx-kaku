@@ -8,6 +8,7 @@ import {
   convColIndexToColName,
   convColNameToColIndex,
   createUuid,
+  escapeXmlText,
 } from "../utils";
 import { Alignment, CellXf } from "../cellXfs";
 import { DrawingRels } from "../drawingRels";
@@ -707,7 +708,9 @@ export function makeCellElm(cell: XlsxCell) {
     }
     case "formula": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";
-      return `<c r="${cell.colName}${cell.rowNumber}"${s}><f>${cell.value}</f></c>`;
+      return `<c r="${cell.colName}${cell.rowNumber}"${s}><f>${escapeXmlText(
+        cell.value
+      )}</f></c>`;
     }
     case "merged": {
       const s = cell.cellXfId ? ` s="${cell.cellXfId}"` : "";

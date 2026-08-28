@@ -55,4 +55,13 @@ describe("Styles", () => {
       `<numFmts count="1"><numFmt numFmtId="164" formatCode="[$-409]yyyy\\-mm\\-dd"/></numFmts>`
     );
   });
+
+  test("makeXml escapes the characters reserved in xml", () => {
+    const numberFormats = new NumberFormats();
+    const numFmtId = numberFormats.getNumFmtId('0" kg"');
+
+    expect(numberFormats.makeXml()).toBe(
+      `<numFmts count="1"><numFmt numFmtId="${numFmtId}" formatCode="0&quot;\\ kg&quot;"/></numFmts>`
+    );
+  });
 });

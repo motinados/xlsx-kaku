@@ -3,6 +3,8 @@ import {
   convColIndexToColName,
   createUuid,
   devideAddress,
+  escapeFormulaStringLiteral,
+  escapeXmlAttribute,
   escapeXmlText,
   expandRange,
   isInRange,
@@ -105,6 +107,25 @@ describe("utils", () => {
     expect(escapeXmlText("it's")).toBe("it's");
     // The ampersand must not be escaped twice.
     expect(escapeXmlText("&lt;")).toBe("&amp;lt;");
+  });
+
+  test("escapeXmlAttribute", () => {
+    expect(escapeXmlAttribute("Sheet1")).toBe("Sheet1");
+    expect(escapeXmlAttribute("a & b")).toBe("a &amp; b");
+    expect(escapeXmlAttribute("<tag>")).toBe("&lt;tag&gt;");
+    expect(escapeXmlAttribute(`0" kg"`)).toBe("0&quot; kg&quot;");
+    // An attribute value is written between double quotes,
+    // so a single quote does not need to be escaped.
+    expect(escapeXmlAttribute("Bob's")).toBe("Bob's");
+    // The ampersand must not be escaped twice.
+    expect(escapeXmlAttribute("&quot;")).toBe("&amp;quot;");
+  });
+
+  test("escapeFormulaStringLiteral", () => {
+    expect(escapeFormulaStringLiteral("hello")).toBe("hello");
+    expect(escapeFormulaStringLiteral(`he said "hi"`)).toBe(`he said ""hi""`);
+    // Only a double quote is doubled.
+    expect(escapeFormulaStringLiteral("a & b < c")).toBe("a & b < c");
   });
 
   test("quoteSheetName", () => {

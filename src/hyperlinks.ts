@@ -1,4 +1,4 @@
-import { hasSheetName } from "./utils";
+import { escapeXmlAttribute, hasSheetName } from "./utils";
 
 type Hyperlink =
   | {
@@ -45,8 +45,13 @@ export class Hyperlinks {
       } else if (hyperlink.linkType === "internal") {
         let location;
         if (hasSheetName(hyperlink.location)) {
-          const [sheetName, cellAddress] = hyperlink.location.split("!");
-          location = `'${sheetName}'!${cellAddress}`;
+          const [sheetName, cellAddress] = hyperlink.location.split("!") as [
+            string,
+            string
+          ];
+          // Excel always wraps the sheet name of a location in single quotes,
+          // and doubles the single quotes the name contains.
+          location = `'${sheetName.replace(/'/g, "''")}'!${cellAddress}`;
         } else {
           location = hyperlink.location;
         }
@@ -55,9 +60,9 @@ export class Hyperlinks {
           '<hyperlink ref="' +
           hyperlink.ref +
           '" location="' +
-          location +
+          escapeXmlAttribute(location) +
           '" display="' +
-          hyperlink.display +
+          escapeXmlAttribute(hyperlink.display) +
           '" xr:uid="{' +
           hyperlink.uuid +
           '}"/>';

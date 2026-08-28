@@ -1,5 +1,5 @@
 import { WorksheetType } from "../worksheet";
-import { createUuid } from "../utils";
+import { createUuid, escapeXmlAttribute } from "../utils";
 
 export function makeWorkbookXml(worksheets: WorksheetType[]) {
   const documentId = createUuid();
@@ -20,7 +20,9 @@ export function makeWorkbookXml(worksheets: WorksheetType[]) {
 
   let sheetId = 1;
   for (const sheet of worksheets) {
-    result += `<sheet name="${sheet.name}" sheetId="${sheetId}" r:id="rId${sheetId}"/>`;
+    result += `<sheet name="${escapeXmlAttribute(
+      sheet.name
+    )}" sheetId="${sheetId}" r:id="rId${sheetId}"/>`;
     definedNamesElm +=
       sheet.autoFilterModule?.makeDefinedNameElm(sheet.name, sheetId - 1) || "";
     sheetId++;

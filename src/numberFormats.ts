@@ -1,3 +1,5 @@
+import { escapeXmlAttribute } from "./utils";
+
 export type NumberFormat = {
   formatCode: string;
 };
@@ -88,7 +90,9 @@ export class NumberFormats {
     let xml = `<numFmts count="${items.size}">`;
     items.forEach((numFmtId, formatCode) => {
       const code = escapeString(formatCode);
-      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${code}"/>`;
+      xml += `<numFmt numFmtId="${numFmtId}" formatCode="${escapeXmlAttribute(
+        code
+      )}"/>`;
     });
     xml += "</numFmts>";
     return xml;

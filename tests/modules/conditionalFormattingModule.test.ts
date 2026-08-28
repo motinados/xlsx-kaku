@@ -1,4 +1,5 @@
 import { conditionalFormattingModule } from "../../src/modules/conditionalFormattingModule";
+import { Dxf } from "../../src/dxf";
 import { XlsxConditionalFormatting } from "../../src/xml/worksheetXml";
 
 describe("conditionalFormattingModule", () => {
@@ -297,22 +298,22 @@ describe("conditionalFormattingModule", () => {
       "</conditionalFormatting>" +
       '<conditionalFormatting sqref="D1:D10">' +
       '<cfRule type="timePeriod" dxfId="7" priority="8" timePeriod="last7Days">' +
-      "<formula>AND(TODAY()-FLOOR(D1,1)<=6,FLOOR(D1,1)<=TODAY())</formula>" +
+      "<formula>AND(TODAY()-FLOOR(D1,1)&lt;=6,FLOOR(D1,1)&lt;=TODAY())</formula>" +
       "</cfRule>" +
       "</conditionalFormatting>" +
       '<conditionalFormatting sqref="E1:E10">' +
       '<cfRule type="timePeriod" dxfId="6" priority="7" timePeriod="lastWeek">' +
-      "<formula>AND(TODAY()-ROUNDDOWN(E1,0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(E1,0)<(WEEKDAY(TODAY())+7))</formula>" +
+      "<formula>AND(TODAY()-ROUNDDOWN(E1,0)&gt;=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(E1,0)&lt;(WEEKDAY(TODAY())+7))</formula>" +
       "</cfRule>" +
       "</conditionalFormatting>" +
       '<conditionalFormatting sqref="F1:F10">' +
       '<cfRule type="timePeriod" dxfId="5" priority="6" timePeriod="thisWeek">' +
-      "<formula>AND(TODAY()-ROUNDDOWN(F1,0)<=WEEKDAY(TODAY())-1,ROUNDDOWN(F1,0)-TODAY()<=7-WEEKDAY(TODAY()))</formula>" +
+      "<formula>AND(TODAY()-ROUNDDOWN(F1,0)&lt;=WEEKDAY(TODAY())-1,ROUNDDOWN(F1,0)-TODAY()&lt;=7-WEEKDAY(TODAY()))</formula>" +
       "</cfRule>" +
       "</conditionalFormatting>" +
       '<conditionalFormatting sqref="G1:G10">' +
       '<cfRule type="timePeriod" dxfId="4" priority="5" timePeriod="nextWeek">' +
-      "<formula>AND(ROUNDDOWN(G1,0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(G1,0)-TODAY()<(15-WEEKDAY(TODAY())))</formula>" +
+      "<formula>AND(ROUNDDOWN(G1,0)-TODAY()&gt;(7-WEEKDAY(TODAY())),ROUNDDOWN(G1,0)-TODAY()&lt;(15-WEEKDAY(TODAY())))</formula>" +
       "</cfRule>" +
       "</conditionalFormatting>" +
       '<conditionalFormatting sqref="H1:H10">' +
@@ -331,5 +332,31 @@ describe("conditionalFormattingModule", () => {
       "</cfRule>" +
       "</conditionalFormatting>";
     expect(actual).toBe(expected);
+  });
+
+  test("a double quote in the text of a rule is doubled in the formula", () => {
+    const module = conditionalFormattingModule();
+    module.add({
+      type: "containsText",
+      sqref: "A1:A10",
+      text: 'a "b" c',
+      priority: 1,
+      style: { font: { color: "FF9C0006" } },
+    });
+
+    const xlsxConditionalFormattings = module.createXlsxConditionalFormatting(
+      module.getConditionalFormattings(),
+      new Dxf()
+    );
+
+    expect(xlsxConditionalFormattings[0]).toMatchObject({
+      text: 'a "b" c',
+      formula: 'NOT(ISERROR(SEARCH("a ""b"" c",A1)))',
+    });
+
+    expect(module.makeXmlElm(xlsxConditionalFormattings)).toContain(
+      `text="a &quot;b&quot; c">` +
+        `<formula>NOT(ISERROR(SEARCH("a ""b"" c",A1)))</formula>`
+    );
   });
 });

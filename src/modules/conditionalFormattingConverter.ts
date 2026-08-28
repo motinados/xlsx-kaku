@@ -1,5 +1,9 @@
 import { Dxf } from "../dxf";
-import { createUuid, getFirstAddress } from "../utils";
+import {
+  createUuid,
+  escapeFormulaStringLiteral,
+  getFirstAddress,
+} from "../utils";
 import { ConditionalFormatting } from "../worksheet";
 import { XlsxConditionalFormatting } from "../xml/worksheetXml";
 
@@ -118,7 +122,8 @@ export function createXlsxConditionalFormattings(
         }
         case "containsText": {
           const firstCell = getFirstAddress(cf.sqref);
-          const formula = `NOT(ISERROR(SEARCH("${cf.text}",${firstCell})))`;
+          const text = escapeFormulaStringLiteral(cf.text);
+          const formula = `NOT(ISERROR(SEARCH("${text}",${firstCell})))`;
           const conditionalFormatting: XlsxConditionalFormatting = {
             type: "containsText",
             sqref: cf.sqref,
@@ -133,7 +138,8 @@ export function createXlsxConditionalFormattings(
         }
         case "notContainsText": {
           const firstCell = getFirstAddress(cf.sqref);
-          const formula = `ISERROR(SEARCH("${cf.text}",${firstCell}))`;
+          const text = escapeFormulaStringLiteral(cf.text);
+          const formula = `ISERROR(SEARCH("${text}",${firstCell}))`;
           const conditionalFormatting: XlsxConditionalFormatting = {
             type: "notContainsText",
             sqref: cf.sqref,
@@ -148,7 +154,8 @@ export function createXlsxConditionalFormattings(
         }
         case "beginsWith": {
           const firstCell = getFirstAddress(cf.sqref);
-          const fomula = `LEFT(${firstCell},LEN("${cf.text}"))="${cf.text}"`;
+          const text = escapeFormulaStringLiteral(cf.text);
+          const fomula = `LEFT(${firstCell},LEN("${text}"))="${text}"`;
           const conditionalFormatting: XlsxConditionalFormatting = {
             type: "beginsWith",
             sqref: cf.sqref,
@@ -163,7 +170,8 @@ export function createXlsxConditionalFormattings(
         }
         case "endsWith": {
           const firstCell = getFirstAddress(cf.sqref);
-          const fomula = `RIGHT(${firstCell},LEN("${cf.text}"))="${cf.text}"`;
+          const text = escapeFormulaStringLiteral(cf.text);
+          const fomula = `RIGHT(${firstCell},LEN("${text}"))="${text}"`;
           const conditionalFormatting: XlsxConditionalFormatting = {
             type: "endsWith",
             sqref: cf.sqref,
@@ -194,19 +202,19 @@ export function createXlsxConditionalFormattings(
               break;
             }
             case "last7Days": {
-              formula = `AND(TODAY()-FLOOR(${firstCell},1)&lt;=6,FLOOR(${firstCell},1)&lt;=TODAY())`;
+              formula = `AND(TODAY()-FLOOR(${firstCell},1)<=6,FLOOR(${firstCell},1)<=TODAY())`;
               break;
             }
             case "lastWeek": {
-              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)&gt;=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(${firstCell},0)&lt;(WEEKDAY(TODAY())+7))`;
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)>=(WEEKDAY(TODAY())),TODAY()-ROUNDDOWN(${firstCell},0)<(WEEKDAY(TODAY())+7))`;
               break;
             }
             case "thisWeek": {
-              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)&lt;=WEEKDAY(TODAY())-1,ROUNDDOWN(${firstCell},0)-TODAY()&lt;=7-WEEKDAY(TODAY()))`;
+              formula = `AND(TODAY()-ROUNDDOWN(${firstCell},0)<=WEEKDAY(TODAY())-1,ROUNDDOWN(${firstCell},0)-TODAY()<=7-WEEKDAY(TODAY()))`;
               break;
             }
             case "nextWeek": {
-              formula = `AND(ROUNDDOWN(${firstCell},0)-TODAY()&gt;(7-WEEKDAY(TODAY())),ROUNDDOWN(${firstCell},0)-TODAY()&lt;(15-WEEKDAY(TODAY())))`;
+              formula = `AND(ROUNDDOWN(${firstCell},0)-TODAY()>(7-WEEKDAY(TODAY())),ROUNDDOWN(${firstCell},0)-TODAY()<(15-WEEKDAY(TODAY())))`;
               break;
             }
             case "lastMonth": {

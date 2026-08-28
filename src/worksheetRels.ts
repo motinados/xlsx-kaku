@@ -1,3 +1,5 @@
+import { escapeXmlAttribute } from "./utils";
+
 // TODO: Add internal targetMode
 type WorksheetRel = {
   id: string;
@@ -51,7 +53,7 @@ export class WorksheetRels {
       xml +=
         `<Relationship Id="${worksheetRel.id}"` +
         ` Type="${worksheetRel.relationshipType}"` +
-        ` Target="${worksheetRel.target}"` +
+        ` Target="${escapeXmlAttribute(worksheetRel.target)}"` +
         targetMode +
         "/>";
     }

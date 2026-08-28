@@ -155,4 +155,38 @@ describe("hyperlinks", () => {
 
     expect(hyperlinks.getHyperlinks()).toEqual([]);
   });
+
+  test("hyperlink escapes the characters reserved in xml", () => {
+    const hyperlinks = new Hyperlinks();
+    hyperlinks.addHyperlink({
+      linkType: "internal",
+      ref: "A1",
+      location: "R&D!A1",
+      display: 'a "quoted" & <boxed> text',
+      uuid: "00000000-0000-0000-0000-000000000000",
+    });
+
+    expect(hyperlinks.makeXML()).toEqual(
+      "<hyperlinks>" +
+        `<hyperlink ref="A1" location="'R&amp;D'!A1" display="a &quot;quoted&quot; &amp; &lt;boxed&gt; text" xr:uid="{00000000-0000-0000-0000-000000000000}"/>` +
+        "</hyperlinks>"
+    );
+  });
+
+  test("a single quote in a sheet name of a location is doubled", () => {
+    const hyperlinks = new Hyperlinks();
+    hyperlinks.addHyperlink({
+      linkType: "internal",
+      ref: "A1",
+      location: "Bob's!A1",
+      display: "toA1",
+      uuid: "00000000-0000-0000-0000-000000000000",
+    });
+
+    expect(hyperlinks.makeXML()).toEqual(
+      "<hyperlinks>" +
+        `<hyperlink ref="A1" location="'Bob''s'!A1" display="toA1" xr:uid="{00000000-0000-0000-0000-000000000000}"/>` +
+        "</hyperlinks>"
+    );
+  });
 });

@@ -155,6 +155,25 @@ export function escapeXmlText(value: string): string {
 }
 
 /**
+ * Escapes the characters that must be escaped in an XML attribute value.
+ * An attribute value is always written between double quotes, so a single
+ * quote is left as it is.
+ */
+export function escapeXmlAttribute(value: string): string {
+  return escapeXmlText(value).replace(/"/g, "&quot;");
+}
+
+/**
+ * Escapes a string that is embedded in a formula as a string literal.
+ * In a formula, a double quote inside a string literal is doubled.
+ *
+ * e.g. `he said "hi"` => `he said ""hi""`
+ */
+export function escapeFormulaStringLiteral(value: string): string {
+  return value.replace(/"/g, '""');
+}
+
+/**
  * A sheet name can be used as-is in a reference only when it looks like an
  * identifier. Otherwise Excel wraps it in single quotes and doubles the single
  * quotes it contains.

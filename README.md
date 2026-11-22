@@ -226,6 +226,7 @@ const xlsx = wb.generateXlsxSync();
 ### Merge cells
 
 Note: `type: "merged"` is managed internally; use `setMergeCell()`.
+Inside a merged range, only the top-left cell can be set with `setCell()`; setting any other cell in the range throws an error.
 
 ```ts
 import { Workbook } from "xlsx-kaku";

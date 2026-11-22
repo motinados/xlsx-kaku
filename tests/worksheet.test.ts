@@ -180,4 +180,48 @@ describe("worksheet", () => {
     expect(ws.sheetData).toStrictEqual(expectedSheetData);
     expect(ws.mergeCells).toStrictEqual([mergeCell]);
   });
+
+  test("setCell can set the top-left cell of a merged range", () => {
+    const ws = new Worksheet("Sheet1");
+    ws.setMergeCell({ ref: "A1:B2" });
+    ws.setCell(0, 0, { type: "string", value: "Hello" });
+
+    expect(ws.getCell(0, 0)).toStrictEqual({ type: "string", value: "Hello" });
+    expect(ws.getCell(0, 1)).toStrictEqual({ type: "merged" });
+  });
+
+  test("setCell throws for non-anchor cells inside a merged range", () => {
+    const ws = new Worksheet("Sheet1");
+    ws.setMergeCell({ ref: "B2:C3" });
+
+    const nonAnchors: [number, number][] = [
+      [1, 2],
+      [2, 1],
+      [2, 2],
+    ];
+    for (const [rowIndex, colIndex] of nonAnchors) {
+      expect(() =>
+        ws.setCell(rowIndex, colIndex, { type: "number", value: 1 })
+      ).toThrow(
+        `Cannot set a cell inside a merged range except its top-left cell (row: ${rowIndex}, col: ${colIndex}).`
+      );
+      expect(() => ws.setCell(rowIndex, colIndex, null)).toThrow();
+      expect(ws.getCell(rowIndex, colIndex)).toStrictEqual({ type: "merged" });
+    }
+  });
+
+  test("setCell can set cells adjacent to a merged range", () => {
+    const ws = new Worksheet("Sheet1");
+    ws.setMergeCell({ ref: "B2:C3" });
+
+    ws.setCell(0, 1, { type: "number", value: 1 });
+    ws.setCell(1, 0, { type: "number", value: 2 });
+    ws.setCell(1, 3, { type: "number", value: 3 });
+    ws.setCell(3, 1, { type: "number", value: 4 });
+
+    expect(ws.getCell(0, 1)).toStrictEqual({ type: "number", value: 1 });
+    expect(ws.getCell(1, 0)).toStrictEqual({ type: "number", value: 2 });
+    expect(ws.getCell(1, 3)).toStrictEqual({ type: "number", value: 3 });
+    expect(ws.getCell(3, 1)).toStrictEqual({ type: "number", value: 4 });
+  });
 });

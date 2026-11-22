@@ -323,12 +323,20 @@ export class Worksheet implements WorksheetType {
   }
 
   // NOTE: `type: "merged"` is managed internally (blocked by setCell).
-  // TODO: Prevent setting non-anchor cells inside merged ranges.
   setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
     // Runtime guard for JS users / unsafe casts.
     if ((cell as any)?.type === "merged") {
       throw new Error(
         '`type: "merged"` is managed internally by mergeCellsModule. Use `setMergeCell()` instead.'
+      );
+    }
+
+    // Non-anchor cells inside a merged range are marked as `type: "merged"`.
+    // Overwriting them would break the merged range, so only the anchor
+    // (top-left) cell of a merged range can be set.
+    if (this.getCell(rowIndex, colIndex)?.type === "merged") {
+      throw new Error(
+        `Cannot set a cell inside a merged range except its top-left cell (row: ${rowIndex}, col: ${colIndex}).`
       );
     }
 
@@ -489,7 +497,6 @@ export class WorksheetS implements WorksheetType {
   }
 
   // NOTE: `type: "merged"` is managed internally (blocked by setCell).
-  // TODO: Prevent setting non-anchor cells inside merged ranges.
   setCell(rowIndex: number, colIndex: number, cell: SettableCell | null) {
     // Runtime guard for JS users / unsafe casts.
     if ((cell as any)?.type === "merged") {
